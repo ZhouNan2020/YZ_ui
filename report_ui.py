@@ -31,7 +31,7 @@ file_uploader.run()
 
 # ______________________________________
 '''tab1的内容是展示数据，需要一个类，首先获取被上传excel文件中的所有sheet名称供选择，
-将这些名称使用一个st.selectbox展示,在seclectbox中被选中的sheet将以st.tablex显示'''
+将这些名称使用一个st.selectbox展示,在seclectbox中被选中的sheet将以st.dataframe显示'''
 class SheetSelector:
     def __init__(self, file):
         self.file = file
@@ -43,8 +43,8 @@ class SheetSelector:
             self.sheet_names = pd.ExcelFile(self.file).sheet_names
             self.selected_sheet = st.selectbox("选择一个sheet", self.sheet_names)
             # 被选中sheet从第一行开始显示，而不是从第0行开始
-            st.table(pd.read_excel(self.file, sheet_name=self.selected_sheet, header=0))
-            
+            st.dataframe(pd.read_excel(self.file, sheet_name=self.selected_sheet, header=0))
+
 
 
 # 实例化并调用
