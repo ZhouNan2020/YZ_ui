@@ -1,26 +1,12 @@
 # import streamlit和其它的处理word的库
 import streamlit as st
 
-
-# 定义一个包含了@cache的testforcache类, 在这个类中的第二个方法使用st的数字输入框获取2个数字并与init的数字相加，测试cache的效果
-# 将 st.number _ input ()或 st.write ()调用移到 test2()之外
-# 重新运行脚本并调整数字输入框的值，以查看缓存的效果
-
-class testforcache:
-    def __init__(self):
-        self.number1 = st.number_input('Input a number', value=1, key='number1')
-        self.number2 = st.number_input('Input a number', value=1, key='number2')
-
-    @st.cache
-    def test1(self):
-        return self.number1 + self.number2
-
-    def test2(self):
-        return self.number1 + self.number2
-
-# 实例化testforcache类
-test = testforcache()
-# 调用test1方法
-st.write(test.test1())
-# 调用test2方法
-st.write(test.test2())
+# ______________________________________
+# 在整个脚本中，能够使用@cache缓存的函数一定要用@st.cache
+# 用于缓存函数的返回值，避免st频繁刷新
+# 项目标题“优卓医药科技”
+@st.cache
+def title():
+    st.title("优卓医药科技")
+# 调用标题
+title()
