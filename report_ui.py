@@ -75,18 +75,19 @@ class ReportGenerator(FileUploader):
         self.report_type = st.selectbox("选择研究类型", ["病例系列研究", "横断面研究", "回顾型队列研究"])
         return self.report_type
 
+    # 首先判定是否已经上传文件，如果未上传文件，提示用户上传文件，如果已经上传文件，调用read_data函数读取文件中的数据
     # 使用一个函数读取FileUploader类中所上传excel1的全部sheet中的数据，将其合并成为一个dataframe，index的名称是'subject_id',除index之外，如果有相同的变量名，则只保留一个
     # 合并完成后，读取这个dataframe的列名，这个值将会在之后的函数中作为备选变量
     # 赋值给self.data
-    @st.cache
     def read_data(self):
-        data = pd.ExcelFile(self.file)
-        data = pd.concat(
-            [pd.read_excel(self.file, sheet_name=sheet_name, header=0).fillna("") for sheet_name in data.sheet_names],
-            axis=0, ignore_index=True)
-        data = data.loc[:, ~data.columns.duplicated()]
-        self.data = data
-        self.data_columns = self.data.columns.tolist()
+        if self.file is None:
+            st.write("请上传文件")
+        else:
+            self.data = pd.read_excel(self.file, sheet_name=None, header=0)
+            self.data = pd.concat(self.data.values(), ignore_index=True)
+            self.data = self.data.loc[:, ~self.data.columns.duplicated()]
+            self.data_columns = self.data.columns
+            return self.data
 
     '''当用户选择病例系列研究时，从根目录中选择 self.template为case_series_study.docx
     选项一：“选择研究的目标变量及组别”，分为两个selectbox，
