@@ -8,8 +8,8 @@ import streamlit as st
 
 class testforcache:
     def __init__(self):
-        self.number1 = st.number_input('Input a number', value=1)
-        self.number2 = st.number_input('Input a number', value=1)
+        self.number1 = st.number_input('Input a number', value=1, key='number1')
+        self.number2 = st.number_input('Input a number', value=1, key='number2')
 
     @st.cache
     def test1(self):
