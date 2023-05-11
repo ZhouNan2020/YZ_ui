@@ -78,7 +78,8 @@ class DataPrepare(FileUploader):
 
     def read_data(self):# 这里可能要将读数据和合并数据分开成两个def
         # 使用pd.read_excel读取excel文件，sheet_name=None表示读取所有的sheet，header=0表示使用第一行作为列名，赋值给self.data
-        self.data = pd.read_excel(self.file, sheet_name=None, header=0)
+        if self.file is not None:
+            self.data = pd.read_excel(self.file, sheet_name=None, header=0)
 
     @property
     def merge_data(self):
