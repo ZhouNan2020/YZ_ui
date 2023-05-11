@@ -172,14 +172,16 @@ class CallGenerator(StudyTypeSelector):
         super().__init__()
 
     def call(self):
-        if self.file is None:
-            st.warning("请上传文件")
-        else:
+        if self.file is not None:
             self.select_study_type()
             if self.study_type == "病例系列研究":
                 self.case_series_study_3()
             else:
                 self.cross_sectional_study()
+
+        else:
+            st.warning("请上传文件")
+
 
 
 # 实例化并调用
