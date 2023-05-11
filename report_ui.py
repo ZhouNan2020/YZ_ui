@@ -12,9 +12,9 @@ class testforcache:
     def test2(self):
         c = st.number_input('a', value=self.a)
         d = st.number_input('b', value=self.b)
-        return self.a + self.b
+        return c+d
 
 # 实例化
 test = testforcache()
 # 调用test2方法
-test.test2()
+st.write(test.test2())
