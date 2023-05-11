@@ -10,15 +10,11 @@ class testforcache:
 
     @st.cache
     def test2(self):
-        self.a = st.number_input('a', value=self.a)
-        self.b = st.number_input('b', value=self.b)
+        c = st.number_input('a', value=self.a)
+        d = st.number_input('b', value=self.b)
         return self.a + self.b
 
-
-# 实例化testforcache类
+# 实例化
 test = testforcache()
-
 # 调用test2方法
-out=test.test2()
-out
-
+test.test2()
