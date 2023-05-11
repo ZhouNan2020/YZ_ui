@@ -19,10 +19,12 @@ tab1, tab2, tab3 = st.tabs(["数据浏览", "报告生成", "关于"])
 # 定义一个class，在st.sidebar中中用于上传excel，并显示文件名
 class FileUploader:
     def __init__(self):
-        self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"], key="file_uploader")
+        self.file = None
 
-    def run(self):
-        # self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
+    def uploader(self):
+        self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
+
+    def explain(self):
         if self.file is not None:
             st.sidebar.write(self.file.name)
         # return self.file
@@ -30,8 +32,8 @@ class FileUploader:
 
 # 实例化并调用
 file_uploader = FileUploader()
-file_uploader.run()
-
+file_uploader.uploader()
+file_uploader.explain()
 # ______________________________________
 '''tab1的内容是展示数据，需要一个类，首先获取被上传excel文件中的所有sheet名称供选择，
 将这些名称使用一个st.selectbox展示,在seclectbox中被选中的sheet将以st.dataframe显示'''
