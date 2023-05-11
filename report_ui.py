@@ -63,7 +63,7 @@ with tab1:
 
 
 class DataPrepare(FileUploader):
-    # 在__init__中定义这个类将直接使用FileUploader中被上传的文件，将文件赋值给self.file供后面的函数调用，同时定义一个self函数在不同的功能中调用根目录中不同的word模板
+    # 在__init__中定义这个类将直接使用FileUploader中被上传的文件，将文件赋值给self.data供后面的函数调用
     def __init__(self):
         super().__init__()
         # 我需要self的数据类型不是None，而是dataframe，所以我在这里定义了一个self.data，这个dataframe将在之后的函数中被赋值
@@ -71,10 +71,13 @@ class DataPrepare(FileUploader):
         self.data_columns = None
 
     def read_data(self):
+        # 使用pd.read_excel读取excel文件，sheet_name=None表示读取所有的sheet，header=0表示使用第一行作为列名，赋值给self.data
         self.data = pd.read_excel(self.file, sheet_name=None, header=0)
-        self.data = pd.concat(self.data.values(), ignore_index=True)
-        self.data = self.data.loc[:, ~self.data.columns.duplicated()]
+        # 将self.data中的所有sheet合并成一个dataframe，赋值给self.data
+        self.data = pd.concat(self.data, ignore_index=True)
+        # 将self.data中的所有列名赋值给self.data_columns
         self.data_columns = self.data.columns
+
 
 
 class CaseSeriesStudy(DataPrepare):
@@ -172,7 +175,7 @@ class CallGenerator(StudyTypeSelector):
         super().__init__()
 
     def call(self):
-        if self.data is None:
+        if self.file is None:
             st.warning("请上传文件")
         else:
             study_type = self.select_study_type()
