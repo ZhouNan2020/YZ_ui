@@ -67,6 +67,8 @@ class ReportGenerator(FileUploader):
     def __init__(self):
         super().__init__()
 
+        self.data = None
+        self.data_columns = None
         self.report_type = None
         self.template = None
 
