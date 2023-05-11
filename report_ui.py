@@ -17,4 +17,5 @@ class testforcache:
 # 实例化
 test = testforcache()
 # 调用test2方法
+test.test2()
 
