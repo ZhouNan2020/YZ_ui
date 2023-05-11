@@ -3,7 +3,9 @@
 
 import pandas as pd
 import streamlit as st
-#import docx
+# 导入import docx和Python-docx-template
+from docx import Document
+from docxtpl import DocxTemplate
 
 # ______________________________________
 # 在整个脚本中，能够使用@cache缓存的函数一定要用@st.cache
