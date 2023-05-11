@@ -67,8 +67,8 @@ class ReportGenerator(FileUploader):
     def __init__(self):
         super().__init__()
         # 我需要self的数据类型不是None，而是dataframe，所以我在这里定义了一个self.data，这个dataframe将在之后的函数中被赋值
-        self.data = pd.DataFrame()
-        self.data_columns = pd.DataFrame()
+        self.data = None
+        self.data_columns = None
         self.report_type = None
         self.template = None
 
