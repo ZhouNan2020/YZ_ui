@@ -9,34 +9,22 @@ import streamlit as st
 # 项目标题“优卓医药科技”
 
 st.set_page_config(page_title="优卓医药科技", page_icon="🧊", layout="wide")
+# 将主界面分一下st.tab，分成3个tab，分别是“数据浏览”，“报告生成”，“关于”
+tab1, tab2, tab3 = st.tabs(["数据浏览", "报告生成", "关于"])
 
-# 定义一个class，在st.sidebar中中用于上传excel，在上传之后，在sidebar中显示上传的文件名，并且显示excel中的sheet名
+
+# 定义一个class，在st.sidebar中中用于上传excel，并显示文件名
 class FileUploader:
     def __init__(self):
         self.file = None
-        self.sheet = None
-        self.sheet_names = None
 
-    def upload(self):
-        self.file = st.sidebar.file_uploader(
-            label="上传excel文件",
-            type=["xlsx", "xls"],
-            accept_multiple_files=False,
-            key="file_uploader",
-        )
-        if self.file:
-            self.sheet_names = self.get_sheet_names()
-            self.sheet = st.sidebar.selectbox(
-                label="选择sheet", options=self.sheet_names, key="sheet"
-            )
-        return self.file, self.sheet
-
-    def get_sheet_names(self):
-        import pandas as pd
-
-        df = pd.ExcelFile(self.file)
-        return df.sheet_names
+    def run(self):
+        self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
+        if self.file is not None:
+            st.sidebar.write(self.file.name)
+        return self.file
 
 # 实例化并调用
 file_uploader = FileUploader()
-file, sheet = file_uploader.upload()
+file_uploader.run()
+
