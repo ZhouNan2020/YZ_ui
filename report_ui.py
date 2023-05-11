@@ -103,7 +103,7 @@ class ReportGenerator(FileUploader):
 
     def case_series_study(self):
         self.template = "case_series_study.docx"
-        research_var = st.selectbox("选择研究的目标变量及组别", self.data_columns)
+        research_var = st.selectbox("选择研究的目标变量及组别", list(self.data_columns))
         case_series_sub_group = st.selectbox("选择研究的组别", self.data[research_var].unique().tolist())
         exposure_factor = st.selectbox("选择暴露因素", self.data_columns)
         outcome = st.selectbox("选择结局指标", self.data_columns)
