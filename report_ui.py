@@ -19,5 +19,6 @@ class testforcache:
 test = testforcache()
 
 # 调用test2方法
-test.test2()
+out=test.test2()
+st.write(out)
 
