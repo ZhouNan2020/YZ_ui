@@ -21,3 +21,7 @@ class FileSelector(object):
         return os.path.join(folder_path, selected_filename)
 
 
+# 实例化并调用这个
+file_select = FileSelector()
+filename = file_select.file_selector()
+st.write("You selected `%s`" % filename)
