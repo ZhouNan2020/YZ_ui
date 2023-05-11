@@ -69,16 +69,12 @@ class DataPrepare(FileUploader):
     def __init__(self):
         super().__init__()
         # 我需要self的数据类型不是None，而是dataframe，所以我在这里定义了一个self.data，这个dataframe将在之后的函数中被赋值
-        self.data = None
-        self.data_columns = None
-
-    def read_data(self):
-        # 使用pd.read_excel读取excel文件，sheet_name=None表示读取所有的sheet，header=0表示使用第一行作为列名，赋值给self.data
         self.data = pd.read_excel(self.file, sheet_name=None, header=0)
-        # 将self.data中的所有sheet合并成一个dataframe，赋值给self.data
         self.data = pd.concat(self.data, ignore_index=True)
         # 将self.data中的所有列名赋值给self.data_columns
         self.data_columns = self.data.columns
+
+
 
 
 
