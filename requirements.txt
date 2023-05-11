@@ -2,4 +2,5 @@ streamlit==1.13.0
 openpyxl==3.0.9
 altair==4.2.0
 pandas==1.4.2
-docx~=0.2.4
+docx==0.2.4
+docxtpl==0.16.7
