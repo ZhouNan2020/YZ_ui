@@ -42,9 +42,9 @@ class SheetSelector:
         if self.file is not None:
             self.sheet_names = pd.ExcelFile(self.file).sheet_names
             self.selected_sheet = st.selectbox("选择一个sheet", self.sheet_names)
-            # 被选中sheet的首行是标题，所以用header=0
-            df = pd.read_excel(self.file, sheet_name=self.selected_sheet, header=0)
-            st.table(df)
+            # 被选中sheet从第一行开始显示，而不是从第0行开始
+            st.table(pd.read_excel(self.file, sheet_name=self.selected_sheet, header=0))
+            
 
 
 # 实例化并调用
