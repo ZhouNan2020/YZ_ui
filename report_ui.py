@@ -19,10 +19,10 @@ tab1, tab2, tab3 = st.tabs(["数据浏览", "报告生成", "关于"])
 # 定义一个class，在st.sidebar中中用于上传excel，并显示文件名
 class FileUploader:
     def __init__(self):
-        self.file = None
+        self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
 
     def run(self):
-        self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
+        # self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
         if self.file is not None:
             st.sidebar.write(self.file.name)
         # return self.file
@@ -163,7 +163,7 @@ class StudyTypeSelector(CaseSeriesStudy, CrossSectionalStudy):
         super().__init__()
         self.study_type = None
 
-    
+
     def select_study_type(self):
         self.study_type = st.selectbox("选择研究类型", ["病例系列研究", "横断面研究"])
         return self.study_type
