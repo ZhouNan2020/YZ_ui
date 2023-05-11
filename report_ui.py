@@ -42,7 +42,8 @@ class SheetSelector:
         if self.file is not None:
             self.sheet_names = pd.ExcelFile(self.file).sheet_names
             self.selected_sheet = st.radio("选择一个sheet", self.sheet_names)
-            df = pd.read_excel(self.file, sheet_name=self.selected_sheet)
+            # 被选中sheet的首行是标题，所以用header=0
+            df = pd.read_excel(self.file, sheet_name=self.selected_sheet, header=0)
             st.table(df)
 
 
