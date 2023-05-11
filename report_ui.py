@@ -163,7 +163,7 @@ class StudyTypeSelector(CaseSeriesStudy, CrossSectionalStudy):
         super().__init__()
         self.study_type = None
 
-    @st.cache
+    
     def select_study_type(self):
         self.study_type = st.selectbox("选择研究类型", ["病例系列研究", "横断面研究"])
         return self.study_type
