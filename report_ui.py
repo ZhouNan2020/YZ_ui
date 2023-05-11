@@ -18,3 +18,6 @@ class testforcache:
 # 实例化testforcache类
 test = testforcache()
 
+# 调用test2方法
+test.test2()
+
