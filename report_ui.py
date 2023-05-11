@@ -15,3 +15,6 @@ class testforcache:
         a = st.number_input('input a number')
         return a + self.test1()
 
+# 实例化testforcache类
+test = testforcache()
+
