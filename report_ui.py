@@ -53,8 +53,9 @@ class SheetSelector:
 
 
 # 实例化并调用
-sheet_selector = SheetSelector(file_uploader.file)
-sheet_selector.run()
+with tab1:
+    sheet_selector = SheetSelector(file_uploader.file)
+    sheet_selector.run()
 
 # tab2
 '''tab2的内容是生成报告，需要精细的处理一些word文档.首先需要定义一个大的类，这个类将用于选择user在这个模块中要做的工作，选项采用st.selectbox,
