@@ -10,18 +10,29 @@ import streamlit as st
 
 st.set_page_config(page_title="优卓医药科技", page_icon="🧊", layout="wide")
 
-# 定义一个class，在侧栏用于上传和展示目前的文件名称，会上传一个excel，展示这个excel的文件名和每一个sheet的名称，使sheet名称可被选中
-class FileSelector(object):
-    def __init__(self, label="Upload"):
-        self.label = label
+# 定义一个class，在侧栏用于上传excel数据文件，并且要展示这个excel的文件名和每一个sheet的名称，使sheet名称可被选中。注意使用@st.cache
+# 用于上传excel文件的类
+class UploadFile:
+    def __init__(self):
+        self.file = None
+        self.sheet = None
+        self.sheet_name = None
 
-    def file_selector(self, folder_path="./"):
-        filenames = os.listdir(folder_path)
-        selected_filename = st.selectbox(self.label, filenames)
-        return os.path.join(folder_path, selected_filename)
+    def upload(self):
+        self.file = st.file_uploader("上传文件", type=["xlsx", "xls"])
+        if self.file is not None:
+            self.sheet_name = [i for i in self.file.sheet_names]
+            self.sheet = st.selectbox("选择工作表", self.sheet_name)
+            return self.file, self.sheet
 
+    def get_file(self):
+        return self.file
 
-# 实例化并调用这个
-file_select = FileSelector()
-filename = file_select.file_selector()
-st.write("You selected `%s`" % filename)
+    def get_sheet(self):
+        return self.sheet
+
+    def get_sheet_name(self):
+        return self.sheet_name
+
+# 实例化
+upload_file = UploadFile()
