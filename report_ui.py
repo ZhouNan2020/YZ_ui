@@ -66,9 +66,9 @@ class ReportGenerator(FileUploader):
     # 在__init__中定义这个类将直接使用FileUploader中被上传的文件，将文件赋值给self.file供后面的函数调用，同时定义一个self函数在不同的功能中调用根目录中不同的word模板
     def __init__(self):
         super().__init__()
-
-        self.data = None
-        self.data_columns = None
+        # 我需要self的数据类型不是None，而是dataframe，所以我在这里定义了一个self.data，这个dataframe将在之后的函数中被赋值
+        self.data = pd.DataFrame()
+        self.data_columns = pd.DataFrame()
         self.report_type = None
         self.template = None
 
