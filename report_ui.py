@@ -3,6 +3,7 @@
 
 import pandas as pd
 import streamlit as st
+import docx
 
 # ______________________________________
 # 在整个脚本中，能够使用@cache缓存的函数一定要用@st.cache
@@ -53,3 +54,8 @@ class SheetSelector:
 # 实例化并调用
 sheet_selector = SheetSelector(file_uploader.file)
 sheet_selector.run()
+
+
+# tab2
+# tab2的内容是生成报告，需要精细的处理一些word文档
+#
