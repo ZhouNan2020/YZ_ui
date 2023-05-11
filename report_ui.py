@@ -166,21 +166,20 @@ class StudyTypeSelector(CaseSeriesStudy, CrossSectionalStudy):
         return self.study_type
 
 
-# 定义一个类CallGenerator，继承StudyTypeSelector类，用于调用研究类型，要首先判定FileUploader中的self.file是否为空，如果为空，提示用户上传文件，如果不为空，调用select_study_type方法，判定研究类型，如果是病例系列研究，调用case_series_study方法，如果是横断面研究，调用cross_sectional_study方法。
+# 定义一个类CallGenerator，继承StudyTypeSelector类，用于调用研究类型，要首先判定FileUploader是否已经接受到上传的文件，如果为空，提示用户上传文件，如果不为空，调用select_study_type方法，判定研究类型，如果是病例系列研究，调用case_series_study方法，如果是横断面研究，调用cross_sectional_study方法。
 class CallGenerator(StudyTypeSelector):
     def __init__(self):
         super().__init__()
 
     def call(self):
-        if self.file is not None:
-            self.select_study_type()
-            if self.study_type == "病例系列研究":
+        if self.data is None:
+            st.warning("请上传文件")
+        else:
+            study_type = self.select_study_type()
+            if study_type == "病例系列研究":
                 self.case_series_study_3()
             else:
                 self.cross_sectional_study()
-
-        else:
-            st.warning("请上传文件")
 
 
 
