@@ -23,7 +23,8 @@ class FileUploader:
         self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
         if self.file is not None:
             st.sidebar.write(self.file.name)
-        #return self.file
+        # return self.file
+
 
 # 实例化并调用
 file_uploader = FileUploader()
@@ -32,6 +33,8 @@ file_uploader.run()
 # ______________________________________
 '''tab1的内容是展示数据，需要一个类，首先获取被上传excel文件中的所有sheet名称供选择，
 将这些名称使用一个st.selectbox展示,在seclectbox中被选中的sheet将以st.dataframe显示'''
+
+
 class SheetSelector:
     def __init__(self, file):
         self.file = file
@@ -42,9 +45,9 @@ class SheetSelector:
         if self.file is not None:
             self.sheet_names = pd.ExcelFile(self.file).sheet_names
             self.selected_sheet = st.selectbox("选择一个sheet", self.sheet_names)
-            # 被选中sheet从第一行开始显示，而不是从第0行开始
-            st.dataframe(pd.read_excel(self.file, sheet_name=self.selected_sheet, header=0))
-
+            # 用空白替换掉sheet中的NaN，赋值给exhibition_data
+            exhibition_data = pd.read_excel(self.file, sheet_name=self.selected_sheet, header=0).fillna("")
+            st.dataframe(exhibition_data)
 
 
 # 实例化并调用
