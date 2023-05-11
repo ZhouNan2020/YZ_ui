@@ -69,11 +69,25 @@ class DataPrepare(FileUploader):
     def __init__(self):
         super().__init__()
         # 我需要self的数据类型不是None，而是dataframe，所以我在这里定义了一个self.data，这个dataframe将在之后的函数中被赋值
+        self.data = None
+        self.data_columns = None
+    # 怎样才能正常调用self.data呢？
+    # 1.在__init__中定义self.data = None
+    # 2.在read_data中将self.data赋值为pd.read_excel读取的数据
+
+
+    def read_data(self):# 这里可能要将读数据和合并数据分开成两个def
+        # 使用pd.read_excel读取excel文件，sheet_name=None表示读取所有的sheet，header=0表示使用第一行作为列名，赋值给self.data
         self.data = pd.read_excel(self.file, sheet_name=None, header=0)
+
+    @property
+    def merge_data(self):
+        # 将self.data中的所有sheet合并成一个dataframe，赋值给self.data
         self.data = pd.concat(self.data, ignore_index=True)
         # 将self.data中的所有列名赋值给self.data_columns
         self.data_columns = self.data.columns
-
+        # 将self.data_columns中的列名转换成list，赋值给self.data_columns
+        self.data_columns = self.data_columns.tolist()
 
 
 
@@ -85,6 +99,9 @@ class CaseSeriesStudy(DataPrepare):
         self.exposure_factor = None
         self.case_series_sub_group = None
         self.research_var = None
+        self.data = DataPrepare().read_data()
+        # 但是在后面函数的调用中，self.data是None，所以我需要在每个函数中都调用一次read_data，这样self.data才能被赋值为pd.read_excel读取的数据
+        # 但是这样做的话，每次调用函数都会重新读取一次excel，这样会很慢，所以我需要使用@cache缓存函数的返回值，避免st频繁刷新
 
     '''病例系列研究：
     选项一：“选择研究的目标变量及组别”，分为两个selectbox，
