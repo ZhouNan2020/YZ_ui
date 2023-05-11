@@ -12,7 +12,7 @@ st.set_page_config(page_title="优卓医药科技", page_icon="🧊", layout="wi
 
 # 定义一个class，在侧栏用于上传和展示目前的文件名称，会上传一个excel，展示这个excel的文件名和每一个sheet的名称，使sheet名称可被选中
 class FileSelector(object):
-def __init__(self, label="Upload"):
+    def __init__(self, label="Upload"):
         self.label = label
 
     def file_selector(self, folder_path="./"):
