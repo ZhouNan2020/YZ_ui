@@ -6,6 +6,6 @@ import streamlit as st
 # 用于缓存函数的返回值，避免st频繁刷新
 # 项目标题“优卓医药科技”
 
-st.title("优卓医药科技")
+st.set_page_config(page_title="优卓医药科技", page_icon="🧊", layout="wide")
 
 
