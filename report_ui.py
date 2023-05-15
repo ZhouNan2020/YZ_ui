@@ -85,7 +85,7 @@ class DataPrepare():
 
 
 class DataPreprocessing(DataPrepare):
-        def __init__(self, data, file):
+        def __init__(self, file):
             super().__init__(file)
             self.selected_cols = []
             self.transformed_cols = []
