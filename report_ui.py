@@ -86,18 +86,19 @@ class DescriptiveStatistics(DataPrepare):
         super().__init__(file)
         self.all_columns = self.data.columns.tolist()
 
-
     @st.cache
     def get_selected_columns(self, selected_columns):
         return self.data[selected_columns]
 
     def Descriptive_Chose(self):
-
-        selected_columns = st.multiselect("选择列", self.all_columns, key="my_multiselect")
+        if "Descriptive_multiselect_1" not in st.session_state:
+            st.session_state.Descriptive_multiselect_1 = []
+        selected_columns = st.multiselect("选择列", self.all_columns, key="Descriptive_multiselect_1")
         if selected_columns:
-            st.session_state.selected_options.extend(selected_columns)
+            st.session_state.Descriptive_multiselect_1.extend(selected_columns)
+
     def descriptive_select_columns(self):
-            st.dataframe(self.get_selected_columns(session_state.selected_options))
+        st.dataframe(self.get_selected_columns(session_state.Descriptive_multiselect_1))
 
 
 # class DescriptiveStatistics(DescriptiveStatisticsOfData):
@@ -149,13 +150,14 @@ def call():
 with tab2:
     call()
 
-
 with tab3:
-    # 一个st.session_state的示例，让用户点击，每次点击计数逐次+1
+    # 一个st.session_state的示例，让用户点击，每点击一次计数+1,记录总的点击次数，然后点击submit后，将总的点击次数显示出来
     if "count" not in st.session_state:
         st.session_state.count = 0
-    st.write(st.session_state.count)
-    if st.button("点我"):
+    st.write("点击次数：", st.session_state.count)
+    if st.button("点击"):
         st.session_state.count += 1
-    st.write(st.session_state.count)
-    
+    if st.button("submit"):
+        st.write("总点击次数：", st.session_state.count)
+        
+
