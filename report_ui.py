@@ -85,8 +85,8 @@ class DescriptiveStatistics(DataPrepare):
     def descriptive_statistics(self):
         st.write("描述性统计")
         descriptive_form = self.data.describe()
-        # descriptive_formz中空值使用空白替换
-        descriptive_form = descriptive_form.fillna("")
+        # descriptive_form中空值使用空白替换
+        # descriptive_form = descriptive_form.fillna("")
         st.write(descriptive_form)
 
 
