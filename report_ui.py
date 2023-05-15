@@ -130,7 +130,7 @@ class Generator(DescriptiveStatistics):
             st.title("数据探索")
             st.write("请选择要展示的列：")
             all_columns = self.data.columns.tolist()
-            selected_columns = st.multiselect("选择列", all_columns)
+            selected_columns = st.multiselect("选择列", all_columns,key="my_multiselect")
             if st.button("生成"):
                 self.Descriptive_run(selected_columns)
         else:
