@@ -201,7 +201,14 @@ class CallGenerator(StudyTypeSelector):
                 self.cross_sectional_study()
 
 
+def call():
+    if file_uploader.file is None:
+        st.warning("请上传文件")
+    else:
+        call = CallGenerator(file_uploader.file)
+        call.call()
+
 # 实例化并调用
 with tab2:
-    call = CallGenerator(file_uploader.file)
-    call.call()
+
+    call()
