@@ -92,14 +92,14 @@ class DataPreprocessing(DataPrepare):
             self.selected_data = None
 
         # 定义一个函数，功能是将一个被选中的self.data_selected_columns转换成数字编码格式
-        @st.cache
+        @st.cache_data
         def label_encoder(self, selected_columns):
             label_encoder = LabelEncoder()
             self.data[selected_columns] = label_encoder.fit_transform(self.data[selected_columns])
             return self.data[selected_columns]
 
         # 定义一个函数，功能连续变量缺失值插补，如果偏度绝对值不大于1，使用均值填补。如果偏度绝对值大于1，使用中位数填补。
-        @st.cache
+        @st.cache_data
         def continuous_variable_missing_value_imputation(self, selected_columns):
             skew = self.data[selected_columns].skew()
             if abs(skew) <= 1:
@@ -109,31 +109,31 @@ class DataPreprocessing(DataPrepare):
             return self.data[selected_columns]
 
         # 定义一个函数，功能是分类变量缺失值插补，使用众数填补
-        @st.cache
+        @st.cache_data
         def categorical_variable_missing_value_imputation(self, selected_columns):
             self.data[selected_columns] = self.data[selected_columns].fillna(self.data[selected_columns].mode()[0])
             return self.data[selected_columns]
 
         # 定义一个函数，功能是连续变量离散化，使用等频法
-        @st.cache
+        @st.cache_data
         def continuous_variable_discretization(self, selected_columns):
             self.data[selected_columns] = pd.qcut(self.data[selected_columns], 10, labels=False)
             return self.data[selected_columns]
 
         # 定义一个函数，功能是连续变量标准化，使用标准差标准化
-        @st.cache
+        @st.cache_data
         def continuous_variable_standardization(self, selected_columns):
             self.data[selected_columns] = (self.data[selected_columns] - self.data[selected_columns].mean()) / self.data[selected_columns].std()
             return self.data[selected_columns]
 
         # 定义一个函数，功能是连续变量归一化，使用最大最小值归一化
-        @st.cache
+        @st.cache_data
         def continuous_variable_normalization(self, selected_columns):
             self.data[selected_columns] = (self.data[selected_columns] - self.data[selected_columns].min()) / (self.data[selected_columns].max() - self.data[selected_columns].min())
             return self.data[selected_columns]
 
         # 定义一个函数，功能是转换哑变量，并且将转换后的列放入原数据集中
-        @st.cache
+        @st.cache_data
         def dummy_variable(self, selected_columns):
             dummy_data = pd.get_dummies(self.data[selected_columns], prefix=selected_columns)
             self.data = pd.concat([self.data, dummy_data], axis=1)
@@ -146,13 +146,13 @@ class PreprocessingExecution(DataPreprocessing):
         super().__init__(file)
         self.all_columns = self.data.columns.tolist()
     # streamlit的展示函数，使用st.write逐行显示所有列名，每个列名下面显示一个一个checkbox
-    @st.cache
+    @st.cache_data
     def preprocessing_multiselect(self):
         for column in self.all_columns:
             st.write(column)
             st.checkbox("数字编码","连续变量缺失值插补","分类变量缺失值插补","连续变量离散化","连续变量标准化","连续变量归一化","转换哑变量")
     # 定义一个函数，功能是将用户选择的checkbox对应的方法调用
-    @st.cache
+    @st.cache_data
     def preprocessing_execution(self):
         if self.file is not None:
             for column in self.all_columns:
@@ -214,7 +214,7 @@ class DescriptiveStatistics(DataPrepare):
         super().__init__(file)
         self.all_columns = self.data.columns.tolist()
 
-    @st.cache
+    @st.cache_data
     def get_selected_columns(self, selected_columns):
         return self.data[selected_columns]
     def descriptive_select_columns(self, selected_columns):
