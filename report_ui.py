@@ -111,7 +111,7 @@ class CallGenerator(DescriptiveStatistics):
             st.warning("请上传文件")
         else:
             study = study_type()
-            if study == "病例系列研究":
+            if study == "描述性统计":
                 self.descriptive_statistics()
             else:
                 pass
