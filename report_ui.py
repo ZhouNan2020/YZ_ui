@@ -68,6 +68,8 @@ class DataPrepare():
     # 在__init__中定义这个类将直接使用FileUploader中被上传的文件，将文件赋值给self.data供后面的函数调用
 
     def __init__(self, file):
+        self.selected_data = None
+        self.selected_columns = None
         self.file = file
         data = pd.read_excel(self.file, sheet_name=None, header=0)
         data = pd.concat(data, ignore_index=True)
@@ -80,13 +82,13 @@ class DataPrepare():
     @st.cache
     def descriptive_select_columns(self):
         st.write("选择需要纳入描述性统计的列")
-        selected_columns = st.multiselect("选择需要纳入描述性统计的列", self.data_columns)
-        return selected_columns
+        self.selected_columns = st.multiselect("选择需要纳入描述性统计的列", self.data_columns)
+
 
     def descriptive_read_columns(self):
         # 调用descriptive_select_columns的返回值，从self.data中提取数据，赋值给selected_data
-        selected_data = self.data[self.descriptive_select_columns()]
-        return selected_data
+        self.selected_data = self.data[self.descriptive_select_columns()]
+
 
 
 
@@ -94,23 +96,24 @@ class DescriptiveStatistics(DataPrepare):
     def __init__(self,file):
         super().__init__(file)
 
-    @st.experimental_singleton
-    def descriptive_statistics(_self):
+
+    def descriptive_statistics(self):
         # 给一个button，用于触发描述性统计的计算
         # 调用descriptive_select_columns函数，将返回值赋值给selected_data和selected_columns
-        selected_data, selected_columns = _self.descriptive_select_columns()
-        if selected_columns is None:
-            st.write("请选择需要纳入描述性统计的列")
-        else:
-            # 获取descriptive_read_columns的返回值，进行描述性统计
-            selected_data = _self.descriptive_read_columns()
-            # 使用st.dataframe显示描述性统计的结果
-            st.dataframe(selected_data.describe())
-
-
-    def descriptive_statistics_button(self):
+        super().descriptive_select_columns()
         if st.button("开始分析"):
-            self.descriptive_statistics()
+            if self.selected_columns is None:
+                st.write("请选择需要纳入描述性统计的列")
+            else:
+                # 获取descriptive_read_columns的返回值，进行描述性统计
+                super().descriptive_read_columns()
+                # 使用st.dataframe显示描述性统计的结果
+                st.dataframe(self.selected_data.describe())
+
+
+
+
+
 
 
 
