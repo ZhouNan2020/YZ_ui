@@ -151,13 +151,14 @@ with tab2:
     call()
 
 with tab3:
-    # 一个st.session_state的示例，让用户点击，每点击一次计数+1,记录总的点击次数，然后点击submit后，将总的点击次数显示出来
+    # 一个st.session_state的示例，初始为0，让用户点击，每点击一次计数+1,但是不要实时显示更改，要在点击submit后，才将总的点击次数显示出来
     if "count" not in st.session_state:
         st.session_state.count = 0
-    st.write("点击次数：", st.session_state.count)
+    st.write(st.session_state.count)
     if st.button("点击"):
         st.session_state.count += 1
     if st.button("submit"):
-        st.write("总点击次数：", st.session_state.count)
+        st.write(st.session_state.count)
+        
         
 
