@@ -200,5 +200,5 @@ class CallGenerator(StudyTypeSelector):
 
 # 实例化并调用
 with tab2:
-    call = CallGenerator(file=file_uploader.file)
-    call.call()
+    call = CallGenerator()
+    call.call(file=file_uploader.file)
