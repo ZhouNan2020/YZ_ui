@@ -151,11 +151,11 @@ with tab2:
 
 
 with tab3:
-    # 一个st.session_state的示例，展示计数逐次+1
+    # 一个st.session_state的示例，让用户点击，每次点击计数逐次+1
     if "count" not in st.session_state:
         st.session_state.count = 0
     st.write(st.session_state.count)
-    st.session_state.count += 1
+    if st.button("点我"):
+        st.session_state.count += 1
     st.write(st.session_state.count)
-    st.session_state.count += 1
-    st.write(st.session_state.count)
+    
