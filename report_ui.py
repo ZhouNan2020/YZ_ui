@@ -74,9 +74,6 @@ class DataPrepare():
         self.data_columns = self.data.columns
         self.data_columns = self.data_columns.tolist()
 
-
-
-
         # data = pd.read_excel(self.file, sheet_name=None, header=0)
         # self.data = pd.concat(data, ignore_index=True)
         # data_columns = self.data.columns
@@ -103,7 +100,7 @@ class DataPrepare():
 
 class CaseSeriesStudy(DataPrepare):
     def __init__(self):
-        super().__init__()
+        super().__init__(file)
         self.outcome = st.selectbox("选择结局指标", self.data_columns)
         self.exposure_factor = st.selectbox("选择暴露因素", self.data_columns)
         self.case_series_sub_group = st.selectbox("选择研究的组别", self.data[self.research_var].unique().tolist())
@@ -145,7 +142,7 @@ class CaseSeriesStudy(DataPrepare):
 
 class CrossSectionalStudy(DataPrepare):
     def __init__(self):
-        super().__init__()
+        super().__init__(file)
         self.ob_radio_var = None
         self.inclu_var = None
 
@@ -203,5 +200,5 @@ class CallGenerator(StudyTypeSelector):
 
 # 实例化并调用
 with tab2:
-    call = CallGenerator()
+    call = CallGenerator(file=file_uploader.file)
     call.call()
