@@ -285,12 +285,11 @@ class Generator(DescriptiveStatistics):
             st.title("数据探索")
             st.write("请选择要展示的列：")
             selected_columns = st.multiselect("选择要进行描述性统计的连续变量列", self.all_columns)
-            super().DescriptiveStatisticsOfContinuousVariables(selected_columns)
             if st.button("生成"):
                 self.descriptive_select_columns(selected_columns)
             # 定义一个button，点击后执行descriptive_statistics方法
-            if st.button("描述性统计"):
-                self.descriptive_statistics(selected_columns)
+            if st.button("连续变量描述性统计"):
+                self.DescriptiveStatisticsOfContinuousVariables(selected_columns)
         else:
             pass
 
