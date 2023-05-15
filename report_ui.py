@@ -85,70 +85,110 @@ class DataPrepare():
 
 
 class DataPreprocessing(DataPrepare):
+        # 构造函数继承DataPrepare并且超类调用
         def __init__(self, file):
             super().__init__(file)
-            self.selected_cols = []
-            self.transformed_cols = []
+            self.data_columns = self.data.columns.tolist()
+            self.selected_data = None
 
-        def encode_categorical(self, col):
-            le = LabelEncoder()
-            self.data[col] = le.fit_transform(self.data[col])
-            self.transformed_cols.append(col)
+        # 定义一个函数，功能是将一个被选中的self.data_selected_columns转换成数字编码格式
+        @st.cache
+        def label_encoder(self, selected_columns):
+            label_encoder = LabelEncoder()
+            self.data[selected_columns] = label_encoder.fit_transform(self.data[selected_columns])
+            return self.data[selected_columns]
 
-        def fill_missing(self, col, method):
-            if method == 'mode':
-                self.data[col].fillna(self.data[col].mode()[0], inplace=True)
-            elif method == 'mean':
-                self.data[col].fillna(self.data[col].mean(), inplace=True)
-            elif method == 'median':
-                self.data[col].fillna(self.data[col].median(), inplace=True)
-            self.transformed_cols.append(col)
+        # 定义一个函数，功能连续变量缺失值插补，如果偏度绝对值不大于1，使用均值填补。如果偏度绝对值大于1，使用中位数填补。
+        @st.cache
+        def continuous_variable_missing_value_imputation(self, selected_columns):
+            skew = self.data[selected_columns].skew()
+            if abs(skew) <= 1:
+                self.data[selected_columns] = self.data[selected_columns].fillna(self.data[selected_columns].mean())
+            else:
+                self.data[selected_columns] = self.data[selected_columns].fillna(self.data[selected_columns].median())
+            return self.data[selected_columns]
 
-        def create_dummies(self, col):
-            dummies = pd.get_dummies(self.data[col], prefix=col)
-            self.data = pd.concat([self.data, dummies], axis=1)
-            self.transformed_cols.append(col)
+        # 定义一个函数，功能是分类变量缺失值插补，使用众数填补
+        @st.cache
+        def categorical_variable_missing_value_imputation(self, selected_columns):
+            self.data[selected_columns] = self.data[selected_columns].fillna(self.data[selected_columns].mode()[0])
+            return self.data[selected_columns]
 
-        def standardize(self):
-            scaler = StandardScaler()
-            self.data = scaler.fit_transform(self.data)
-            self.transformed_cols = self.columns
+        # 定义一个函数，功能是连续变量离散化，使用等频法
+        @st.cache
+        def continuous_variable_discretization(self, selected_columns):
+            self.data[selected_columns] = pd.qcut(self.data[selected_columns], 10, labels=False)
+            return self.data[selected_columns]
 
-        def show_sidebar(self):
-            self.selected_cols = st.sidebar.multiselect('Select columns to preprocess', self.columns)
-            st.sidebar.write('Selected columns:', self.selected_cols)
-            if st.sidebar.checkbox('Encode categorical variables'):
-                cat_cols = [col for col in self.selected_cols if self.data[col].dtype == 'object']
-                for col in cat_cols:
-                    self.encode_categorical(col)
-            if st.sidebar.checkbox('Fill missing values'):
-                for col in self.selected_cols:
-                    if self.data[col].isnull().sum() > 0:
-                        if self.data[col].dtype == 'object':
-                            method = 'mode'
-                        elif abs(self.data[col].skew()) <= 1:
-                            method = 'mean'
-                        else:
-                            method = 'median'
-                        self.fill_missing(col, method)
-            if st.sidebar.checkbox('Create dummy variables'):
-                cat_cols = [col for col in self.selected_cols if self.data[col].dtype == 'object']
-                for col in cat_cols:
-                    self.create_dummies(col)
-            if st.sidebar.checkbox('Standardize data'):
-                self.standardize()
+        # 定义一个函数，功能是连续变量标准化，使用标准差标准化
+        @st.cache
+        def continuous_variable_standardization(self, selected_columns):
+            self.data[selected_columns] = (self.data[selected_columns] - self.data[selected_columns].mean()) / self.data[selected_columns].std()
+            return self.data[selected_columns]
 
-        def show_transformed_data(self):
-            st.write('Transformed data:')
-            st.write(self.data[self.transformed_cols])
+        # 定义一个函数，功能是连续变量归一化，使用最大最小值归一化
+        @st.cache
+        def continuous_variable_normalization(self, selected_columns):
+            self.data[selected_columns] = (self.data[selected_columns] - self.data[selected_columns].min()) / (self.data[selected_columns].max() - self.data[selected_columns].min())
+            return self.data[selected_columns]
+
+        # 定义一个函数，功能是转换哑变量，并且将转换后的列放入原数据集中
+        @st.cache
+        def dummy_variable(self, selected_columns):
+            dummy_data = pd.get_dummies(self.data[selected_columns], prefix=selected_columns)
+            self.data = pd.concat([self.data, dummy_data], axis=1)
+            return self.data
+
+
+# 定义一个类，功能是展示出数据集中的所有列，每个列后跟一个checkbox，每一个checkbox对应DataPreprocessing类中的一个预处理方法，使用st.session_state保存用户选择的项，并在点击按钮后调用这些方法
+class PreprocessingExecution(DataPreprocessing):
+    def __init__(self, file):
+        super().__init__(file)
+        self.all_columns = self.data.columns.tolist()
+    # streamlit的展示函数，使用st.write逐行显示所有列名，每个列名下面显示一个一个checkbox
+    @st.cache
+    def preprocessing_multiselect(self):
+        for column in self.all_columns:
+            st.write(column)
+            st.checkbox("数字编码","连续变量缺失值插补","分类变量缺失值插补","连续变量离散化","连续变量标准化","连续变量归一化","转换哑变量")
+    # 定义一个函数，功能是将用户选择的checkbox对应的方法调用
+    @st.cache
+    def preprocessing_execution(self):
+        for column in self.all_columns:
+            if st.checkbox("数字编码"):
+                self.label_encoder(column)
+            if st.checkbox("连续变量缺失值插补"):
+                self.continuous_variable_missing_value_imputation(column)
+            if st.checkbox("分类变量缺失值插补"):
+                self.categorical_variable_missing_value_imputation(column)
+            if st.checkbox("连续变量离散化"):
+                self.continuous_variable_discretization(column)
+            if st.checkbox("连续变量标准化"):
+                self.continuous_variable_standardization(column)
+            if st.checkbox("连续变量归一化"):
+                self.continuous_variable_normalization(column)
+            if st.checkbox("转换哑变量"):
+                self.dummy_variable(column)
+        return self.data
+    # 定义一个函数，功能是将预处理后的数据集返回
+
+
+
+
+
+
 
 
 
 
 with tab2:
-    data_preprocessing = DataPreprocessing(file_uploader.file)
-    data_preprocessing.show_sidebar()
-    data_preprocessing.show_transformed_data()
+    # 调用
+    preprocessing = PreprocessingExecution(file_uploader.file)
+    preprocessing.preprocessing_multiselect()
+    if st.button("执行"):
+        preprocessing.preprocessing_execution()
+
+
 
 
 
@@ -177,19 +217,15 @@ class DescriptiveStatistics(DataPrepare):
     def get_selected_columns(self, selected_columns):
         return self.data[selected_columns]
     def descriptive_select_columns(self, selected_columns):
-        st.dataframe(self.get_selected_columns(session_state.Descriptive_multiselect_1))
+        selected_data = self.get_selected_columns(session_state.Descriptive_multiselect_1)
+        st.dataframe(selected_data)
 
+    def descriptive_statistics(self):
+        # 对selected_data执行描述性统计
+        selected_data = self.get_selected_columns(session_state.Descriptive_multiselect_1)
 
-# class DescriptiveStatistics(DescriptiveStatisticsOfData):
-#    def __init__(self, file):
-#        super().__init__(file)
-#
-#    def descriptive_statistics(self):
-#        # 给一个button，用于触发描述性统计的计算
-#        # 调用descriptive_select_columns函数，将返回值赋值给selected_data和selected_columns
-#        super().descriptive_select_columns()
-#        # 使用st.write显示selected_data
-#        st.write(self.selected_data)
+        st.dataframe(selected_data.describe())
+
 
 
 # 定义一个类CallGenerator，继承StudyTypeSelector类，用于调用研究类型，要首先判定FileUploader是否已经接受到上传的文件，如果为空，提示用户上传文件，如果不为空，调用select_study_type方法，判定研究类型，如果是病例系列研究，调用case_series_study方法，如果是横断面研究，调用cross_sectional_study方法。
@@ -214,6 +250,9 @@ class Generator(DescriptiveStatistics):
 
             if st.button("生成"):
                 self.descriptive_select_columns(selected_columns)
+            # 定义一个button，点击后执行descriptive_statistics方法
+            if st.button("描述性统计"):
+                self.descriptive_statistics()
         else:
             pass
 
