@@ -217,7 +217,7 @@ class DescriptiveStatistics(DataPrepare):
     @st.cache
     def get_selected_columns(self, selected_columns):
         return self.data[selected_columns]
-    def descriptive_select_columns(self, selected_columns):
+    def descriptive_select_columns(self):
         selected_data = self.get_selected_columns(session_state.Descriptive_multiselect_1)
         st.dataframe(selected_data)
 
