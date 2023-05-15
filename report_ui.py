@@ -67,7 +67,7 @@ with tab1:
 class DataPrepare():
     # 在__init__中定义这个类将直接使用FileUploader中被上传的文件，将文件赋值给self.data供后面的函数调用
 
-    def __init__(self, file=FileUploader().file):
+    def __init__(self,file):
         self.file = file
         self.data = pd.read_excel(self.file, sheet_name=None, header=0)
         self.data = pd.concat(self.data, ignore_index=True)
