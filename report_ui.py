@@ -91,9 +91,8 @@ class DescriptiveStatistics(DataPrepare):
         return self.data[selected_columns]
 
     def Descriptive_Chose(self):
+        st.session_state.selected_options = []
         selected_columns = st.multiselect("选择列", self.all_columns, key="my_multiselect")
-        if 'selected_options' not in st.session_state:
-            st.session_state.selected_options = []
         if selected_columns:
             st.session_state.selected_options.extend(selected_columns)
     def descriptive_select_columns(self):
