@@ -84,16 +84,16 @@ class DataPrepare():
 class DescriptiveStatistics(DataPrepare):
     def __init__(self, file):
         super().__init__(file)
+        self.all_columns = self.data.columns.tolist()
 
     @st.cache
     def get_selected_columns(self, selected_columns):
         return self.data[selected_columns]
 
-    def Descriptive_run(self):
-        all_columns = self.data.columns.tolist()
+    def Descriptive_Chose(self):
+        selected_columns = st.multiselect("选择列", self.all_columns, key="my_multiselect")
         if 'selected_options' not in st.session_state:
             st.session_state.selected_options = []
-        selected_columns = st.multiselect("选择列", all_columns, key="my_multiselect")
         if selected_columns:
             st.session_state.selected_options.extend(selected_columns)
     def descriptive_select_columns(self):
@@ -130,7 +130,7 @@ class Generator(DescriptiveStatistics):
         if study == "描述性统计":
             st.title("数据探索")
             st.write("请选择要展示的列：")
-            self.Descriptive_run()
+            self.Descriptive_Chose()
             if st.button("生成"):
                 self.descriptive_select_columns()
         else:
