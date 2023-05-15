@@ -86,12 +86,13 @@ class DescriptiveStatistics(DataPrepare):
         super().__init__(file)
         self.all_columns = self.data.columns.tolist()
 
+
     @st.cache
     def get_selected_columns(self, selected_columns):
         return self.data[selected_columns]
 
     def Descriptive_Chose(self):
-        st.session_state.selected_options = []
+
         selected_columns = st.multiselect("选择列", self.all_columns, key="my_multiselect")
         if selected_columns:
             st.session_state.selected_options.extend(selected_columns)
@@ -147,3 +148,14 @@ def call():
 # 实例化并调用
 with tab2:
     call()
+
+
+with tab3:
+    # 一个st.session_state的示例，展示计数逐次+1
+    if "count" not in st.session_state:
+        st.session_state.count = 0
+    st.write(st.session_state.count)
+    st.session_state.count += 1
+    st.write(st.session_state.count)
+    st.session_state.count += 1
+    st.write(st.session_state.count)
