@@ -68,7 +68,14 @@ class DataPrepare(FileUploader):
     # 在__init__中定义这个类将直接使用FileUploader中被上传的文件，将文件赋值给self.data供后面的函数调用
     def __init__(self):
         super().__init__()
-        # 我需要self的数据类型不是None，而是dataframe，所以我在这里定义了一个self.data，这个dataframe将在之后的函数中被赋值
+        if self.file is not None:
+            self.data = pd.read_excel(self.file, sheet_name=None, header=0)
+            self.data = pd.concat(self.data, ignore_index=True)
+            self.data_columns = self.data.columns
+            self.data_columns = self.data_columns.tolist()
+        else:
+            self.data = None
+            self.data_columns = None
         data = pd.read_excel(self.file, sheet_name=None, header=0)
         self.data = pd.concat(data, ignore_index=True)
         data_columns = self.data.columns
@@ -198,7 +205,7 @@ class CallGenerator(StudyTypeSelector):
         else:
             study_type = self.select_study_type()
             if study_type == "病例系列研究":
-                self.case_series_study_3()
+                self.case_series_study()
             else:
                 self.cross_sectional_study()
 
