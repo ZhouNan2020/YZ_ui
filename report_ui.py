@@ -97,18 +97,18 @@ class DescriptiveStatistics(DataPrepare):
         super().__init__(file)
 
 
-    def descriptive_statistics(self):
+    def descriptive_statistics(_self):
         # 给一个button，用于触发描述性统计的计算
         # 调用descriptive_select_columns函数，将返回值赋值给selected_data和selected_columns
         super().descriptive_select_columns()
         if st.button("开始分析"):
-            if self.selected_columns is None:
+            if _self.selected_columns is None:
                 st.write("请选择需要纳入描述性统计的列")
             else:
                 # 获取descriptive_read_columns的返回值，进行描述性统计
                 super().descriptive_read_columns()
                 # 使用st.dataframe显示描述性统计的结果
-                st.dataframe(self.selected_data.describe())
+                st.dataframe(_self.selected_data.describe())
 
 
 
