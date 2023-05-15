@@ -79,7 +79,7 @@ class DataPrepare():
         self.data_columns = self.data_columns.tolist()
 
     '''定义一个函数，用于从self.data_columns中选择需要纳入描述性统计的列，使用st.multiselect，将选择的列赋值给self.selected_columns，然后使用被选中的列名从self.data中提取数据，使用st.dataframe显示'''
-    @st.cache
+    @st.cache_data(allow_output_mutation=True)
     def descriptive_select_columns(self):
         st.write("选择需要纳入描述性统计的列")
         self.selected_columns = st.multiselect("选择需要纳入描述性统计的列", self.data_columns)
