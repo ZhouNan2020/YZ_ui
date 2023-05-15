@@ -92,9 +92,10 @@ class DescriptiveStatistics(DataPrepare):
 
     def descriptive_statistics(self):
         # 调用父类的descriptive_select_columns方法
-        selected_data, selected_columns = self.descriptive_select_columns()
+        selected_data, selected_columns = super().descriptive_select_columns()
         # 给一个button，用于触发描述性统计的计算
         if st.button("开始分析"):
+            
             # 描述性统计的结果赋值给descriptive_statistics_result
             descriptive_statistics_result = selected_data.describe()
             # st.dataframe显示描述性统计的结果
