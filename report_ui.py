@@ -7,6 +7,7 @@ import streamlit as st
 from docxtpl import DocxTemplate
 from streamlit import session_state
 from streamlit.runtime.state import SessionState
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 
 # ______________________________________
 # 在整个脚本中，能够使用@cache缓存的函数一定要用@st.cache
@@ -15,7 +16,7 @@ from streamlit.runtime.state import SessionState
 
 st.set_page_config(page_title="优卓医药科技", page_icon="🧊", layout="wide")
 # 将主界面分一下st.tab，分成3个tab，分别是“数据浏览”，“报告生成”，“关于”
-tab1, tab2, tab3 = st.tabs(["数据浏览", "报告生成", "关于"])
+tab1, tab2, tab3, tab4 = st.tabs(["数据浏览", "数据预处理","报告生成", "关于"])
 
 
 # 定义一个class，在st.sidebar中中用于上传excel，并显示文件名
@@ -81,6 +82,92 @@ class DataPrepare():
         self.data_columns = self.data_columns.tolist()
 
 
+
+
+class DataPreprocessing(DataPrepare):
+        def __init__(self, data, file):
+            super().__init__(file)
+            self.selected_cols = []
+            self.transformed_cols = []
+
+        def encode_categorical(self, col):
+            le = LabelEncoder()
+            self.data[col] = le.fit_transform(self.data[col])
+            self.transformed_cols.append(col)
+
+        def fill_missing(self, col, method):
+            if method == 'mode':
+                self.data[col].fillna(self.data[col].mode()[0], inplace=True)
+            elif method == 'mean':
+                self.data[col].fillna(self.data[col].mean(), inplace=True)
+            elif method == 'median':
+                self.data[col].fillna(self.data[col].median(), inplace=True)
+            self.transformed_cols.append(col)
+
+        def create_dummies(self, col):
+            dummies = pd.get_dummies(self.data[col], prefix=col)
+            self.data = pd.concat([self.data, dummies], axis=1)
+            self.transformed_cols.append(col)
+
+        def standardize(self):
+            scaler = StandardScaler()
+            self.data = scaler.fit_transform(self.data)
+            self.transformed_cols = self.columns
+
+        def show_sidebar(self):
+            self.selected_cols = st.sidebar.multiselect('Select columns to preprocess', self.columns)
+            st.sidebar.write('Selected columns:', self.selected_cols)
+            if st.sidebar.checkbox('Encode categorical variables'):
+                cat_cols = [col for col in self.selected_cols if self.data[col].dtype == 'object']
+                for col in cat_cols:
+                    self.encode_categorical(col)
+            if st.sidebar.checkbox('Fill missing values'):
+                for col in self.selected_cols:
+                    if self.data[col].isnull().sum() > 0:
+                        if self.data[col].dtype == 'object':
+                            method = 'mode'
+                        elif abs(self.data[col].skew()) <= 1:
+                            method = 'mean'
+                        else:
+                            method = 'median'
+                        self.fill_missing(col, method)
+            if st.sidebar.checkbox('Create dummy variables'):
+                cat_cols = [col for col in self.selected_cols if self.data[col].dtype == 'object']
+                for col in cat_cols:
+                    self.create_dummies(col)
+            if st.sidebar.checkbox('Standardize data'):
+                self.standardize()
+
+        def show_transformed_data(self):
+            st.write('Transformed data:')
+            st.write(self.data[self.transformed_cols])
+
+
+
+
+with tab2:
+    data_preprocessing = DataPreprocessing(file_uploader.file)
+    data_preprocessing.show_sidebar()
+    data_preprocessing.show_transformed_data()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class DescriptiveStatistics(DataPrepare):
     def __init__(self, file):
         super().__init__(file)
@@ -89,11 +176,6 @@ class DescriptiveStatistics(DataPrepare):
     @st.cache
     def get_selected_columns(self, selected_columns):
         return self.data[selected_columns]
-
-    def Descriptive_Chose(self):
-        selected_columns = st.multiselect("选择列", self.all_columns, key="Descriptive_multiselect_1")
-
-
     def descriptive_select_columns(self, selected_columns):
         st.dataframe(self.get_selected_columns(session_state.Descriptive_multiselect_1))
 
@@ -145,10 +227,10 @@ def call():
 
 
 # 实例化并调用
-with tab2:
+with tab3:
     call()
 
-with tab3:
+with tab4:
     # 使用@cache定义一个st.session_state的函数示例，初始为0，让用户点击，每点击一次计数+1,但是不要实时显示更改，要在点击submit后，才将总的点击次数显示出来,合并@cache使用，避免st频繁刷新
     if "count" not in st.session_state:
         st.session_state.count = 0

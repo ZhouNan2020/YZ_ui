@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4">
+  <component name="PackageRequirementsSettings">
+    <option name="versionSpecifier" value="强相等 (==x.y.z)" />
+  </component>
+</module>
