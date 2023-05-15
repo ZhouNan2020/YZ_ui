@@ -1,5 +1,6 @@
 # import streamlit和其它的处理word的库
 import docx
+import numpy as np
 import pandas as pd
 import streamlit as st
 # 导入import docx和Python-docx-template
@@ -78,6 +79,13 @@ class DataPrepare():
         data = pd.concat(data, ignore_index=True)
         data = data.infer_objects()
         self.data = pd.DataFrame(data)
+        # 数据集中包含"UK"的cell均为空值，如果一个cell中包含UK，那么这个cell将被替换为空值
+        mask = self.data.apply(lambda x: x.str.contains('UK', na=False)).values
+
+        # 使用replace()方法将包含'UK'的单元格替换成NaN
+        self.data[mask] = self.data[mask].replace('UK', np.nan)
+
+
         self.data_columns = self.data.columns
         self.data_columns = self.data_columns.tolist()
 
