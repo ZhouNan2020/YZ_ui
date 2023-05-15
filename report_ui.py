@@ -76,6 +76,14 @@ class DataPrepare():
         self.data_columns = self.data.columns
         self.data_columns = self.data_columns.tolist()
 
+    '''定义一个函数，用于从self.data_columns中选择需要纳入描述性统计的列，使用st.multiselect，将选择的列赋值给self.selected_columns，然后使用被选中的列名从self.data中提取数据，使用st.dataframe显示'''
+    @st.cache
+    def descriptive_select_columns(self):
+        st.write("选择需要纳入描述性统计的列")
+        self.selected_columns = st.multiselect("选择需要纳入描述性统计的列", self.data_columns)
+        self.selected_data = self.data[self.selected_columns]
+        st.dataframe(self.selected_data)
+
 
 
 class DescriptiveStatistics(DataPrepare):
@@ -83,11 +91,15 @@ class DescriptiveStatistics(DataPrepare):
         super().__init__(file)
 
     def descriptive_statistics(self):
-        st.write("描述性统计")
-        descriptive_form = self.data.describe()
-        # descriptive_form中空值使用空白替换
-        # descriptive_form = descriptive_form.fillna("")
-        st.write(descriptive_form)
+        # 调用父类的descriptive_select_columns方法
+        self.descriptive_select_columns()
+        # 对self.selected_data进行描述性统计
+        st.write(self.selected_data.describe())
+
+
+
+
+
 
 
 
@@ -101,7 +113,7 @@ class DescriptiveStatistics(DataPrepare):
 
 # 定义一个类CallGenerator，继承StudyTypeSelector类，用于调用研究类型，要首先判定FileUploader是否已经接受到上传的文件，如果为空，提示用户上传文件，如果不为空，调用select_study_type方法，判定研究类型，如果是病例系列研究，调用case_series_study方法，如果是横断面研究，调用cross_sectional_study方法。
 def study_type():
-    study_type = st.selectbox("选择研究类型", ["描述性统计", "横断面研究"])
+    study_type = st.selectbox("选择研究类型", ["未选择","描述性统计", "横断面研究"])
     return study_type
 
 
