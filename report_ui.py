@@ -123,7 +123,8 @@ def study_type():
 class Generator(DescriptiveStatistics):
     def __init__(self, file):
         super().__init__(file)
-        session_state = SessionState.get(selected_options=[])
+        # 使用session_state记录用户选择的列(get不能用）
+        session_state.selected_columns = None
 
     # 将FileUploader接受到的文件赋值给self.used_file
 
