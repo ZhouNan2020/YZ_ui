@@ -103,8 +103,8 @@ class CaseSeriesStudy(DataPrepare):
         super().__init__(file)
         self.outcome = st.selectbox("选择结局指标", self.data_columns)
         self.exposure_factor = st.selectbox("选择暴露因素", self.data_columns)
-        self.case_series_sub_group = st.selectbox("选择研究的组别", self.data[self.research_var].unique().tolist())
         self.research_var = st.selectbox("选择研究的目标变量及组别", self.data_columns)
+        self.case_series_sub_group = st.selectbox("选择研究的组别", self.data[self.research_var].unique().tolist())
         # self.data = DataPrepare().read_data()
         # 但是在后面函数的调用中，self.data是None，所以我需要在每个函数中都调用一次read_data，这样self.data才能被赋值为pd.read_excel读取的数据
         # 但是这样做的话，每次调用函数都会重新读取一次excel，这样会很慢，所以我需要使用@cache缓存函数的返回值，避免st频繁刷新
