@@ -122,7 +122,7 @@ class Generator(DescriptiveStatistics):
     def __init__(self, file):
         super().__init__(file)
         # 使用session_state记录用户选择的列(get不能用）
-        
+
 
     # 将FileUploader接受到的文件赋值给self.used_file
 
@@ -132,15 +132,14 @@ class Generator(DescriptiveStatistics):
             st.title("数据探索")
             st.write("请选择要展示的列：")
             all_columns = self.data.columns.tolist()
+            if 'selected_options' not in st.session_state:
+                st.session_state.selected_options = []
             selected_columns = st.multiselect("选择列", all_columns, key="my_multiselect")
-            # 将用户选择的列赋值给session_state.selected_columns
-            session_state.selected_columns = selected_columns
-            if selected_columns not in st.session_state:
-                st.session_state.selected_cols = []
             if selected_columns:
-                st.session_state.selected_cols.extend(selected_columns)
+                st.session_state.selected_options.extend(selected_columns)
+
             if st.button("生成"):
-                self.Descriptive_run(session_state.selected_columns)
+                self.Descriptive_run(session_state.selected_options)
         else:
             pass
 
