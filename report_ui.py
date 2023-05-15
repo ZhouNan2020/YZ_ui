@@ -76,7 +76,7 @@ class DataPrepare():
         self.data_columns = self.data.columns
         self.data_columns = self.data_columns.tolist()
 
-class DescriptiveStatistics(DataPrepare)
+class DescriptiveStatistics(DataPrepare):
     def __init__(self,file):
         super().__init__(file)
 
