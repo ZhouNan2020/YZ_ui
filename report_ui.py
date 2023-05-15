@@ -92,10 +92,9 @@ class DescriptiveStatistics(DataPrepare):
 
     def Descriptive_Chose(self):
         selected_columns = st.multiselect("选择列", self.all_columns, key="Descriptive_multiselect_1")
-        if selected_columns:
-            st.session_state.Descriptive_multiselect_1.extend(selected_columns)
 
-    def descriptive_select_columns(self):
+
+    def descriptive_select_columns(self, selected_columns):
         st.dataframe(self.get_selected_columns(session_state.Descriptive_multiselect_1))
 
 
@@ -129,9 +128,10 @@ class Generator(DescriptiveStatistics):
         if study == "描述性统计":
             st.title("数据探索")
             st.write("请选择要展示的列：")
-            self.Descriptive_Chose()
+            selected_columns = st.multiselect("选择列", self.all_columns, key="Descriptive_multiselect_1")
+
             if st.button("生成"):
-                self.descriptive_select_columns()
+                self.descriptive_select_columns(selected_columns)
         else:
             pass
 
