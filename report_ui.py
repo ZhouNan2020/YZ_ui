@@ -32,7 +32,7 @@ class FileUploader:
 
 # 实例化并调用
 file_uploader = FileUploader()
-file_uploader.uploader()
+# file_uploader.uploader()
 file_uploader.explain()
 # ______________________________________
 '''tab1的内容是展示数据，需要一个类，首先获取被上传excel文件中的所有sheet名称供选择，
