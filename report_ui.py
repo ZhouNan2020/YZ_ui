@@ -182,12 +182,12 @@ class PreprocessingExecution(DataPreprocessing):
 
 
 
-with tab2:
-    # 调用
-    preprocessing = PreprocessingExecution(file_uploader.file)
-    preprocessing.preprocessing_multiselect()
-    if st.button("执行"):
-        preprocessing.preprocessing_execution()
+# with tab2:
+#     # 调用
+#     preprocessing = PreprocessingExecution(file_uploader.file)
+#     preprocessing.preprocessing_multiselect()
+#     if st.button("执行"):
+#         preprocessing.preprocessing_execution()
 
 
 
