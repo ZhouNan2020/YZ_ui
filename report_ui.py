@@ -21,8 +21,8 @@ class FileUploader:
     def __init__(self):
         self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"], key="file_uploader")
 
-    def uploader(self):
-        self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
+    #def uploader(self):
+    #    self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
 
     def explain(self):
         if self.file is not None:
