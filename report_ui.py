@@ -96,8 +96,11 @@ class DescriptiveStatistics(DataPrepare):
         # 显示多选框，让用户选择要展示的列
         selected_columns = st.multiselect("选择列", all_columns)
         # 如果用户选择了列，则显示选择的列的数据
-        if selected_columns:
-            st.dataframe(self.get_selected_columns(selected_columns))
+        if st.button("生成"):
+            if selected_columns:
+                st.dataframe(self.get_selected_columns(selected_columns))
+        
+        
 
 
 #class DescriptiveStatistics(DescriptiveStatisticsOfData):
