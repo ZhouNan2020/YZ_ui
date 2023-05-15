@@ -91,6 +91,7 @@ class DescriptiveStatistics(DataPrepare):
         return self.data[selected_columns]
 
     def Descriptive_Chose(self):
+        st.session_state.Descriptive_multiselect_1 = []
         if "Descriptive_multiselect_1" not in st.session_state:
             st.session_state.Descriptive_multiselect_1 = []
         selected_columns = st.multiselect("选择列", self.all_columns, key="Descriptive_multiselect_1")
@@ -151,14 +152,15 @@ with tab2:
     call()
 
 with tab3:
-    # 一个st.session_state的示例，初始为0，让用户点击，每点击一次计数+1,但是不要实时显示更改，要在点击submit后，才将总的点击次数显示出来
+    # 使用@cache定义一个st.session_state的函数示例，初始为0，让用户点击，每点击一次计数+1,但是不要实时显示更改，要在点击submit后，才将总的点击次数显示出来,合并@cache使用，避免st频繁刷新
     if "count" not in st.session_state:
         st.session_state.count = 0
-    st.write(st.session_state.count)
+    st.write("点击次数：", st.session_state.count)
     if st.button("点击"):
         st.session_state.count += 1
     if st.button("submit"):
-        st.write(st.session_state.count)
-        
+        st.write("点击次数：", st.session_state.count)
+
+
         
 
