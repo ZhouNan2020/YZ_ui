@@ -95,13 +95,14 @@ class DescriptiveStatistics(DataPrepare):
         selected_data, selected_columns = super().descriptive_select_columns()
         # 给一个button，用于触发描述性统计的计算
         if st.button("开始分析"):
-            
-            # 描述性统计的结果赋值给descriptive_statistics_result
-            descriptive_statistics_result = selected_data.describe()
-            # st.dataframe显示描述性统计的结果
-            st.dataframe(descriptive_statistics_result)
             if selected_columns is None:
                 st.write("请选择需要纳入描述性统计的列")
+            else:
+                # 描述性统计的结果赋值给descriptive_statistics_result
+                descriptive_statistics_result = selected_data.describe()
+                # st.dataframe显示描述性统计的结果
+                st.dataframe(descriptive_statistics_result)
+
 
 
 
