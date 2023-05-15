@@ -214,7 +214,7 @@ class DescriptiveStatistics(DataPrepare):
         super().__init__(file)
         self.all_columns = self.data.columns.tolist()
 
-    @st.cache_data
+    @st.cache
     def get_selected_columns(self, selected_columns):
         return self.data[selected_columns]
     def descriptive_select_columns(self, selected_columns):
