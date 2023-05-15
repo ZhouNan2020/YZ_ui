@@ -67,7 +67,7 @@ with tab1:
 class DataPrepare():
     # 在__init__中定义这个类将直接使用FileUploader中被上传的文件，将文件赋值给self.data供后面的函数调用
 
-    def __init__(self,file):
+    def __init__(self, file):
         self.file = file
         data = pd.read_excel(self.file, sheet_name=None, header=0)
         data = pd.concat(data, ignore_index=True)
@@ -75,6 +75,8 @@ class DataPrepare():
         self.data = pd.DataFrame(data)
         self.data_columns = self.data.columns
         self.data_columns = self.data_columns.tolist()
+
+
 
 class DescriptiveStatistics(DataPrepare):
     def __init__(self,file):
@@ -103,29 +105,26 @@ def study_type():
     return study_type
 
 
-class CallGenerator(DescriptiveStatistics):
+class Generator(DescriptiveStatistics):
     def __init__(self,file):
         super().__init__(file)
 
     # 将FileUploader接受到的文件赋值给self.used_file
 
-    def call(self):
-        if self.file is None:
-            st.warning("请上传文件")
+    def gener(self):
+        study = study_type()
+        if study == "描述性统计":
+            self.descriptive_statistics()
         else:
-            study = study_type()
-            if study == "描述性统计":
-                self.descriptive_statistics()
-            else:
-                pass
+            pass
 
 
 def call():
     if file_uploader.file is None:
         st.warning("请上传文件")
     else:
-        call = CallGenerator(file_uploader.file)
-        call.call()
+        gen = Generator(file_uploader.file)
+        gen.gener()
 
 # 实例化并调用
 with tab2:
