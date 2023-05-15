@@ -71,6 +71,7 @@ class DataPrepare():
         self.file = file
         data = pd.read_excel(self.file, sheet_name=None, header=0)
         data = pd.concat(data, ignore_index=True)
+        data = data.infer_objects()
         self.data = pd.DataFrame(data)
         self.data_columns = self.data.columns
         self.data_columns = self.data_columns.tolist()
