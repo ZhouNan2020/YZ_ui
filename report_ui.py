@@ -126,7 +126,7 @@ class Generator(DescriptiveStatistics):
         super().__init__(file)
 
     # 将FileUploader接受到的文件赋值给self.used_file
-
+    @st.cache
     def gener(self):
         study = study_type()
         if study == "描述性统计":
