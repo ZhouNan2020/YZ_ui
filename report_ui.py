@@ -69,8 +69,9 @@ class DataPrepare():
 
     def __init__(self,file):
         self.file = file
-        self.data = pd.read_excel(self.file, sheet_name=None, header=0)
-        self.data = pd.concat(self.data, ignore_index=True)
+        data = pd.read_excel(self.file, sheet_name=None, header=0)
+        data = pd.concat(data, ignore_index=True)
+        self.data = pd.DataFrame(data)
         self.data_columns = self.data.columns
         self.data_columns = self.data_columns.tolist()
 
@@ -135,10 +136,7 @@ class CaseSeriesStudy(DataPrepare):
 
     def case_series_study(self):
         # 将这个类中的构造函数全部转换成1维数组，除了self.data
-        
-
         self.data = self.data[self.data[self.research_var] == self.case_series_sub_group]
-
         st.dataframe(self.data)
 
 
