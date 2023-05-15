@@ -81,8 +81,12 @@ class DataPrepare():
     def descriptive_select_columns(self):
         st.write("选择需要纳入描述性统计的列")
         selected_columns = st.multiselect("选择需要纳入描述性统计的列", self.data_columns)
-        selected_data = self.data[selected_columns]
-        return selected_data, selected_columns
+        return selected_columns
+
+    def descriptive_read_columns(self):
+        # 调用descriptive_select_columns的返回值，从self.data中提取数据，赋值给selected_data
+        selected_data = self.data[self.descriptive_select_columns()]
+        return selected_data
 
 
 
@@ -99,11 +103,10 @@ class DescriptiveStatistics(DataPrepare):
             if selected_columns is None:
                 st.write("请选择需要纳入描述性统计的列")
             else:
-                # 描述性统计的结果赋值给descriptive_statistics_result
-                descriptive_statistics_result = selected_data.describe()
-                # st.dataframe显示描述性统计的结果
-                st.dataframe(descriptive_statistics_result)
-
+                # 获取descriptive_read_columns的返回值，进行描述性统计
+                selected_data = self.descriptive_read_columns()
+                # 使用st.dataframe显示描述性统计的结果
+                st.dataframe(selected_data.describe())
 
 
 
