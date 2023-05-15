@@ -92,7 +92,10 @@ class DescriptiveStatistics(DataPrepare):
         return self.data[selected_columns]
 
     def Descriptive_run(self,selected_columns):
-        st.dataframe(self.get_selected_columns(selected_columns))
+
+
+        if st.session_state.selected_cols:
+            st.dataframe(self.get_selected_columns(st.session_state.selected_cols))
         
         
 
@@ -129,8 +132,13 @@ class Generator(DescriptiveStatistics):
             st.title("数据探索")
             st.write("请选择要展示的列：")
             all_columns = self.data.columns.tolist()
-            selected_columns = st.multiselect("选择列", all_columns,key="my_multiselect")
+            selected_columns = st.multiselect("选择列", all_columns, key="my_multiselect")
+            # 将用户选择的列赋值给session_state.selected_columns
             session_state.selected_columns = selected_columns
+            if selected_columns not in st.session_state:
+                st.session_state.selected_cols = []
+            if selected_columns:
+                st.session_state.selected_cols.extend(selected_columns)
             if st.button("生成"):
                 self.Descriptive_run(session_state.selected_columns)
         else:
