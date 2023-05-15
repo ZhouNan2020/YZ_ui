@@ -224,8 +224,8 @@ class DescriptiveStatistics(DataPrepare):
 
 
     # 定义一个函数，功能是供用户选择要进行描述性统计的连续变量列，使用multiselect，并从原始数据集中选中提取这些列，并对选中列求出索引计数，mean±SD,中位数、最大值和最小值
-    def DescriptiveStatisticsOfContinuousVariables(self):
-        selected_columns = st.multiselect("选择要进行描述性统计的连续变量列", self.all_columns)
+    def DescriptiveStatisticsOfContinuousVariables(self,selected_columns):
+
         if selected_columns:
             selected_data=self.descriptive_select_columns(selected_columns)
             # 求出索引计数，mean±SD,中位数、最大值和最小值,不要使用describe
@@ -284,8 +284,8 @@ class Generator(DescriptiveStatistics):
         if study == "描述性统计":
             st.title("数据探索")
             st.write("请选择要展示的列：")
-            selected_columns = st.multiselect("选择列", self.all_columns, key="Descriptive_multiselect_1")
-
+            selected_columns = st.multiselect("选择要进行描述性统计的连续变量列", self.all_columns)
+            super().DescriptiveStatisticsOfContinuousVariables(selected_columns)
             if st.button("生成"):
                 self.descriptive_select_columns(selected_columns)
             # 定义一个button，点击后执行descriptive_statistics方法
