@@ -21,7 +21,7 @@ class FileUploader:
     def __init__(self):
         self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"], key="file_uploader")
 
-    #def uploader(self):
+    # def uploader(self):
     #    self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
 
     def explain(self):
@@ -78,74 +78,45 @@ class DataPrepare():
         self.data_columns = self.data.columns
         self.data_columns = self.data_columns.tolist()
 
+
+class DescriptiveStatisticsOfData(DataPrepare):
+    def __init__(self, file):
+        super().__init__(file)
+
     '''定义1-2个函数并符合以下要求：
     1.函数名为descriptive_select_columns
     2.使用@st.cache缓存函数的返回值，避免st频繁刷新。但是要使用一个button激活这个被缓存的函数
     3.使用st.multiselect，将选择的列赋值给self.selected_columns
-    4.使用被选中的列名从self.data中提取数据，使用st.dataframe显示
-    5.如果没有选择列，使用st.write提示用户选择列
+    4.如果没有选择列，使用st.write提示用户选择列
     开始吧'''
+
     @st.cache
     def descriptive_select_columns(self):
         self.selected_columns = st.multiselect("选择需要纳入描述性统计的列", self.data_columns)
         self.selected_data = self.data[self.selected_columns]
-        st.dataframe(self.selected_data)
-
-    
+        return self.selected_data, self.selected_columns
 
 
-
-
-
-class DescriptiveStatistics(DataPrepare):
-    def __init__(self,file):
+class DescriptiveStatistics(DescriptiveStatisticsOfData):
+    def __init__(self, file):
         super().__init__(file)
 
-
-    def descriptive_statistics(_self):
+    def descriptive_statistics(self):
         # 给一个button，用于触发描述性统计的计算
         # 调用descriptive_select_columns函数，将返回值赋值给selected_data和selected_columns
         super().descriptive_select_columns()
-        if st.button("开始分析"):
-            if _self.selected_columns is None:
-                st.write("请选择需要纳入描述性统计的列")
-            else:
-                # 获取descriptive_read_columns的返回值，进行描述性统计
-                super().descriptive_read_columns()
-                # 使用st.dataframe显示描述性统计的结果
-                st.dataframe(_self.selected_data.describe())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        # 使用st.write显示selected_data
+        st.write(self.selected_data)
 
 
 # 定义一个类CallGenerator，继承StudyTypeSelector类，用于调用研究类型，要首先判定FileUploader是否已经接受到上传的文件，如果为空，提示用户上传文件，如果不为空，调用select_study_type方法，判定研究类型，如果是病例系列研究，调用case_series_study方法，如果是横断面研究，调用cross_sectional_study方法。
 def study_type():
-    study_type = st.selectbox("选择研究类型", ["未选择","描述性统计", "横断面研究"])
+    study_type = st.selectbox("选择研究类型", ["未选择", "描述性统计", "横断面研究"])
     return study_type
 
 
 class Generator(DescriptiveStatistics):
-    def __init__(self,file):
+    def __init__(self, file):
         super().__init__(file)
 
     # 将FileUploader接受到的文件赋值给self.used_file
@@ -165,7 +136,7 @@ def call():
         gen = Generator(file_uploader.file)
         gen.gener()
 
+
 # 实例化并调用
 with tab2:
-
     call()
