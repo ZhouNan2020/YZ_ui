@@ -76,31 +76,28 @@ class DataPrepare(FileUploader):
         else:
             self.data = None
             self.data_columns = None
-        data = pd.read_excel(self.file, sheet_name=None, header=0)
-        self.data = pd.concat(data, ignore_index=True)
-        data_columns = self.data.columns
+        # data = pd.read_excel(self.file, sheet_name=None, header=0)
+        # self.data = pd.concat(data, ignore_index=True)
+        # data_columns = self.data.columns
         # 将self.data_columns中的列名转换成list，赋值给self.data_columns
-        self.data_columns = data_columns.tolist()
+        # self.data_columns = data_columns.tolist()
     # 怎样才能正常调用self.data呢？
     # 1.在__init__中定义self.data = None
     # 2.在read_data中将self.data赋值为pd.read_excel读取的数据
 
-
-    #def read_data(self):# 这里可能要将读数据和合并数据分开成两个def
+    # def read_data(self):# 这里可能要将读数据和合并数据分开成两个def
     #    # 使用pd.read_excel读取excel文件，sheet_name=None表示读取所有的sheet，header=0表示使用第一行作为列名，赋值给self.data
     #    if self.file is not None:
     #        self.data = pd.read_excel(self.file, sheet_name=None, header=0)
     #
-    #@property
-    #def merge_data(self):
+    # @property
+    # def merge_data(self):
     #    # 将self.data中的所有sheet合并成一个dataframe，赋值给self.data
     #    self.data = pd.concat(self.data, ignore_index=True)
     #    # 将self.data中的所有列名赋值给self.data_columns
     #    self.data_columns = self.data.columns
     #    # 将self.data_columns中的列名转换成list，赋值给self.data_columns
     #    self.data_columns = self.data_columns.tolist()
-
-
 
 
 class CaseSeriesStudy(DataPrepare):
@@ -110,7 +107,7 @@ class CaseSeriesStudy(DataPrepare):
         self.exposure_factor = st.selectbox("选择暴露因素", self.data_columns)
         self.case_series_sub_group = st.selectbox("选择研究的组别", self.data[self.research_var].unique().tolist())
         self.research_var = st.selectbox("选择研究的目标变量及组别", self.data_columns)
-        #self.data = DataPrepare().read_data()
+        # self.data = DataPrepare().read_data()
         # 但是在后面函数的调用中，self.data是None，所以我需要在每个函数中都调用一次read_data，这样self.data才能被赋值为pd.read_excel读取的数据
         # 但是这样做的话，每次调用函数都会重新读取一次excel，这样会很慢，所以我需要使用@cache缓存函数的返回值，避免st频繁刷新
 
@@ -125,24 +122,24 @@ class CaseSeriesStudy(DataPrepare):
     用@cache缓存函数的返回值，避免st频繁刷新'''
 
     # @st.cache
-    #def case_series_study_1(self):
+    # def case_series_study_1(self):
     #    self.research_var = st.selectbox("选择研究的目标变量及组别", self.data_columns)
     #    self.case_series_sub_group = st.selectbox("选择研究的组别", self.data[self.research_var].unique().tolist())
     #
-    #@st.cache
-    #def case_series_study_2(self):
+    # @st.cache
+    # def case_series_study_2(self):
     #    self.exposure_factor = st.selectbox("选择暴露因素", self.data_columns)
     #    self.outcome = st.selectbox("选择结局指标", self.data_columns)
     #
 
     '''self.data将保留research_VAR中的值为case_series_sub_group的行，
     使用dataframe展示这些被选中的数据'''
+
     def case_series_study(self):
         self.data = self.data[self.data[self.research_var] == self.case_series_sub_group]
         self.data = self.data[[self.exposure_factor, self.outcome]]
         self.data = self.data.groupby(self.exposure_factor).mean()
         st.dataframe(self.data)
-
 
 
 class CrossSectionalStudy(DataPrepare):
@@ -186,7 +183,6 @@ class StudyTypeSelector(CaseSeriesStudy, CrossSectionalStudy):
         super().__init__()
         self.study_type = None
 
-
     def select_study_type(self):
         self.study_type = st.selectbox("选择研究类型", ["病例系列研究", "横断面研究"])
         return self.study_type
@@ -210,11 +206,7 @@ class CallGenerator(StudyTypeSelector):
                 self.cross_sectional_study()
 
 
-
 # 实例化并调用
 with tab2:
     call = CallGenerator()
     call.call()
-
-
-
