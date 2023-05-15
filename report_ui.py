@@ -69,26 +69,29 @@ class DataPrepare(FileUploader):
     def __init__(self):
         super().__init__()
         # 我需要self的数据类型不是None，而是dataframe，所以我在这里定义了一个self.data，这个dataframe将在之后的函数中被赋值
-        self.data = None
-        self.data_columns = None
+        data = pd.read_excel(self.file, sheet_name=None, header=0)
+        self.data = pd.concat(data, ignore_index=True)
+        data_columns = self.data.columns
+        # 将self.data_columns中的列名转换成list，赋值给self.data_columns
+        self.data_columns = data_columns.tolist()
     # 怎样才能正常调用self.data呢？
     # 1.在__init__中定义self.data = None
     # 2.在read_data中将self.data赋值为pd.read_excel读取的数据
 
 
-    def read_data(self):# 这里可能要将读数据和合并数据分开成两个def
-        # 使用pd.read_excel读取excel文件，sheet_name=None表示读取所有的sheet，header=0表示使用第一行作为列名，赋值给self.data
-        if self.file is not None:
-            self.data = pd.read_excel(self.file, sheet_name=None, header=0)
-
-    @property
-    def merge_data(self):
-        # 将self.data中的所有sheet合并成一个dataframe，赋值给self.data
-        self.data = pd.concat(self.data, ignore_index=True)
-        # 将self.data中的所有列名赋值给self.data_columns
-        self.data_columns = self.data.columns
-        # 将self.data_columns中的列名转换成list，赋值给self.data_columns
-        self.data_columns = self.data_columns.tolist()
+    #def read_data(self):# 这里可能要将读数据和合并数据分开成两个def
+    #    # 使用pd.read_excel读取excel文件，sheet_name=None表示读取所有的sheet，header=0表示使用第一行作为列名，赋值给self.data
+    #    if self.file is not None:
+    #        self.data = pd.read_excel(self.file, sheet_name=None, header=0)
+    #
+    #@property
+    #def merge_data(self):
+    #    # 将self.data中的所有sheet合并成一个dataframe，赋值给self.data
+    #    self.data = pd.concat(self.data, ignore_index=True)
+    #    # 将self.data中的所有列名赋值给self.data_columns
+    #    self.data_columns = self.data.columns
+    #    # 将self.data_columns中的列名转换成list，赋值给self.data_columns
+    #    self.data_columns = self.data_columns.tolist()
 
 
 
@@ -96,11 +99,11 @@ class DataPrepare(FileUploader):
 class CaseSeriesStudy(DataPrepare):
     def __init__(self):
         super().__init__()
-        self.outcome = None
-        self.exposure_factor = None
-        self.case_series_sub_group = None
-        self.research_var = None
-        self.data = DataPrepare().read_data()
+        self.outcome = st.selectbox("选择结局指标", self.data_columns)
+        self.exposure_factor = st.selectbox("选择暴露因素", self.data_columns)
+        self.case_series_sub_group = st.selectbox("选择研究的组别", self.data[self.research_var].unique().tolist())
+        self.research_var = st.selectbox("选择研究的目标变量及组别", self.data_columns)
+        #self.data = DataPrepare().read_data()
         # 但是在后面函数的调用中，self.data是None，所以我需要在每个函数中都调用一次read_data，这样self.data才能被赋值为pd.read_excel读取的数据
         # 但是这样做的话，每次调用函数都会重新读取一次excel，这样会很慢，所以我需要使用@cache缓存函数的返回值，避免st频繁刷新
 
@@ -114,28 +117,25 @@ class CaseSeriesStudy(DataPrepare):
     根据组的数量，在一个selectbox中使用“第X组”选择查看不同组的st.dataframe,其中X为INT类型的数字，从1开始，最大值为组的数量。
     用@cache缓存函数的返回值，避免st频繁刷新'''
 
-    @st.cache
-    def case_series_study_1(self):
-        self.research_var = st.selectbox("选择研究的目标变量及组别", self.data_columns)
-        self.case_series_sub_group = st.selectbox("选择研究的组别", self.data[self.research_var].unique().tolist())
+    # @st.cache
+    #def case_series_study_1(self):
+    #    self.research_var = st.selectbox("选择研究的目标变量及组别", self.data_columns)
+    #    self.case_series_sub_group = st.selectbox("选择研究的组别", self.data[self.research_var].unique().tolist())
+    #
+    #@st.cache
+    #def case_series_study_2(self):
+    #    self.exposure_factor = st.selectbox("选择暴露因素", self.data_columns)
+    #    self.outcome = st.selectbox("选择结局指标", self.data_columns)
+    #
 
-    @st.cache
-    def case_series_study_2(self):
-        self.exposure_factor = st.selectbox("选择暴露因素", self.data_columns)
-        self.outcome = st.selectbox("选择结局指标", self.data_columns)
-
-    def case_series_study_3(self):
+    '''self.data将保留research_VAR中的值为case_series_sub_group的行，
+    使用dataframe展示这些被选中的数据'''
+    def case_series_study(self):
         self.data = self.data[self.data[self.research_var] == self.case_series_sub_group]
+        self.data = self.data[[self.exposure_factor, self.outcome]]
         self.data = self.data.groupby(self.exposure_factor).mean()
-        self.data.reset_index(inplace=True)
-        self.data["组别"] = self.data[self.exposure_factor].apply(
-            lambda x: "第{}组".format(self.data[self.exposure_factor].tolist().index(x) + 1))
-        self.data = self.data.loc[:, ["组别", self.outcome]]
-        self.data.rename(columns={self.outcome: "结局指标"}, inplace=True)
-        group_number = st.selectbox("选择查看的组别", self.data["组别"].tolist())
-        self.data = self.data[self.data["组别"] == group_number]
         st.dataframe(self.data)
-        return self.data
+
 
 
 class CrossSectionalStudy(DataPrepare):
