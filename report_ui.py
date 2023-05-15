@@ -76,115 +76,31 @@ class DataPrepare():
         self.data_columns = self.data.columns
         self.data_columns = self.data_columns.tolist()
 
-        # data = pd.read_excel(self.file, sheet_name=None, header=0)
-        # self.data = pd.concat(data, ignore_index=True)
-        # data_columns = self.data.columns
-        # 将self.data_columns中的列名转换成list，赋值给self.data_columns
-        # self.data_columns = data_columns.tolist()
-    # 怎样才能正常调用self.data呢？
-    # 1.在__init__中定义self.data = None
-    # 2.在read_data中将self.data赋值为pd.read_excel读取的数据
-
-    # def read_data(self):# 这里可能要将读数据和合并数据分开成两个def
-    #    # 使用pd.read_excel读取excel文件，sheet_name=None表示读取所有的sheet，header=0表示使用第一行作为列名，赋值给self.data
-    #    if self.file is not None:
-    #        self.data = pd.read_excel(self.file, sheet_name=None, header=0)
-    #
-    # @property
-    # def merge_data(self):
-    #    # 将self.data中的所有sheet合并成一个dataframe，赋值给self.data
-    #    self.data = pd.concat(self.data, ignore_index=True)
-    #    # 将self.data中的所有列名赋值给self.data_columns
-    #    self.data_columns = self.data.columns
-    #    # 将self.data_columns中的列名转换成list，赋值给self.data_columns
-    #    self.data_columns = self.data_columns.tolist()
-
-
-class CaseSeriesStudy(DataPrepare):
+class DescriptiveStatistics(DataPrepare)
     def __init__(self,file):
         super().__init__(file)
-        self.outcome = st.selectbox("选择结局指标", self.data_columns)
-        self.exposure_factor = st.selectbox("选择暴露因素", self.data_columns)
-        self.research_var = st.selectbox("选择研究的目标变量及组别", self.data_columns)
-        self.case_series_sub_group = st.selectbox("选择研究的组别", self.data[self.research_var].unique().tolist())
-        # self.data = DataPrepare().read_data()
-        # 但是在后面函数的调用中，self.data是None，所以我需要在每个函数中都调用一次read_data，这样self.data才能被赋值为pd.read_excel读取的数据
-        # 但是这样做的话，每次调用函数都会重新读取一次excel，这样会很慢，所以我需要使用@cache缓存函数的返回值，避免st频繁刷新
 
-    '''病例系列研究：
-    选项一：“选择研究的目标变量及组别”，分为两个selectbox，
-            第1个是“选择研究的目标变量”，选项是self.data_columns中的变量名，结果赋值给research_VAR,
-            第2个是“选择研究的组别”，选项是self.data中research_VAR这一列的不同值，结果赋值给case_series_sub_group.
-    选项二: "选择暴露因素",选项是self.data_columns中的变量名，结果赋值给exposure_factor
-    选项三：“选择结局指标”，选项是self.data_columns中的变量名，结果赋值给outcome
-    全部选择结束之后，self.data将保留research_VAR中的值为case_series_sub_group的行，并根据exposure_factor分为不同的组，
-    根据组的数量，在一个selectbox中使用“第X组”选择查看不同组的st.dataframe,其中X为INT类型的数字，从1开始，最大值为组的数量。
-    用@cache缓存函数的返回值，避免st频繁刷新'''
-
-    # @st.cache
-    # def case_series_study_1(self):
-    #    self.research_var = st.selectbox("选择研究的目标变量及组别", self.data_columns)
-    #    self.case_series_sub_group = st.selectbox("选择研究的组别", self.data[self.research_var].unique().tolist())
-    #
-    # @st.cache
-    # def case_series_study_2(self):
-    #    self.exposure_factor = st.selectbox("选择暴露因素", self.data_columns)
-    #    self.outcome = st.selectbox("选择结局指标", self.data_columns)
-    #
-
-    '''self.data将保留research_VAR中的值为case_series_sub_group的行，
-    使用dataframe展示这些被选中的数据'''
-
-    def case_series_study(self):
-        # 将这个类中的构造函数全部转换成1维数组，除了self.data
-        self.data = self.data[self.data[self.research_var] == self.case_series_sub_group]
-        st.dataframe(self.data)
+    def descriptive_statistics(self):
+        st.write("描述性统计")
+        st.write(self.data.describe())
 
 
-class CrossSectionalStudy(DataPrepare):
-    def __init__(self,file):
-        super().__init__(file)
-        self.ob_radio_var = None
-        self.inclu_var = None
-
-    '''横断面研究：
-    选项一：“选择患病率观察指标”，选项是self.data_columns中的变量名，结果赋值给ob_radio_var,
-    选项二：“选择将纳入分析的变量”，选项是self.data_columns中的变量名，结果赋值给inclu_var,这个使用多选框。
-    需要对ob_radio_var进行预处理，使用单选框选择ob_radio_var是分类变量还是连续变量。
-    使用st.radio判定ob_radio_var是“分类变量”还是“连续变量”
-    如果ob_radio_var是分类变量，提供输入框选择哪个数字代表患病
-    如果ob_radio_var是连续变量，提供输入框选择患病率的判定方式，大于还是小于，以及判定的阈值.
-    然后使用1表示“患病”，0表示“未患病”，替换self.data中ob_radio_var的值，列名为“incidence”，
-    最后将incidence与inclu_var合并，使用st.dataframe展示结果。'''
-
-    def cross_sectional_study(self):
-        ob_radio_var = st.selectbox("选择患病率观察指标", self.data_columns)
-        inclu_var = st.multiselect("选择将纳入分析的变量", self.data_columns)
-        ob_radio_var_type = st.radio("选择患病率观察指标的类型", ["分类变量", "连续变量"])
-        if ob_radio_var_type == "分类变量":
-            ob_radio_var_value = st.text_input("输入哪个值代表患病", 1)
-            # 将self.data中表示患病的值替换为1，其它值均替换为0
-            self.data[ob_radio_var] = self.data[ob_radio_var].apply(lambda x: 1 if x == ob_radio_var_value else 0)
-        else:
-            ob_radio_var_value = st.selectbox("输入患病率的判定方式", [">", "<", "=", ">=", "<=", "!="],
-                                              key="ob_radio_var_value")
-            ob_radio_var_value2 = st.text_input("输入患病率的阈值", 0.5)
-            # 将符合eval（ob_radio_var_value和ob_radio_var_value2）的值替换为1，其它值均替换为0。注意：目前获取的值为str，需要转换为可供计算与比较的形式
-            self.data[ob_radio_var] = self.data[ob_radio_var].apply(
-                lambda x: 1 if eval(str(x) + ob_radio_var_value + ob_radio_var_value2) else 0)
-        self.data.rename(columns={ob_radio_var: "incidence"}, inplace=True)
-        self.data = self.data[inclu_var + ["incidence"]]
-        st.dataframe(self.data)
 
 
-class StudyTypeSelector(CaseSeriesStudy, CrossSectionalStudy):
-    def study_type():
-        study_type = st.selectbox("选择研究类型", ["病例系列研究", "横断面研究"])
-        return study_type
+
+
+
+
+
 
 
 # 定义一个类CallGenerator，继承StudyTypeSelector类，用于调用研究类型，要首先判定FileUploader是否已经接受到上传的文件，如果为空，提示用户上传文件，如果不为空，调用select_study_type方法，判定研究类型，如果是病例系列研究，调用case_series_study方法，如果是横断面研究，调用cross_sectional_study方法。
-class CallGenerator(StudyTypeSelector):
+def study_type():
+    study_type = st.selectbox("选择研究类型", ["描述性统计", "横断面研究"])
+    return study_type
+
+
+class CallGenerator(DescriptiveStatistics):
     def __init__(self,file):
         super().__init__(file)
 
@@ -194,12 +110,11 @@ class CallGenerator(StudyTypeSelector):
         if self.file is None:
             st.warning("请上传文件")
         else:
-            study_type = StudyTypeSelector
-            study_type = study_type.study_type()
+            study_type = study_type()
             if study_type == "病例系列研究":
-                self.case_series_study()
+                self.descriptive_statistics()
             else:
-                self.cross_sectional_study()
+                pass
 
 
 def call():
