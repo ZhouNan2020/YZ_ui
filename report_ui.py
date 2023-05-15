@@ -220,14 +220,49 @@ class DescriptiveStatistics(DataPrepare):
     def descriptive_select_columns(self,selected_columns):
         selected_data = self.get_selected_columns(selected_columns)
         st.dataframe(selected_data)
-
-    def descriptive_statistics(self,selected_columns):
-        # 对selected_data执行描述性统计
-        selected_data = self.get_selected_columns(selected_columns)
-        st.dataframe(selected_data.describe())
+        return selected_data
 
 
-    # 
+    # 定义一个函数，功能是供用户选择要进行描述性统计的连续变量列，使用multiselect，并从原始数据集中选中提取这些列，并对选中列求出索引计数，mean±SD,中位数、最大值和最小值
+    def DescriptiveStatisticsOfContinuousVariables(self):
+        selected_columns = st.multiselect("选择要进行描述性统计的连续变量列", self.all_columns)
+        if selected_columns:
+            selected_data=self.descriptive_select_columns(selected_columns)
+            # 求出索引计数，mean±SD,中位数、最大值和最小值,不要使用describe
+            # 求出本列的值计数，和nan值分开计数
+            count = selected_data.count()
+            nan_count = selected_data.isnull().sum()
+
+            meanSD = selected_data.mean() + "±" + selected_data.std()
+
+            median = selected_data.median()
+
+            max = selected_data.max()
+
+            min = selected_data.min()
+            # 制作一个datafrmae，index分别为n (miss)，mean±SD,median、max和min,值分别为上面求出的值，其中n (miss)的值为count和nan_count合并在一个单元格内
+            descriptive_statistics = pd.DataFrame({"n (miss)": count + "(" + nan_count + ")", "mean±SD": meanSD, "median": median, "max": max, "min": min})
+            st.dataframe(descriptive_statistics)
+
+
+
+
+
+
+
+
+
+
+
+
+
+        else:
+            st.write("未选择列")
+
+
+
+
+
    
 
 
