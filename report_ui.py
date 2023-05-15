@@ -177,7 +177,7 @@ class CrossSectionalStudy(DataPrepare):
 
 
 class StudyTypeSelector(CaseSeriesStudy, CrossSectionalStudy):
-    def study_type(self):
+    def study_type():
         study_type = st.selectbox("选择研究类型", ["病例系列研究", "横断面研究"])
         return study_type
 
