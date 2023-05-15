@@ -255,7 +255,7 @@ class Generator(DescriptiveStatistics):
                 self.descriptive_select_columns(selected_columns)
             # 定义一个button，点击后执行descriptive_statistics方法
             if st.button("描述性统计"):
-                self.descriptive_statistics()
+                self.descriptive_statistics(selected_columns)
         else:
             pass
 
