@@ -19,7 +19,7 @@ tab1, tab2, tab3 = st.tabs(["数据浏览", "报告生成", "关于"])
 # 定义一个class，在st.sidebar中中用于上传excel，并显示文件名
 class FileUploader:
     def __init__(self):
-        self.file = None
+        self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"], key="file_uploader")
 
     def uploader(self):
         self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
