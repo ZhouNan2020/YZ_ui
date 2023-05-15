@@ -154,21 +154,22 @@ class PreprocessingExecution(DataPreprocessing):
     # 定义一个函数，功能是将用户选择的checkbox对应的方法调用
     @st.cache
     def preprocessing_execution(self):
-        for column in self.all_columns:
-            if st.checkbox("数字编码"):
-                self.label_encoder(column)
-            if st.checkbox("连续变量缺失值插补"):
-                self.continuous_variable_missing_value_imputation(column)
-            if st.checkbox("分类变量缺失值插补"):
-                self.categorical_variable_missing_value_imputation(column)
-            if st.checkbox("连续变量离散化"):
-                self.continuous_variable_discretization(column)
-            if st.checkbox("连续变量标准化"):
-                self.continuous_variable_standardization(column)
-            if st.checkbox("连续变量归一化"):
-                self.continuous_variable_normalization(column)
-            if st.checkbox("转换哑变量"):
-                self.dummy_variable(column)
+        if self.file is not None:
+            for column in self.all_columns:
+                if st.checkbox("数字编码"):
+                    self.label_encoder(column)
+                if st.checkbox("连续变量缺失值插补"):
+                    self.continuous_variable_missing_value_imputation(column)
+                if st.checkbox("分类变量缺失值插补"):
+                    self.categorical_variable_missing_value_imputation(column)
+                if st.checkbox("连续变量离散化"):
+                    self.continuous_variable_discretization(column)
+                if st.checkbox("连续变量标准化"):
+                    self.continuous_variable_standardization(column)
+                if st.checkbox("连续变量归一化"):
+                    self.continuous_variable_normalization(column)
+                if st.checkbox("转换哑变量"):
+                    self.dummy_variable(column)
         return self.data
     # 定义一个函数，功能是将预处理后的数据集返回
 
