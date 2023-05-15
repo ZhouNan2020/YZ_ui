@@ -90,7 +90,9 @@ class DescriptiveStatistics(DataPrepare):
     def __init__(self,file):
         super().__init__(file)
 
+    @st.experimental_singleton
     def descriptive_statistics(self):
+
         # 调用父类的descriptive_select_columns方法
         selected_data, selected_columns = super().descriptive_select_columns()
         # 给一个button，用于触发描述性统计的计算
