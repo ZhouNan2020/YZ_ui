@@ -5,6 +5,8 @@ import streamlit as st
 # 导入import docx和Python-docx-template
 
 from docxtpl import DocxTemplate
+from streamlit import session_state
+from streamlit.runtime.state import SessionState
 
 # ______________________________________
 # 在整个脚本中，能够使用@cache缓存的函数一定要用@st.cache
@@ -121,6 +123,7 @@ def study_type():
 class Generator(DescriptiveStatistics):
     def __init__(self, file):
         super().__init__(file)
+        session_state = SessionState.get(selected_options=[])
 
     # 将FileUploader接受到的文件赋值给self.used_file
 
@@ -131,8 +134,9 @@ class Generator(DescriptiveStatistics):
             st.write("请选择要展示的列：")
             all_columns = self.data.columns.tolist()
             selected_columns = st.multiselect("选择列", all_columns,key="my_multiselect")
+            session_state.selected_columns = selected_columns
             if st.button("生成"):
-                self.Descriptive_run(selected_columns)
+                self.Descriptive_run(session_state.selected_columns)
         else:
             pass
 
