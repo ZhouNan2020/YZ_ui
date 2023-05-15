@@ -228,6 +228,8 @@ class DescriptiveStatistics(DataPrepare):
 
         if selected_columns:
             selected_data=self.descriptive_select_columns(selected_columns)
+            # 将selected_data转换为float类型
+            selected_data = selected_data.astype(float)
             # 求出索引计数，mean±SD,中位数、最大值和最小值,不要使用describe
             # 求出本列的值计数，和nan值分开计数
             count = selected_data.count()
@@ -283,7 +285,7 @@ class Generator(DescriptiveStatistics):
         study = study_type()
         if study == "描述性统计":
             st.title("数据探索")
-            st.write("请选择要展示的列：")
+
             selected_columns = st.multiselect("选择要进行描述性统计的连续变量列", self.all_columns)
             if st.button("生成"):
                 self.descriptive_select_columns(selected_columns)
