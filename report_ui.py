@@ -134,9 +134,11 @@ class CaseSeriesStudy(DataPrepare):
     使用dataframe展示这些被选中的数据'''
 
     def case_series_study(self):
+        # 将这个类中的构造函数全部转换成1维数组，除了self.data
+        
+
         self.data = self.data[self.data[self.research_var] == self.case_series_sub_group]
-        self.data = self.data[[self.exposure_factor, self.outcome]]
-        self.data = self.data.groupby(self.exposure_factor).mean()
+
         st.dataframe(self.data)
 
 
