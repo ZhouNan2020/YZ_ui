@@ -90,12 +90,12 @@ class DescriptiveStatistics(DataPrepare):
 
     def Descriptive_run(self):
         # 获取所有列名
-        all_columns = self.data.columns.tolist()
+
         # 显示多选框，让用户选择要展示的列
-        selected_columns = st.multiselect("选择列", all_columns)
+
         # 如果用户选择了列，则显示选择的列的数据
-        if selected_columns:
-            st.dataframe(self.get_selected_columns(selected_columns))
+        
+        st.dataframe(self.get_selected_columns(selected_columns))
         
         
 
@@ -129,6 +129,8 @@ class Generator(DescriptiveStatistics):
         if study == "描述性统计":
             st.title("数据探索")
             st.write("请选择要展示的列：")
+            all_columns = self.data.columns.tolist()
+            selected_columns = st.multiselect("选择列", all_columns)
             if st.button("生成"):
                 self.Descriptive_run()
         else:
