@@ -89,16 +89,13 @@ class DescriptiveStatistics(DataPrepare):
         return self.data[selected_columns]
 
     def Descriptive_run(self):
-        st.title("数据探索")
-        st.write("请选择要展示的列：")
         # 获取所有列名
         all_columns = self.data.columns.tolist()
         # 显示多选框，让用户选择要展示的列
         selected_columns = st.multiselect("选择列", all_columns)
         # 如果用户选择了列，则显示选择的列的数据
-        if st.button("生成"):
-            if selected_columns:
-                st.dataframe(self.get_selected_columns(selected_columns))
+        if selected_columns:
+            st.dataframe(self.get_selected_columns(selected_columns))
         
         
 
@@ -126,11 +123,14 @@ class Generator(DescriptiveStatistics):
         super().__init__(file)
 
     # 将FileUploader接受到的文件赋值给self.used_file
-    @st.cache
+
     def gener(self):
         study = study_type()
         if study == "描述性统计":
-            self.Descriptive_run()
+            st.title("数据探索")
+            st.write("请选择要展示的列：")
+            if st.button("生成"):
+                self.Descriptive_run()
         else:
             pass
 
