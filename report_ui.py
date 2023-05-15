@@ -100,7 +100,7 @@ class DataPrepare():
 
 class CaseSeriesStudy(DataPrepare):
     def __init__(self):
-        super().__init__(file)
+        super().__init__(file=file_uploader.file)
         self.outcome = st.selectbox("选择结局指标", self.data_columns)
         self.exposure_factor = st.selectbox("选择暴露因素", self.data_columns)
         self.case_series_sub_group = st.selectbox("选择研究的组别", self.data[self.research_var].unique().tolist())
@@ -142,7 +142,7 @@ class CaseSeriesStudy(DataPrepare):
 
 class CrossSectionalStudy(DataPrepare):
     def __init__(self):
-        super().__init__(file)
+        super().__init__(file=file_uploader.file)
         self.ob_radio_var = None
         self.inclu_var = None
 
@@ -201,4 +201,4 @@ class CallGenerator(StudyTypeSelector):
 # 实例化并调用
 with tab2:
     call = CallGenerator()
-    call.call(file=file_uploader.file)
+    call.call()
