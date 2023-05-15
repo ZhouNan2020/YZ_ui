@@ -8,6 +8,7 @@ from docxtpl import DocxTemplate
 from streamlit import session_state
 from streamlit.runtime.state import SessionState
 
+
 # ______________________________________
 # 在整个脚本中，能够使用@cache缓存的函数一定要用@st.cache
 # 用于缓存函数的返回值，避免st频繁刷新
@@ -89,14 +90,8 @@ class DescriptiveStatistics(DataPrepare):
     @st.cache
     def get_selected_columns(self, selected_columns):
         return self.data[selected_columns]
-    @st.cache
+
     def Descriptive_run(self,selected_columns):
-        # 获取所有列名
-
-        # 显示多选框，让用户选择要展示的列
-
-        # 如果用户选择了列，则显示选择的列的数据
-
         st.dataframe(self.get_selected_columns(selected_columns))
         
         
