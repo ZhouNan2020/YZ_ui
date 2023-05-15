@@ -148,7 +148,7 @@ class Generator(DescriptiveStatistics):
     def gener(self):
         study = study_type()
         if study == "描述性统计":
-            self.descriptive_statistics_button()
+            self.descriptive_statistics()
         else:
             pass
 
