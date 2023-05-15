@@ -8,7 +8,6 @@ from docxtpl import DocxTemplate
 from streamlit import session_state
 from streamlit.runtime.state import SessionState
 
-
 # ______________________________________
 # 在整个脚本中，能够使用@cache缓存的函数一定要用@st.cache
 # 用于缓存函数的返回值，避免st频繁刷新
@@ -86,7 +85,6 @@ class DescriptiveStatistics(DataPrepare):
     def __init__(self, file):
         super().__init__(file)
 
-
     @st.cache
     def get_selected_columns(self, selected_columns):
         return self.data[selected_columns]
@@ -98,14 +96,11 @@ class DescriptiveStatistics(DataPrepare):
         selected_columns = st.multiselect("选择列", all_columns, key="my_multiselect")
         if selected_columns:
             st.session_state.selected_options.extend(selected_columns)
-
-       
+    def descriptive_select_columns(self):
             st.dataframe(self.get_selected_columns(session_state.selected_options))
-        
-        
 
 
-#class DescriptiveStatistics(DescriptiveStatisticsOfData):
+# class DescriptiveStatistics(DescriptiveStatisticsOfData):
 #    def __init__(self, file):
 #        super().__init__(file)
 #
@@ -128,7 +123,6 @@ class Generator(DescriptiveStatistics):
         super().__init__(file)
         # 使用session_state记录用户选择的列(get不能用）
 
-
     # 将FileUploader接受到的文件赋值给self.used_file
 
     def gener(self):
@@ -136,10 +130,9 @@ class Generator(DescriptiveStatistics):
         if study == "描述性统计":
             st.title("数据探索")
             st.write("请选择要展示的列：")
-
-
+            self.Descriptive_run()
             if st.button("生成"):
-                self.Descriptive_run(session_state.selected_options)
+                self.descriptive_select_columns()
         else:
             pass
 
