@@ -67,7 +67,7 @@ with tab1:
 class DataPrepare():
     # 在__init__中定义这个类将直接使用FileUploader中被上传的文件，将文件赋值给self.data供后面的函数调用
 
-    def __init__(self, file):
+    def __init__(self, file=FileUploader().file):
         self.file = file
         self.data = pd.read_excel(self.file, sheet_name=None, header=0)
         self.data = pd.concat(self.data, ignore_index=True)
@@ -185,8 +185,8 @@ class StudyTypeSelector(CaseSeriesStudy, CrossSectionalStudy):
 # 定义一个类CallGenerator，继承StudyTypeSelector类，用于调用研究类型，要首先判定FileUploader是否已经接受到上传的文件，如果为空，提示用户上传文件，如果不为空，调用select_study_type方法，判定研究类型，如果是病例系列研究，调用case_series_study方法，如果是横断面研究，调用cross_sectional_study方法。
 class CallGenerator(StudyTypeSelector):
     def __init__(self, file):
-        super().__init__()
-        self.file = file
+        super().__init__(file)
+
     # 将FileUploader接受到的文件赋值给self.used_file
 
     def call(self):
