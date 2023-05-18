@@ -73,11 +73,6 @@ class Group():
         self.na_rep = None
         self.drop_columns = None
         self.merged_dict = {}
-        
-    # 定义一个类，把self.file中的所有sheet合并成一个dataframe，赋值给self.data
-
-    # 定义一个函数，用于在tab2中放置几个输入框，接受用户输入的文字，分别为“要提取的sheet名称中的通用字符”，“索引列名称”，“空值符号”，“是否有需要删除的列（请连续输入，以英文逗号分隔，例如："是否进行生命体征检查", "检查日期"）,接受用户的输入赋值到self中
-    def input(self):
         self.common_name = st.text_input("要提取的sheet名称中的通用字符")
         self.index_name = st.text_input("索引列名称")
         self.na_rep = st.text_input("空值符号")
@@ -88,7 +83,7 @@ class Group():
     def refine(self):
         self.data = {}
         for sheet_name in self.file.sheet_names:
-            if str(self.common_name) in sheet_name:
+            if self.common_name in sheet_name:
                 self.data[sheet_name] = pd.read_excel(self.file, sheet_name=sheet_name)
 
     def process(self):
@@ -119,7 +114,7 @@ class Group():
 
 with tab2:
     group = Group(file_uploader.file)
-    group.input()
+    group()
     # 一个button判定是否执行下面的代码
     if st.button("输入完成"):
         group.refine()
