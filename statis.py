@@ -48,6 +48,8 @@ class SheetSelector:
             # 用空白替换掉sheet中的NaN，赋值给exhibition_data
             exhibition_data = pd.read_excel(self.file, sheet_name=self.selected_sheet, header=0).fillna("")
             st.dataframe(exhibition_data)
+            return self.file
+        
 
 
 # 实例化并调用
@@ -77,7 +79,8 @@ class Group(FileUploader):
         self.index_name = st.text_input("索引列名称")
         self.na_rep = st.text_input("空值符号")
         self.drop_columns = st.text_input("是否有需要删除的列（请连续输入，以英文逗号分隔，例如：是否进行生命体征检查, 检查日期）")
-        
+        if st.button("确认上传文件"):
+                self.refine()
     
     def refine(self):
         self.data = {}
