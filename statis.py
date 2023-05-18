@@ -67,10 +67,6 @@ class Group(FileUploader):
     def __init__(self):
         super().__init__()
         self.data = {}
-        self.common_name = None
-        self.index_name = None
-        self.na_rep = None
-        self.drop_columns = None
         self.merged_dict = {}
         self.common_name = st.text_input("要提取的sheet名称中的通用字符")
         self.index_name = st.text_input("索引列名称")
