@@ -59,212 +59,86 @@ with tab1:
 
 #%%
 
-
-class VitalSigns(FileUploader):
-
+class Group(FileUploader):
     def __init__(self):
-
         super().__init__()
-
-        self.sheet_names = None
-
-        self.selected_sheet = None
-
-        self.subject_id = None
-
-        self.ND = None
-
-
-
-    def get_sheet_names(self):
-
-        if self.file is not None:
-
-            self.sheet_names = pd.ExcelFile(self.file).sheet_names
-
-
-
-    def select_sheet(self):
-
-        if self.sheet_names is not None:
-
-            self.selected_sheet = st.sidebar.selectbox("选择一个sheet", self.sheet_names, index=0)
-
-
-
-    def set_subject_id(self):
-
-        self.subject_id = st.sidebar.text_input("请输入subject_id")
-
-
-
-    def set_ND(self):
-
-        self.ND = st.sidebar.text_input("请输入ND")
-
-
-
-    def extract_dfs(self):
-
-        dfs_dict = {}
-
-        for sheet_name in self.sheet_names:
-
-            if "生命体征" in sheet_name:
-
-                dfs_dict[sheet_name] = pd.read_excel(self.file, sheet_name=sheet_name)
-
-        return dfs_dict
-
-
-
-    def set_index(self, dfs_dict):
-
-        for key in dfs_dict:
-
-            dfs_dict[key].set_index(self.subject_id, inplace=True)
-
-
-
-    def replace_ND(self, dfs_dict):
-
-        for key in dfs_dict:
-
-            dfs_dict[key].replace(self.ND, np.nan, inplace=True)
-
-
-
-    def drop_columns(self, dfs_dict):
-
-        for key in dfs_dict:
-
-            dfs_dict[key].drop(columns=["是否进行生命体征检查", "检查日期"], inplace=True)
-
-
-
-    def display_data(self, dfs_dict):
-
-        if self.selected_sheet is not None:
-
-            data = dfs_dict[self.selected_sheet]
-
-            st.dataframe(data)
-
-
-
-#vital_signs = VitalSigns()
-#
-#vital_signs.upload()
-#
-#vital_signs.get_sheet_names()
-#
-#vital_signs.select_sheet()
-#
-#vital_signs.set_subject_id()
-#
-#vital_signs.set_ND()
-#
-#dfs_dict = vital_signs.extract_dfs()
-#
-#vital_signs.set_index(dfs_dict)
-#
-#vital_signs.replace_ND(dfs_dict)
-#
-#vital_signs.drop_columns(dfs_dict)
-#
-#vital_signs.display_data(dfs_dict)
-
-
-
-
- 
-
-
-
-#class VitalSignsMerger(VitalSigns):
-
-    def __init__(self):
-
-        super().__init__()
-
+        self.data = None
+        self.common_name = None
+        self.index_name = None
+        self.na_rep = None
+        self.drop_columns = None
+        self.merged_dict = None
+        
+    # 定义一个类，把self.file中的所有sheet合并成一个dataframe，赋值给self.data
+
+    # 定义一个函数，用于在tab2中放置几个输入框，接受用户输入的文字，分别为“要提取的sheet名称中的通用字符”，“索引列名称”，“空值符号”，“是否有需要删除的列（请连续输入，以英文逗号分隔，例如："是否进行生命体征检查", "检查日期"）,接受用户的输入赋值到self中
+    def input(self):
+        self.common_name = st.text_input("要提取的sheet名称中的通用字符")
+        self.index_name = st.text_input("索引列名称")
+        self.na_rep = st.text_input("空值符号")
+        self.drop_columns = st.text_input("是否有需要删除的列（请连续输入，以英文逗号分隔，例如：是否进行生命体征检查, 检查日期）")
+        
+    
+    def refine(self):
+        self.data = {}
+        for sheet_name in self.file.sheet_names:
+            if self.common_name in sheet_name:
+                self.data[sheet_name] = pd.read_excel(self.file, sheet_name=sheet_name)
+
+    def process(self):
+        for key in self.data:
+            self.data[key].set_index(str(self.index_name), inplace=True)
+        for key in self.data:
+            self.data[key].replace(str(self.na_rep), np.nan, inplace=True)
+        if self.drop_columns=="":
+            pass
+        else:
+            for key in self.data:
+                self.data[key].drop(columns=["是否进行生命体征检查", "检查日期"], inplace=True)
+    
+    def merge(self):
         self.merged_dict = {}
-
-
-
-    def merge_dfs(self):
-
-        for key in self.dfs_dict:
-
-            for col in self.dfs_dict[key].columns:
-
+        for key in self.data:
+            for col in self.data[key].columns:
                 if col not in self.merged_dict:
-
-                    self.merged_dict[col] = self.dfs_dict[key][col]
-
+                    self.merged_dict[col] = self.data[key][col]
                 else:
+                    self.merged_dict[col] = pd.concat([self.merged_dict[col], self.data[key][col]], axis=1)
 
-                    self.merged_dict[col] = pd.concat([self.merged_dict[col], self.dfs_dict[key][col]], axis=1)
-
-
-
-    def add_mean_column(self):
-
+    def mean(self):
         for column, merged_df in self.merged_dict.items():
-
             row_means = merged_df.apply(lambda x: pd.to_numeric(x, errors='coerce').sum() / pd.to_numeric(x, errors='coerce').count() if pd.to_numeric(x, errors='coerce').count() != 0 else float('nan'), axis=1)
-
             merged_df.insert(len(merged_df.columns), str(column) + "_mean", row_means)
 
 
+with tab2:
+    group = Group()
+    group.input()
+    # 一个button判定是否执行下面的代码
+    if st.button("输入完成"):
+        group.refine()
+    if st.button("执行"):
+        group.process()
+        group.merge()
+        group.mean()
 
-    def save_to_excel(self):
 
-        with pd.ExcelWriter("vitalsigns.xlsx") as writer:
+    
+ 
+class Download:
+    def __init__(self, merged_dict):
+        self.merged_dict = merged_dict
 
-            for key in self.merged_dict:
+    def run(self):
+        if self.merged_dict is not None:
+            if st.button("下载确认好的数据"):
+                with pd.ExcelWriter("vitalsigns.xlsx") as writer:
+                    for key in self.merged_dict:
+                        self.merged_dict[key].to_excel(writer, sheet_name=key)
 
-                self.merged_dict[key].to_excel(writer, sheet_name=key)
-#
-#
-#
-#vital_signs_merger = VitalSignsMerger()
-#
-#
-#
-#def merge_vital_signs():
-#
-#    vital_signs_merger.upload()
-#
-#    vital_signs_merger.get_sheet_names()
-#
-#    vital_signs_merger.select_sheet()
-#
-#    vital_signs_merger.set_subject_id()
-#
-#    vital_signs_merger.set_ND()
-#
-#    vital_signs_merger.extract_dfs()
-#
-#    vital_signs_merger.set_index()
-#
-#    vital_signs_merger.replace_ND()
-#
-#    vital_signs_merger.drop_columns()
-#
-#    vital_signs_merger.merge_dfs()
-#
-#    vital_signs_merger.add_mean_column()
-#
-#    vital_signs_merger.save_to_excel()
-#
-#
-#
-#with tab2:
-#
-#    st.button("合并生命体征数据", on_click=merge_vital_signs)
-#
-#
-#
-#
-#    vital_signs_merger.save_to_excel()
-#
+# 实例化并调用
+with tab2:
+    download = Download(group.merged_dict)
+    download.run()
+    st.dataframe(group.merged_dict)
+ 
