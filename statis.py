@@ -19,7 +19,7 @@ class FileUploader:
     def __init__(self):
         self.file = None
 
-    def run(self):
+    def run_1(self):
         self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
         if self.file is not None:
             st.sidebar.write(self.file.name)
@@ -31,21 +31,19 @@ class FileUploader:
 
 
 # 实例化并调用
-file_uploader = FileUploader()
-file_uploader.run()
+
 
 # ______________________________________
 '''tab1的内容是展示数据，需要一个类，首先获取被上传excel文件中的所有sheet名称供选择，
 将这些名称使用一个st.selectbox展示,在seclectbox中被选中的sheet将以st.dataframe显示'''
 
 
-class SheetSelector:
-    def __init__(self, file):
-        self.file = file
+class SheetSelector(FileUploader):
+    def __init__(self):
+        
         self.sheet_names = None
         self.selected_sheet = None
-
-    def run(self):
+    def run_2(self):
         if self.file is not None:
             self.sheet_names = pd.ExcelFile(self.file).sheet_names
             self.selected_sheet = st.selectbox("选择一个sheet", self.sheet_names)
@@ -57,28 +55,25 @@ class SheetSelector:
 
 
 # 实例化并调用
-with tab1:
-    sheet_selector = SheetSelector(file_uploader.file)
-    sheet_selector.run()
+
 
 
 
 #%%
 data={}
-class Group(FileUploader):
+class Group(SheetSelector):
     def __init__(self):
         super().__init__()
         self.data = {}
         self.merged_dict = {}
-        
+        self.merging_dict = {}
 
-    
+
     def refine(self,common_name,index_name):
 
         if self.file is not None:
             self.file = pd.ExcelFile(self.file)
             sheet_names = [sheet_name for sheet_name in self.file.sheet_names if str(common_name) in sheet_name]
-            
             # 遍历sheet_names，将每个sheet另存为一个新的dataframe，命名为“第{i}周期用药情况”
             for i, sheet_name in enumerate(sheet_names, start=1):
                 self.merged_dict[f"第{i}周期用药情况"] = self.file.parse(sheet_name)
@@ -87,44 +82,44 @@ class Group(FileUploader):
         else:
             st.write("请先上传文件")
 
-    def process(self,index_name,na_rep,drop_columns):
-        data={}
-        for key in self.data:
-            data[key].set_index(index_name, inplace=True)
-        for key in self.data:
-            data[key].replace(na_rep, np.nan, inplace=True)
+    def process(self,na_rep,drop_columns):
+        
+        for key in self.merged_dict:
+            self.data[key].replace(na_rep, np.nan, inplace=True)
         if drop_columns=="":
             pass
         else:
-            for key in self.data:
-                data[key].drop(columns=list(drop_columns), inplace=True)
-        return data
+            for key in self.merged_dict:
+                self.data[key].drop(columns=list(drop_columns), inplace=True)
+        return self.data
     
-    def merge(self,index_name,na_rep,drop_columns):
-        data = self.process(index_name,na_rep,drop_columns)
-        
-        for key in data:
-            for col in data[key].columns:
-                if col not in self.merged_dict:
-                    self.merged_dict[col] = data[key][col]
+    def merge(self):
+        for key in self.data:
+            for col in self.data[key].columns:
+                if col not in self.merging_dict:
+                    self.merging_dict[col] = self.data[key][col]
                 else:
-                    self.merged_dict[col] = pd.concat([self.merged_dict[col], data[key][col]], axis=1)
+                    self.merging_dict[col] = pd.concat([self.merging_dict[col], self.data[key][col]], axis=1)
 
     def mean(self):
-        for column, merged_df in self.merged_dict.items():
+        for column, merged_df in self.merging_dict.items():
             row_means = merged_df.apply(lambda x: pd.to_numeric(x, errors='coerce').sum() / pd.to_numeric(x, errors='coerce').count() if pd.to_numeric(x, errors='coerce').count() != 0 else float('nan'), axis=1)
             merged_df.insert(len(merged_df.columns), str(column) + "_mean", row_means)
+            return merged_df
 
+group = Group()
+group.run_1()
 
+with tab1:
+    
+    group.run_2()
         
 with tab2:
     common_name = st.text_input("要提取的sheet名称中的通用字符")
     index_name = st.text_input("索引列名称")
     na_rep = st.text_input("空值符号")
     drop_columns = st.text_input("是否有需要删除的列（请连续输入，以英文逗号分隔，例如：是否进行生命体征检查, 检查日期）")
-    group = Group()
     
-
     if st.button("输入完成并执行"):
         group.refine(common_name,index_name)
         group.merge(index_name,na_rep,drop_columns)
