@@ -146,9 +146,9 @@ with tab2:
  
 
 class Download(Group):
-    def __init__(self, merged_dict):
+    def __init__(self):
         super().__init__()
-        self.merged_dict = merged_dict
+        
 
     def run_3(self):
         if self.merged_dict is not None:
