@@ -96,9 +96,6 @@ class Group(SheetSelector):
                     self.merging_dict[column] = pd.concat([self.merging_dict[column], self.merged_dict[key][column]], axis=0)
             self.merging_dict = {k: v.reset_index(drop=True) for k, v in self.merging_dict.items()}
             
-            
-        
-       
     def mean(self,select_columns):
         for column, merged_df in self.merging_dict.items():
             merged_df = merged_df[select_columns]
