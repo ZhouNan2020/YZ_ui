@@ -31,7 +31,6 @@ file_uploader.upload()
 
 
 # tab1用于预览数据，使用st.dataframe,放置一个下拉菜单，用于选择excel文件中不同的sheet，默认为第一个sheet
-# tab1用于预览数据，使用st.dataframe,放置一个下拉菜单，用于选择excel文件中不同的sheet，默认为第一个sheet
 class DataPreview(FileUploader):
     def __init__(self):
         super().__init__()
@@ -184,7 +183,7 @@ class VitalSigns(FileUploader):
 
 
 
-class VitalSignsMerger(VitalSigns):
+#class VitalSignsMerger(VitalSigns):
 
     def __init__(self):
 
@@ -227,46 +226,47 @@ class VitalSignsMerger(VitalSigns):
             for key in self.merged_dict:
 
                 self.merged_dict[key].to_excel(writer, sheet_name=key)
-
-
-
-vital_signs_merger = VitalSignsMerger()
-
-
-
-def merge_vital_signs():
-
-    vital_signs_merger.upload()
-
-    vital_signs_merger.get_sheet_names()
-
-    vital_signs_merger.select_sheet()
-
-    vital_signs_merger.set_subject_id()
-
-    vital_signs_merger.set_ND()
-
-    vital_signs_merger.extract_dfs()
-
-    vital_signs_merger.set_index()
-
-    vital_signs_merger.replace_ND()
-
-    vital_signs_merger.drop_columns()
-
-    vital_signs_merger.merge_dfs()
-
-    vital_signs_merger.add_mean_column()
-
-    vital_signs_merger.save_to_excel()
-
-
-
-with tab2:
-
-    st.button("合并生命体征数据", on_click=merge_vital_signs)
-
-
-
-
-    vital_signs_merger.save_to_excel()
+#
+#
+#
+#vital_signs_merger = VitalSignsMerger()
+#
+#
+#
+#def merge_vital_signs():
+#
+#    vital_signs_merger.upload()
+#
+#    vital_signs_merger.get_sheet_names()
+#
+#    vital_signs_merger.select_sheet()
+#
+#    vital_signs_merger.set_subject_id()
+#
+#    vital_signs_merger.set_ND()
+#
+#    vital_signs_merger.extract_dfs()
+#
+#    vital_signs_merger.set_index()
+#
+#    vital_signs_merger.replace_ND()
+#
+#    vital_signs_merger.drop_columns()
+#
+#    vital_signs_merger.merge_dfs()
+#
+#    vital_signs_merger.add_mean_column()
+#
+#    vital_signs_merger.save_to_excel()
+#
+#
+#
+#with tab2:
+#
+#    st.button("合并生命体征数据", on_click=merge_vital_signs)
+#
+#
+#
+#
+#    vital_signs_merger.save_to_excel()
+#
