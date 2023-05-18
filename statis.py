@@ -63,10 +63,9 @@ with tab1:
 
 #%%
 
-class Group():
-    def __init__(self,file=file_uploader.file):
-        
-        
+class Group(FileUploader):
+    def __init__(self):
+        super().__init__()
         self.data = {}
         self.common_name = None
         self.index_name = None
@@ -111,24 +110,26 @@ class Group():
             row_means = merged_df.apply(lambda x: pd.to_numeric(x, errors='coerce').sum() / pd.to_numeric(x, errors='coerce').count() if pd.to_numeric(x, errors='coerce').count() != 0 else float('nan'), axis=1)
             merged_df.insert(len(merged_df.columns), str(column) + "_mean", row_means)
 
+ 
 
+class NewGroup(Group):
+    def __init__(self):
+        super().__init__()
+        
+    def run(self):
+        if self.file is not None:
+            self.refine()
+            self.process()
+            self.merge()
+            self.mean()
+            st.write(self.merged_dict)
+            
 with tab2:
-    
-    def group(file_uploader):
-        if file_uploader.file is not None:
-            group = Group(file_uploader.file)
-            group()  # 将 group() 改为 group.run()
-    group(file_uploader)
-    # 设置一个button，执行refine
-    if st.button("提取数据"):
-        group.refine()
-        st.write(group.data)
-    # 设置一个button，执行process，merge，mean
-    if st.button("处理数据"):
-        group.process()
-        group.merge()
-        group.mean()
-        st.write(group.merged_dict)
+    new_group = NewGroup()
+    if st.button("提取数据并处理"):
+        new_group.run()
+
+
 
     
     
