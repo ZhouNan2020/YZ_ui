@@ -20,7 +20,7 @@ class FileUploader:
         self.file = None
 
     def run_1(self):
-        self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
+        self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"],key="upforgroup")
         if self.file is not None:
             st.sidebar.write(self.file.name)
             
