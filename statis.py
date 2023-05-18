@@ -70,13 +70,13 @@ class Group(FileUploader):
         super().__init__()
         self.data = {}
         self.merged_dict = {}
-        if self.file is not None:
-            self.file = pd.ExcelFile(self.file)
-    
+        
+
     
     def refine(self,common_name):
-        self.file = pd.ExcelFile(self.file)
         if self.file is not None:
+            self.file = pd.ExcelFile(self.file)
+        
             for sheet_name in self.file.sheet_names:
                 if common_name in sheet_name:
                     self.data[sheet_name] = pd.ExcelFile(self.file, sheet_name=sheet_name)
