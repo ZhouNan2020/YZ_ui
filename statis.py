@@ -155,27 +155,27 @@ class VitalSigns(FileUploader):
 
 
 
-vital_signs = VitalSigns()
-
-vital_signs.upload()
-
-vital_signs.get_sheet_names()
-
-vital_signs.select_sheet()
-
-vital_signs.set_subject_id()
-
-vital_signs.set_ND()
-
-dfs_dict = vital_signs.extract_dfs()
-
-vital_signs.set_index(dfs_dict)
-
-vital_signs.replace_ND(dfs_dict)
-
-vital_signs.drop_columns(dfs_dict)
-
-vital_signs.display_data(dfs_dict)
+#vital_signs = VitalSigns()
+#
+#vital_signs.upload()
+#
+#vital_signs.get_sheet_names()
+#
+#vital_signs.select_sheet()
+#
+#vital_signs.set_subject_id()
+#
+#vital_signs.set_ND()
+#
+#dfs_dict = vital_signs.extract_dfs()
+#
+#vital_signs.set_index(dfs_dict)
+#
+#vital_signs.replace_ND(dfs_dict)
+#
+#vital_signs.drop_columns(dfs_dict)
+#
+#vital_signs.display_data(dfs_dict)
 
 
 
