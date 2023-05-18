@@ -74,6 +74,7 @@ class Group(FileUploader):
 
     
     def refine(self,common_name):
+
         if self.file is not None:
             self.file = pd.ExcelFile(self.file)
         
@@ -96,14 +97,15 @@ class Group(FileUploader):
                 data[key].drop(columns=list(drop_columns), inplace=True)
         return data
     
-    def merge(self):
+    def merge(self,index_name,na_rep,drop_columns):
+        data = self.process(index_name,na_rep,drop_columns)
         
-        for key in self.data:
-            for col in self.data[key].columns:
+        for key in data:
+            for col in data[key].columns:
                 if col not in self.merged_dict:
-                    self.merged_dict[col] = self.data[key][col]
+                    self.merged_dict[col] = data[key][col]
                 else:
-                    self.merged_dict[col] = pd.concat([self.merged_dict[col], self.data[key][col]], axis=1)
+                    self.merged_dict[col] = pd.concat([self.merged_dict[col], data[key][col]], axis=1)
 
     def mean(self):
         for column, merged_df in self.merged_dict.items():
@@ -122,8 +124,8 @@ with tab2:
 
     if st.button("输入完成并执行"):
         group.refine(common_name)
-        group.process(index_name,na_rep,drop_columns)
-        group.merge()
+        
+        group.merge(index_name,na_rep,drop_columns)
         group.mean()
         st.write(group.merged_dict)
         st.write(common_name)
