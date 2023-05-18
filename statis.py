@@ -124,11 +124,8 @@ with tab2:
         group.refine(common_name,index_name)
         group.process(na_rep,drop_columns)
         group.merge()
-        group.mean()
-        st.write(group.merged_dict)
-        st.write(common_name)
-        st.write(group.process)
-        st.write(group.data)
+        st.dataframe(group.mean())
+        
     
 
 
