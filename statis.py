@@ -137,46 +137,6 @@ class ExcelWriter(NewGroup):
 
 
 
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
 # 实例化并调用
 
 
@@ -205,6 +165,7 @@ with tab2:
         group.refine(common_name,index_name)
         group.process(na_rep)
         group.merge()
+        group.merging_dict
         group.show()
         
 if st.button('确认结果'):
