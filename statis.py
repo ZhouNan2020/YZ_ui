@@ -139,7 +139,7 @@ with tab2:
         group.refine(common_name,index_name)
         group.process(na_rep)
         group.merge()
-        group.mean(select_columns)
+        st.wrute(group.mean(select_columns))
         
     
 
