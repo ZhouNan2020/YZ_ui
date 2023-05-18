@@ -21,7 +21,6 @@ class FileUploader:
 
     def run(self):
         self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
-        
         if self.file is not None:
             st.sidebar.write(self.file.name)
         else:
@@ -78,7 +77,7 @@ class Group(FileUploader):
                 
     
     def refine(self):
-        self.data = {}
+        
         for sheet_name in self.file.sheet_names:
             if self.common_name in sheet_name:
                 self.data[sheet_name] = pd.read_excel(self.file, sheet_name=sheet_name)
