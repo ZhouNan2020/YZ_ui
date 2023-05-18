@@ -62,12 +62,12 @@ with tab1:
 class Group(FileUploader):
     def __init__(self):
         super().__init__()
-        self.data = None
+        self.data = {}
         self.common_name = None
         self.index_name = None
         self.na_rep = None
         self.drop_columns = None
-        self.merged_dict = None
+        self.merged_dict = {}
         
     # 定义一个类，把self.file中的所有sheet合并成一个dataframe，赋值给self.data
 
