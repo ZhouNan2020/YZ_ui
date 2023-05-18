@@ -124,7 +124,7 @@ with tab2:
         group.refine(common_name,index_name)
         group.process(na_rep,drop_columns)
         group.merge()
-        st.table(group.mean())
+        group.mean()
         
     
 
