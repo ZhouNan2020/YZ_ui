@@ -84,15 +84,17 @@ class Group(FileUploader):
             st.write("请先上传文件")
 
     def process(self,index_name,na_rep,drop_columns):
+        data={}
         for key in self.data:
-            self.data[key].set_index(index_name, inplace=True)
+            data[key].set_index(index_name, inplace=True)
         for key in self.data:
-            self.data[key].replace(na_rep, np.nan, inplace=True)
+            data[key].replace(na_rep, np.nan, inplace=True)
         if drop_columns=="":
             pass
         else:
             for key in self.data:
-                self.data[key].drop(columns=list(drop_columns), inplace=True)
+                data[key].drop(columns=list(drop_columns), inplace=True)
+        return data
     
     def merge(self):
         
@@ -125,7 +127,7 @@ with tab2:
         group.mean()
         st.write(group.merged_dict)
         st.write(common_name)
-        st.write(group.file)
+        st.write(group.process)
         st.write(group.data)
     
 
