@@ -125,6 +125,8 @@ with tab2:
         group.mean()
         st.write(group.merged_dict)
         st.write(common_name)
+        st.write(group.file)
+        st.write(group.data)
     
 
 
