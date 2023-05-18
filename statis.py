@@ -61,9 +61,9 @@ with tab1:
 
 #%%
 
-class Group(FileUploader):
+class Group():
     def __init__(self,file):
-        super().__init__()
+        
         self.file = file
         self.data = {}
         self.common_name = None
