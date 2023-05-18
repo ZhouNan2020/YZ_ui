@@ -31,31 +31,31 @@ file_uploader.upload()
 
 
 # tab1用于预览数据，使用st.dataframe,放置一个下拉菜单，用于选择excel文件中不同的sheet，默认为第一个sheet
-class DataPreview(FileUploader):
-    def __init__(self):
-        super().__init__()
+ 
+class PreviewData:
+    def __init__(self, file_uploader):
+        self.file_uploader = file_uploader
         self.sheet_names = None
         self.selected_sheet = None
-
+        
     def get_sheet_names(self):
-        if self.file is not None:
-            self.sheet_names = pd.ExcelFile(self.file).sheet_names
-
+        if self.file_uploader.file is not None:
+            self.sheet_names = pd.ExcelFile(self.file_uploader.file).sheet_names
+            
     def select_sheet(self):
         if self.sheet_names is not None:
-            self.selected_sheet = st.sidebar.selectbox("选择一个sheet", self.sheet_names, index=0)
-
+            self.selected_sheet = st.selectbox("选择一个sheet", self.sheet_names, index=0)
+            
     def display_data(self):
         if self.selected_sheet is not None:
-            data = pd.read_excel(self.file, sheet_name=self.selected_sheet)
+            data = pd.read_excel(self.file_uploader.file, sheet_name=self.selected_sheet)
             st.dataframe(data)
+            
+preview_data = PreviewData(file_uploader)
+preview_data.get_sheet_names()
+preview_data.select_sheet()
+preview_data.display_data()
 
-data_preview = DataPreview()
-data_preview.get_sheet_names()
-data_preview.select_sheet()
-
-with tab1:
-    data_preview.display_data()
 
 
 
