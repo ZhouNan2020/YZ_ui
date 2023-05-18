@@ -1,331 +1,435 @@
-# import streamlit和其它的处理word的库
+# 使用tkinter创建
 import docx
 import numpy as np
 import pandas as pd
-import streamlit as st
-# 导入import docx和Python-docx-template
-
-from docxtpl import DocxTemplate
-from streamlit import session_state
-from streamlit.runtime.state import SessionState
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
-
-# ______________________________________
-# 在整个脚本中，能够使用@cache缓存的函数一定要用@st.cache
-# 用于缓存函数的返回值，避免st频繁刷新
-# 项目标题“优卓医药科技”
-
-st.set_page_config(page_title="优卓医药科技", page_icon="🧊", layout="wide")
-# 将主界面分一下st.tab，分成3个tab，分别是“数据浏览”，“报告生成”，“关于”
-tab1, tab2, tab3, tab4 = st.tabs(["数据浏览", "数据预处理","报告生成", "关于"])
-
-
-# 定义一个class，在st.sidebar中中用于上传excel，并显示文件名
-class FileUploader:
-    def __init__(self):
-        self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"], key="file_uploader")
-
-    # def uploader(self):
-    #    self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
-
-    def explain(self):
-        if self.file is not None:
-            st.sidebar.write(self.file.name)
-        # return self.file
-
-
-# 实例化并调用
-file_uploader = FileUploader()
-
-file_uploader.explain()
-# ______________________________________
-'''tab1的内容是展示数据，需要一个类，首先获取被上传excel文件中的所有sheet名称供选择，
-将这些名称使用一个st.selectbox展示,在seclectbox中被选中的sheet将以st.dataframe显示'''
-
-
-class SheetSelector:
-    def __init__(self, file):
-        self.file = file
-        self.sheet_names = None
-        self.selected_sheet = None
-
-    def run(self):
-        if self.file is not None:
-            self.sheet_names = pd.ExcelFile(self.file).sheet_names
-            self.selected_sheet = st.selectbox("选择一个sheet", self.sheet_names)
-            # 用空白替换掉sheet中的NaN，赋值给exhibition_data
-            exhibition_data = pd.read_excel(self.file, sheet_name=self.selected_sheet, header=0).fillna("")
-            st.dataframe(exhibition_data)
-
-
-# 实例化并调用
-with tab1:
-    sheet_selector = SheetSelector(file_uploader.file)
-    sheet_selector.run()
-
-# tab2
-'''tab2的内容是生成报告，需要精细的处理一些word文档.首先需要定义一个大的类，这个类将用于选择user在这个模块中要做的工作，选项采用st.selectbox,
-不同的选项将调用不同的功能和输入界面.这个类将继承上面的FileUploader类，因为在这个模块中需要上传excel文件.使用@cache缓存函数的返回值，避免st频繁刷新'''
-
-
-class DataPrepare():
-    # 在__init__中定义这个类将直接使用FileUploader中被上传的文件，将文件赋值给self.data供后面的函数调用
-
-    def __init__(self, file):
-        self.selected_data = None
-        self.selected_columns = None
-        self.file = file
-        data = pd.read_excel(self.file, sheet_name=None, header=0)
-        data = pd.concat(data, ignore_index=True)
-        data = data.infer_objects()
-        self.data = pd.DataFrame(data)
-        # 数据集中包含"UK"的cell均为空值，如果一个cell中包含UK，那么这个cell将被替换为空值
-        mask = self.data.apply(lambda x: x.str.contains('UK', na=False)).values
-
-        # 使用replace()方法将包含'UK'的单元格替换成NaN
-        self.data[mask] = self.data[mask].replace('UK', np.nan)
-
-
-        self.data_columns = self.data.columns
-        self.data_columns = self.data_columns.tolist()
-
-
-
-
-class DataPreprocessing(DataPrepare):
-        # 构造函数继承DataPrepare并且超类调用
-        def __init__(self, file):
-            super().__init__(file)
-            self.data_columns = self.data.columns.tolist()
-            self.selected_data = None
-
-        # 定义一个函数，功能是将一个被选中的self.data_selected_columns转换成数字编码格式
-        @st.cache_data
-        def label_encoder(self, selected_columns):
-            label_encoder = LabelEncoder()
-            self.data[selected_columns] = label_encoder.fit_transform(self.data[selected_columns])
-            return self.data[selected_columns]
-
-        # 定义一个函数，功能连续变量缺失值插补，如果偏度绝对值不大于1，使用均值填补。如果偏度绝对值大于1，使用中位数填补。
-        @st.cache_data
-        def continuous_variable_missing_value_imputation(self, selected_columns):
-            skew = self.data[selected_columns].skew()
-            if abs(skew) <= 1:
-                self.data[selected_columns] = self.data[selected_columns].fillna(self.data[selected_columns].mean())
-            else:
-                self.data[selected_columns] = self.data[selected_columns].fillna(self.data[selected_columns].median())
-            return self.data[selected_columns]
-
-        # 定义一个函数，功能是分类变量缺失值插补，使用众数填补
-        @st.cache_data
-        def categorical_variable_missing_value_imputation(self, selected_columns):
-            self.data[selected_columns] = self.data[selected_columns].fillna(self.data[selected_columns].mode()[0])
-            return self.data[selected_columns]
-
-        # 定义一个函数，功能是连续变量离散化，使用等频法
-        @st.cache_data
-        def continuous_variable_discretization(self, selected_columns):
-            self.data[selected_columns] = pd.qcut(self.data[selected_columns], 10, labels=False)
-            return self.data[selected_columns]
-
-        # 定义一个函数，功能是连续变量标准化，使用标准差标准化
-        @st.cache_data
-        def continuous_variable_standardization(self, selected_columns):
-            self.data[selected_columns] = (self.data[selected_columns] - self.data[selected_columns].mean()) / self.data[selected_columns].std()
-            return self.data[selected_columns]
-
-        # 定义一个函数，功能是连续变量归一化，使用最大最小值归一化
-        @st.cache_data
-        def continuous_variable_normalization(self, selected_columns):
-            self.data[selected_columns] = (self.data[selected_columns] - self.data[selected_columns].min()) / (self.data[selected_columns].max() - self.data[selected_columns].min())
-            return self.data[selected_columns]
-
-        # 定义一个函数，功能是转换哑变量，并且将转换后的列放入原数据集中
-        @st.cache_data
-        def dummy_variable(self, selected_columns):
-            dummy_data = pd.get_dummies(self.data[selected_columns], prefix=selected_columns)
-            self.data = pd.concat([self.data, dummy_data], axis=1)
-            return self.data
-
-
-# 定义一个类，功能是展示出数据集中的所有列，每个列后跟一个checkbox，每一个checkbox对应DataPreprocessing类中的一个预处理方法，使用st.session_state保存用户选择的项，并在点击按钮后调用这些方法
-class PreprocessingExecution(DataPreprocessing):
-    def __init__(self, file):
-        super().__init__(file)
-        self.all_columns = self.data.columns.tolist()
-    # streamlit的展示函数，使用st.write逐行显示所有列名，每个列名下面显示一个一个checkbox
-    @st.cache_data
-    def preprocessing_multiselect(self):
-        for column in self.all_columns:
-            st.write(column)
-            st.checkbox("数字编码","连续变量缺失值插补","分类变量缺失值插补","连续变量离散化","连续变量标准化","连续变量归一化","转换哑变量")
-    # 定义一个函数，功能是将用户选择的checkbox对应的方法调用
-    @st.cache_data
-    def preprocessing_execution(self):
-        if self.file is not None:
-            for column in self.all_columns:
-                if st.checkbox("数字编码"):
-                    self.label_encoder(column)
-                if st.checkbox("连续变量缺失值插补"):
-                    self.continuous_variable_missing_value_imputation(column)
-                if st.checkbox("分类变量缺失值插补"):
-                    self.categorical_variable_missing_value_imputation(column)
-                if st.checkbox("连续变量离散化"):
-                    self.continuous_variable_discretization(column)
-                if st.checkbox("连续变量标准化"):
-                    self.continuous_variable_standardization(column)
-                if st.checkbox("连续变量归一化"):
-                    self.continuous_variable_normalization(column)
-                if st.checkbox("转换哑变量"):
-                    self.dummy_variable(column)
-        return self.data
-    # 定义一个函数，功能是将预处理后的数据集返回
-
-
-
-
-
-
-
-
-
-
-# with tab2:
-#     # 调用
-#     preprocessing = PreprocessingExecution(file_uploader.file)
-#     preprocessing.preprocessing_multiselect()
-#     if st.button("执行"):
-#         preprocessing.preprocessing_execution()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class DescriptiveStatistics(DataPrepare):
-    def __init__(self, file):
-        super().__init__(file)
-        self.all_columns = self.data.columns.tolist()
-
-    @st.cache
-    def get_selected_columns(self, selected_columns):
-        return self.data[selected_columns]
-    def descriptive_select_columns(self,selected_columns):
-        selected_data = self.get_selected_columns(selected_columns)
-        st.dataframe(selected_data)
-        return selected_data
-
-
-    # 定义一个函数，功能是供用户选择要进行描述性统计的连续变量列，使用multiselect，并从原始数据集中选中提取这些列，并对选中列求出索引计数，mean±SD,中位数、最大值和最小值
-    def DescriptiveStatisticsOfContinuousVariables(self,selected_columns):
-
-        if selected_columns:
-            selected_data=self.descriptive_select_columns(selected_columns)
-            # 将selected_data转换为float类型
-            selected_data = selected_data.astype(float)
-            # 求出索引计数，mean±SD,中位数、最大值和最小值,不要使用describe
-            # 求出本列的值计数，和nan值分开计数
-            count = selected_data.count()
-            nan_count = selected_data.isnull().sum()
-
-            meanSD = selected_data.mean() + "±" + selected_data.std()
-
-            median = selected_data.median()
-
-            max = selected_data.max()
-
-            min = selected_data.min()
-            # 制作一个datafrmae，index分别为n (miss)，mean±SD,median、max和min,值分别为上面求出的值，其中n (miss)的值为count和nan_count合并在一个单元格内
-            descriptive_statistics = pd.DataFrame({"n (miss)": count + "(" + nan_count + ")", "mean±SD": meanSD, "median": median, "max": max, "min": min})
-            st.dataframe(descriptive_statistics)
-
-
-
-
-
-
-
-
-
-
-
-
-
-        else:
-            st.write("未选择列")
-
-
-
-
-
-   
-
-
-# 定义一个类CallGenerator，继承StudyTypeSelector类，用于调用研究类型，要首先判定FileUploader是否已经接受到上传的文件，如果为空，提示用户上传文件，如果不为空，调用select_study_type方法，判定研究类型，如果是病例系列研究，调用case_series_study方法，如果是横断面研究，调用cross_sectional_study方法。
-def study_type():
-    study_type = st.selectbox("选择研究类型", ["未选择", "描述性统计", "横断面研究"])
-    return study_type
-
-
-class Generator(DescriptiveStatistics):
-    def __init__(self, file):
-        super().__init__(file)
-        # 使用session_state记录用户选择的列(get不能用）
-
-    # 将FileUploader接受到的文件赋值给self.used_file
-
-    def gener(self):
-        study = study_type()
-        if study == "描述性统计":
-            st.title("数据探索")
-
-            selected_columns = st.multiselect("选择要进行描述性统计的连续变量列", self.all_columns)
-            if st.button("生成"):
-                self.descriptive_select_columns(selected_columns)
-            # 定义一个button，点击后执行descriptive_statistics方法
-            if st.button("连续变量描述性统计"):
-                self.DescriptiveStatisticsOfContinuousVariables(selected_columns)
-        else:
-            pass
-
-
-def call():
-    if file_uploader.file is None:
-        st.warning("请上传文件")
-    else:
-        gen = Generator(file_uploader.file)
-        gen.gener()
-
-
-# 实例化并调用
-with tab3:
-    call()
-
-with tab4:
-    # 使用@cache定义一个st.session_state的函数示例，初始为0，让用户点击，每点击一次计数+1,但是不要实时显示更改，要在点击submit后，才将总的点击次数显示出来,合并@cache使用，避免st频繁刷新
-    if "count" not in st.session_state:
-        st.session_state.count = 0
-    st.write("点击次数：", st.session_state.count)
-    if st.button("点击"):
-        st.session_state.count += 1
-    if st.button("submit"):
-        st.write("点击次数：", st.session_state.count)
-
+import tkinter as tk
+from tkinter import ttk, filedialog, LEFT
+from tkinter import messagebox
+from matplotlib import font_manager
+from matplotlib import pyplot as plt
+from tkinter import font as tkFont
+## 导入sklearn的Imputer包，用于填充缺失值
+from sklearn.impute import SimpleImputer as Imputer
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, Binarizer, KBinsDiscretizer, StandardScaler, MinMaxScaler
+import threading
+
+
+
+font = font_manager.FontProperties(fname='simhei.ttf', size=10)
+parameters = {'xtick.labelsize': 17,
+              'ytick.labelsize': 17,
+              'font.family': 'SimHei',
+              'axes.unicode_minus': False}
+plt.rcParams.update(parameters)
+plt.style.use('ggplot')
+
+
+# 定义一个窗口
+window = tk.Tk()
+window.title('优卓医药科技')
+window.geometry('1200x800')
+window.resizable(True, True)
+window.configure(background="#89c3eb")
+tabControl = ttk.Notebook(window)
 
         
+tab1 = tk.Frame(bg='#d5ebe1', relief='ridge', borderwidth=2)
+tab2 = tk.Frame(bg='#d5ebe1', relief='ridge', borderwidth=2)
+tab3 = tk.Frame(bg='#d5ebe1', relief='ridge', borderwidth=2)     
+tab4 = tk.Frame(bg='#d5ebe1', relief='ridge', borderwidth=2)
 
+
+ 
+
+global raw_data
+raw_data = pd.DataFrame()
+
+
+
+# 定义一个文件上传类，通过tkinter的filedialog.askopenfilename()方法获取文件路径，存储于self.file_path,然后使用openpyxl读取文件，将所有的sheet合并为一个表格，重新编制索引，重复列只保存一个
+
+  
+class UploadFile():
+    def __init__(self):
+        self.file_path = None
+
+    def parse(self):
+        self.file_path = filedialog.askopenfilename()
+        if self.file_path:
+            t = threading.Thread(target=self.read_file)
+            t.start()
+
+    def read_file(self):
+        try:
+            sheets = pd.ExcelFile(self.file_path)
+            dfs = [sheets.parse(sheet_name) for sheet_name in sheets.sheet_names]
+            merged_df = pd.concat(dfs, axis=1)
+# 将所有列横向合并到一个DataFrame中
+            merged_cols_df = merged_df.iloc[:, ~merged_df.columns.duplicated()]
+            global raw_data
+            raw_data = merged_cols_df
+            messagebox.showinfo('上传完成', '上传完成')
+        except Exception as e:
+            messagebox.showerror('错误', str(e))
+
+          
+
+tab1_button_1 = tk.Button(tab1, text='上传数据', font=('Arial', 12), command=UploadFile().parse)
+tab1_button_1.place(relx=0.01, rely=0.01, relwidth=0.1, relheight=0.05)
+
+    
+    
+        
+
+ 
+ 
+#  
+ 
+# 定义一个上传数据tab1_button_1，调用上传文件
+tab1_button_1 = tk.Button(tab1, text='上传数据', font=('Arial', 12), command=UploadFile().parse)
+tab1_button_1.place(relx=0.01, rely=0.01, relwidth=0.1, relheight=0.05)
+
+
+ 
+class ShowData():
+    def __init__(self):
+        self.file = None
+        self.tree = None
+        self.scrollbar_y = None
+        self.scrollbar_x = None
+
+    def show_data(self):
+        self.tree = ttk.Treeview(tab1, show='headings', columns=raw_data.columns)
+        self.tree.place(relx=0.01, rely=0.1, relwidth=0.98, relheight=0.8)
+        self.scrollbar_y = ttk.Scrollbar(tab1, orient='vertical', command=self.tree.yview)
+        self.scrollbar_y.place(relx=0.99, rely=0.1, relwidth=0.01, relheight=0.8)
+        self.tree.configure(yscrollcommand=self.scrollbar_y.set)
+        self.scrollbar_x = ttk.Scrollbar(tab1, orient='horizontal', command=self.tree.xview)
+        self.scrollbar_x.place(relx=0.01, rely=0.91, relwidth=0.98, relheight=0.01)
+        self.tree.configure(xscrollcommand=self.scrollbar_x.set)
+        self.tree.configure(yscrollcommand=self.scrollbar_y.set, xscrollcommand=self.scrollbar_x.set)
+        self.tree.column('#0', width=0, stretch='no')
+        for i in range(len(raw_data.columns)):
+            if i < len(self.tree['columns']):
+                self.tree.column(i, width=100, anchor='center')
+                self.tree.heading(i, text=raw_data.columns[i])
+        for i in range(len(raw_data)):
+            if len(list(raw_data.iloc[i])) >= len(raw_data.columns):
+                self.tree.insert('', i, values=list(raw_data.iloc[i]))
+        self.tree.bind('<Button-1>', self.show_data)
+        for i in range(len(raw_data.columns)):
+            if i < len(self.tree['columns']):
+                self.tree.column(i, width=100, anchor='center')
+                self.tree.heading(i, text=raw_data.columns[i])
+        for i in range(len(raw_data)):
+            if len(list(raw_data.iloc[i])) >= len(raw_data.columns):
+                self.tree.insert('', i, values=list(raw_data.iloc[i]))
+        self.tree.bind('<Button-1>', self.show_data)
+
+
+
+
+
+    def update_tree(self):
+        self.tree.delete(*self.tree.get_children())
+        for i in range(len(raw_data)):
+            self.tree.insert('', i, values=list(raw_data.iloc[i]))
+
+    def thread_show_data(self):
+        t = threading.Thread(target=self.show_data)
+        t.start()
+
+tab1_button_2 = tk.Button(tab1, text='展示数据', font=('Arial', 12), command=ShowData().thread_show_data)
+tab1_button_2.place(relx=0.12, rely=0.01, relwidth=0.1, relheight=0.05)
+
+
+
+
+
+
+
+
+                
+      
+    
+
+ 
+ 
+# 定义一个预处理方法类，在构造函数中增加self.preprocessed_data，用于存储预处理后的数据，
+class DataPreprocess(ShowData):
+    def __init__(self):
+        super().__init__()
+        self.preprocessed_data = None
+
+        # 定义一个函数，对分类变量执行编码，使用sklearn.preprocessing中的LabelEncoder方法，额外加一个实参col_name，处理后的col_name列将被concat到self.preprocessed_data中
+
+    def label_encoder(self, col_name):
+        le = LabelEncoder()
+        le.fit(raw_data[col_name])
+        self.preprocessed_data = pd.concat(
+            [self.preprocessed_data, pd.DataFrame(le.transform(raw_data[col_name]), columns=[col_name])], axis=1)
+
+        # 对分类变量执行独热编码，使用sklearn.preprocessing中的OneHotEncoder方法，额外给出一个实参col_name
+
+    def one_hot_encoder(self, col_name):
+        ohe = OneHotEncoder()
+        ohe.fit(raw_data[col_name])
+        self.preprocessed_data = pd.concat([self.preprocessed_data,
+                                            pd.DataFrame(ohe.transform(raw_data[col_name]).toarray(),
+                                                         columns=ohe.get_feature_names())], axis=1)
+
+        # 对分类变量执行二值化，使用sklearn.preprocessing中的Binarizer方法，额外给出一个实参data
+
+    def binarizer(self, col_name):
+        binarizer = Binarizer()
+        binarizer.fit(raw_data[col_name])
+        self.preprocessed_data = pd.concat(
+            [self.preprocessed_data, pd.DataFrame(binarizer.transform(raw_data[col_name]), columns=[col_name])],
+            axis=1)
+
+        # 分类变量缺失值插补，求出data中的众数，使用sklearn.preprocessing中的Imputer方法，为缺失值插补众数，额外给出一个实参data
+
+    def missingValueOfCategoricalVariable(self, col_name):
+        imputer = Imputer(strategy='most_frequent')
+        imputer.fit(raw_data[col_name])
+        self.preprocessed_data = pd.concat(
+            [self.preprocessed_data, pd.DataFrame(imputer.transform(raw_data[col_name]), columns=[col_name])], axis=1)
+
+        # 如果偏度绝对值大于1，则使用中位数插补，如果偏度绝对值小于1，则使用均值插补，使用sklearn.preprocessing中的Imputer方法，额外给出一个实参data
+
+    def continuousVariableMissingValue(self, col_name):
+        skew = raw_data[col_name].skew()
+        # 如果skew的绝对值大于1，则使用中位数插补
+        if abs(skew) > 1:
+            imputer = Imputer(strategy='median')
+            imputer.fit(raw_data[col_name])
+            self.preprocessed_data = pd.concat(
+                [self.preprocessed_data, pd.DataFrame(imputer.transform(raw_data[col_name]), columns=[col_name])],
+                axis=1)
+        # 如果skew的绝对值小于或等于1，则使用均值插补
+        else:
+            imputer = Imputer(strategy='mean')
+            imputer.fit(raw_data[col_name])
+            self.preprocessed_data = pd.concat(
+                [self.preprocessed_data, pd.DataFrame(imputer.transform(raw_data[col_name]), columns=[col_name])],
+                axis=1)
+        # 连续变量离散化，使用sklearn.preprocessing中的KBinsDiscretizer方法，额外给出一个实参data，将data中的数据进行离散化，离散化的方式为等频离散化
+
+    def continuousVariableDiscretization(self, col_name):
+        k_bins_discretizer = KBinsDiscretizer()
+        k_bins_discretizer.fit(raw_data[col_name])
+        self.preprocessed_data = pd.concat([self.preprocessed_data,
+                                            pd.DataFrame(k_bins_discretizer.transform(raw_data[col_name]),
+                                                         columns=[col_name])], axis=1)
+
+        # 连续变量标准化，使用sklearn.preprocessing中的StandardScaler方法，额外给出一个实参data，将data中的数据进行标准化
+
+    def continuousVariableStandardization(self, col_name):
+        standard_scaler = StandardScaler()
+        standard_scaler.fit(raw_data[col_name])
+        self.preprocessed_data = pd.concat(
+            [self.preprocessed_data, pd.DataFrame(standard_scaler.transform(raw_data[col_name]), columns=[col_name])],
+            axis=1)
+
+        # 连续变量归一化，使用sklearn.preprocessing中的MinMaxScaler方法，额外给出一个实参data，将data中的数据进行归一化
+
+    def continuousVariableNormalization(self, col_name):
+        min_max_scaler = MinMaxScaler()
+        min_max_scaler.fit(raw_data[col_name])
+        self.preprocessed_data = pd.concat(
+            [self.preprocessed_data, pd.DataFrame(min_max_scaler.transform(raw_data[col_name]), columns=[col_name])],
+            axis=1)
+
+
+# 定义一个checkbutton类
+class CheckButton(DataPreprocess):
+    def __init__(self):
+        super().__init__()
+
+    # 定义名为连续变量缺失值插补的checkbutton，放在实参frame中，位置为row行，column列，选中时，值为1，未选中时，值为0，暂时不调用命令
+    def continuous_missing_check(self, frame, ):
+        self.continuous_missing = tk.IntVar()
+        self.continuous_missing_checkbutton = tk.Checkbutton(frame, text='连续变量缺失值插补',
+                                                             variable=self.continuous_missing, onvalue=1, offvalue=0)
+        self.continuous_missing_checkbutton.pack(side='left')
+
+    # 定义名为分类变量缺失值插补的checkbutton，放在实参frame中，位置为row行，column列，选中时，值为1，未选中时，值为0，暂时不调用命令
+    def category_missing_check(self, frame, ):
+        self.category_missing = tk.IntVar()
+        self.category_missing_checkbutton = tk.Checkbutton(frame, text='分类变量缺失值插补',
+                                                           variable=self.category_missing, onvalue=1, offvalue=0)
+        self.category_missing_checkbutton.pack(side='left')
+
+    # 定义名为连续变量异常值处理的checkbutton，放在实参frame中，位置为row行，column列，选中时，值为1，未选中时，值为0，暂时不调用命令
+
+    # 定义名为连续变量离散化的checkbutton，放在实参frame中，位置为row行，column列，选中时，值为1，未选中时，值为0，暂时不调用命令
+    def continuous_discretization_check(self, frame, ):
+        self.continuous_discretization = tk.IntVar()
+        self.continuous_discretization_checkbutton = tk.Checkbutton(frame, text='连续变量离散化',
+                                                                    variable=self.continuous_discretization, onvalue=1,
+                                                                    offvalue=0)
+        self.continuous_discretization_checkbutton.pack(side='left')
+
+    # 定义名为连续变量标准化的checkbutton，放在实参frame中，位置为row行，column列，选中时，值为1，未选中时，值为0，暂时不调用命令
+    def continuous_standardization_check(self, frame, ):
+        self.continuous_standardization = tk.IntVar()
+        self.continuous_standardization_checkbutton = tk.Checkbutton(frame, text='连续变量标准化',
+                                                                     variable=self.continuous_standardization,
+                                                                     onvalue=1, offvalue=0)
+        self.continuous_standardization_checkbutton.pack(side='left')
+
+    # 定义名为标签编码的checkbutton，放在实参frame中，位置为row行，column列，选中时，值为1，未选中时，值为0，暂时不调用命令
+    def label_encoding_check(self, frame, ):
+        self.label_encoding = tk.IntVar()
+        self.label_encoding_checkbutton = tk.Checkbutton(frame, text='标签编码', variable=self.label_encoding,
+                                                         onvalue=1, offvalue=0)
+        self.label_encoding_checkbutton.pack(side='left')
+
+    # 定义名为独热编码的checkbutton，放在实参frame中，位置为row行，column列，选中时，值为1，未选中时，值为0，暂时不调用命令
+    def one_hot_encoding_check(self, frame, ):
+        self.one_hot_encoding = tk.IntVar()
+        self.one_hot_encoding_checkbutton = tk.Checkbutton(frame, text='独热编码', variable=self.one_hot_encoding,
+                                                           onvalue=1, offvalue=0)
+        self.one_hot_encoding_checkbutton.pack(side='left')
+
+    # 定义名为"二元化“的checkbutton，放在实参frame中，位置为row行，column列，选中时，值为1，未选中时，值为0，暂时不调用命令
+    def binarization_check(self, frame, ):
+        self.binarization = tk.IntVar()
+        self.binarization_checkbutton = tk.Checkbutton(frame, text='二元化', variable=self.binarization, onvalue=1,
+                                                       offvalue=0)
+        self.binarization_checkbutton.pack(side='left')
+
+    # 定义一个判断以上方法是否被选中的函数，如果被选中（intvar返回1），则调用DataPreprocess类中的相应函数
+    def preprocess(self, column):
+        if self.continuous_missing.get() == 1:
+            self.continuousVariableMissingValue(column)
+        if self.category_missing.get() == 1:
+            self.missingValueOfCategoricalVariable(column)
+        if self.continuous_discretization.get() == 1:
+            self.continuousVariableDiscretization(column)
+        if self.continuous_standardization.get() == 1:
+            self.continuousVariableStandardization(column)
+        if self.label_encoding.get() == 1:
+            self.label_encoder(column)
+        if self.one_hot_encoding.get() == 1:
+            self.one_hot_encoder(column)
+        if self.binarization.get() == 1:
+            self.binarizer(column)
+
+
+# 定义一个“执行预处理”的类，放在实参frame中，继承自CheckButton类
+class PreprocessButton(CheckButton):
+    def __init__(self):
+        super().__init__()
+
+    # 定义一个按钮名为执行预处理，放在frame中，位置为row行最末列，命令为self.preprocess函数,给一个column实参
+    def preprocess_button_func(self, frame, column):
+        self.preprocess_button = tk.Button(frame, text='执行预处理', command=lambda: self.preprocess(column))
+        # grid格式放置在row行，最末列（不是column列），sticky='e'表示靠右
+        self.preprocess_button.pack(side='right')
+
+
+# 定义一个数据类型判断类，继承自ShowData类，用于判断数据类型
+class DataType(PreprocessButton):
+    def __init__(self):
+        super().__init__()
+
+    # 从self.file中取出一个列名所对应的数据，判断数据类型，，给一个实参col_name
+    def data_type(self, col_name):
+        data = raw_data[col_name]
+        # 如果数据类型为为float或int，返回continuousVariable
+        if data.dtype == 'float64' or data.dtype == 'int64':
+            return 'continuousVariable'
+        # 如果数据类型为object，返回categoryVariable
+        elif data.dtype == 'object':
+            return 'categoryVariable'
+        # 如果数据类型为其他，返回other
+        else:
+            return 'other'
+
+    # 定义一个函数，调用data_type函数
+    def data_type_judge(self, col_name):
+        return self.data_type(col_name)
+
+
+
+
+# 定义一个排列数据的类，继承自DataType类
+class ArrangeData(DataType, CheckButton):
+    def __init__(self):
+        super().__init__()
+
+    # 定义一个函数，遍历数据中所有列名
+    def arrange_data(self):
+        for col_name in raw_data.columns:
+            # 定义一个frame，在tab2中放置，靠左pack
+            frame = tk.Frame(tab2)
+            # 将列名放在frame中，靠左pack
+            tk.Label(frame, text=col_name).pack(side='left')
+            # 使用列名调用data_type_judge函数，如果返回值为'continuousVariable'
+            if self.data_type_judge(col_name) == 'continuousVariable':
+                # 调用continuous_missing函数，frame=frame
+                self.continuous_missing_check(frame=frame)
+                # 调用continuous_discretization_check函数，frame=frame
+                self.continuous_discretization_check(frame=frame)
+                # continuous_standardization_check函数，frame=frame
+                self.continuous_standardization_check(frame=frame)
+                # 调用preprocess_button函数，frame=frame，column=col_name
+                self.preprocess_button_func(frame=frame, column=col_name)
+            elif self.data_type_judge(col_name) == 'categoryVariable':
+                # 调用category_missing_check函数，frame=frame
+                self.category_missing_check(frame=frame)
+                # 调用label_encoding_check函数，frame=frame
+                self.label_encoding_check(frame=frame)
+                # 调用one_hot_encoding_check函数，frame=frame
+                self.one_hot_encoding_check(frame=frame)
+                # 调用binarization_check函数，frame=frame
+                self.binarization_check(frame=frame)
+                # 调用preprocess_button函数，frame=frame，column=col_name
+                self.preprocess_button_func(frame=frame, column=col_name)
+            else:
+                # 使用label写“复杂数据类型，请在其他软件中进行预处理后重新上传”
+                tk.Label(frame, text='复杂数据类型，请在其他软件中进行预处理后重新上传').pack(side='left')
+
+
+ 
+
+
+
+# 定义一个结束数据预处理类，继承自ArrangeData类
+class EndDataPreProces(ArrangeData):
+    def __init__(self):
+        super().__init__()
+
+    def replace_columns(self):
+        for col in self.preprocessed_data.columns:
+            if col in raw_data.columns:
+                raw_data[col] = self.preprocessed_data[col]
+            else:
+                raw_data = pd.concat([raw_data, self.preprocessed_data[col]], axis=1)
+
+      
+# 
+
+tabControl.add(tab1, text='数据预览')
+tabControl.add(tab2, text='数据预处理')
+tabControl.add(tab3, text='报告生成')
+tabControl.add(tab4, text='关于')
+ 
+
+tabControl.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.98)
+
+
+window.mainloop()
+
+
+
+
+
+
+
+
+ 
+
+
+    
