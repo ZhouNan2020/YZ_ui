@@ -165,6 +165,7 @@ with tab2:
         group.refine(common_name,index_name)
         group.process(na_rep)
         group.merge()
+        group.mean(select_columns)
         group.merging_dict
         group.show()
         
