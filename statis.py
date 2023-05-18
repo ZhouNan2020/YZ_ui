@@ -14,48 +14,46 @@ st.set_page_config(page_title="优卓医药科技")
 # 分文两个tab，第一个tab名称为“分组”，第二个tab名称为“关于”
 tab1,tab2,tab3 = st.tabs(["数据预览","分组", "关于"])
 
-  
+  # 定义一个class，在st.sidebar中中用于上传excel，并显示文件名
 class FileUploader:
     def __init__(self):
         self.file = None
-        
-    def upload(self):
-        uploaded_file = st.sidebar.file_uploader("上传文件", type=["xls", "xlsx"])
-        if uploaded_file is not None:
-            self.file = pd.ExcelFile(uploaded_file)
-        else:
-            st.write("请上传文件")
 
+    def run(self):
+        self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
+        if self.file is not None:
+            st.sidebar.write(self.file.name)
+        # return self.file
+
+
+# 实例化并调用
 file_uploader = FileUploader()
-file_uploader.upload()
+file_uploader.run()
+
+# ______________________________________
+'''tab1的内容是展示数据，需要一个类，首先获取被上传excel文件中的所有sheet名称供选择，
+将这些名称使用一个st.selectbox展示,在seclectbox中被选中的sheet将以st.dataframe显示'''
 
 
-# tab1用于预览数据，使用st.dataframe,放置一个下拉菜单，用于选择excel文件中不同的sheet，默认为第一个sheet
- 
-class PreviewData:
-    def __init__(self, file_uploader):
-        self.file_uploader = file_uploader
+class SheetSelector:
+    def __init__(self, file):
+        self.file = file
         self.sheet_names = None
         self.selected_sheet = None
-        
-    def get_sheet_names(self):
-        if self.file_uploader.file is not None:
-            self.sheet_names = pd.ExcelFile(self.file_uploader.file).sheet_names
-            
-    def select_sheet(self):
-        if self.sheet_names is not None:
-            self.selected_sheet = st.selectbox("选择一个sheet", self.sheet_names, index=0)
-            
-    def display_data(self):
-        if self.selected_sheet is not None:
-            data = pd.read_excel(self.file_uploader.file, sheet_name=self.selected_sheet)
-            st.dataframe(data)
-            
-preview_data = PreviewData(file_uploader)
-preview_data.get_sheet_names()
-preview_data.select_sheet()
-preview_data.display_data()
 
+    def run(self):
+        if self.file is not None:
+            self.sheet_names = pd.ExcelFile(self.file).sheet_names
+            self.selected_sheet = st.selectbox("选择一个sheet", self.sheet_names)
+            # 用空白替换掉sheet中的NaN，赋值给exhibition_data
+            exhibition_data = pd.read_excel(self.file, sheet_name=self.selected_sheet, header=0).fillna("")
+            st.dataframe(exhibition_data)
+
+
+# 实例化并调用
+with tab1:
+    sheet_selector = SheetSelector(file_uploader.file)
+    sheet_selector.run()
 
 
 
