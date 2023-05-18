@@ -23,7 +23,7 @@ class FileUploader:
         self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
         if self.file is not None:
             st.sidebar.write(self.file.name)
-        # return self.file
+        
 
 
 # 实例化并调用
@@ -62,8 +62,9 @@ with tab1:
 #%%
 
 class Group(FileUploader):
-    def __init__(self):
+    def __init__(self,file):
         super().__init__()
+        self.file = file
         self.data = {}
         self.common_name = None
         self.index_name = None
@@ -79,8 +80,8 @@ class Group(FileUploader):
         self.index_name = st.text_input("索引列名称")
         self.na_rep = st.text_input("空值符号")
         self.drop_columns = st.text_input("是否有需要删除的列（请连续输入，以英文逗号分隔，例如：是否进行生命体征检查, 检查日期）")
-        if st.button("确认上传文件"):
-                self.refine()
+        
+                
     
     def refine(self):
         self.data = {}
@@ -115,7 +116,7 @@ class Group(FileUploader):
 
 
 with tab2:
-    group = Group()
+    group = Group(file=file_uploader.file)
     group.input()
     # 一个button判定是否执行下面的代码
     if st.button("输入完成"):
