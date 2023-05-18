@@ -119,7 +119,6 @@ class Group(SheetSelector):
 class Download(Group):
     def __init__(self):
         super().__init__()
-        
 
     def run_3(self):
         if self.merged_dict is not None:
@@ -127,6 +126,9 @@ class Download(Group):
                 with pd.ExcelWriter("vitalsigns.xlsx") as writer:
                     for key in self.merged_dict:
                         self.merged_dict[key].to_excel(writer, sheet_name=key, index=False)
+                    # Set the first sheet as the active sheet
+                    writer.sheets[list(writer.sheets.keys())[0]].sheet_state = 'visible'
+
 
 
 # 实例化并调用
