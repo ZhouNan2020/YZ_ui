@@ -87,14 +87,17 @@ class Group(SheetSelector):
             self.merged_dict[key].replace(to_replace=na_rep, value=np.nan, inplace=True)
 
         
+
     def merge(self):
         for key in self.merged_dict:
             for column in self.merged_dict[key].columns:
                 if column not in self.merging_dict:
-                    self.merging_dict[column] = self.merged_dict[key][column]
+                    self.merging_dict[column] = pd.DataFrame(self.merged_dict[key][column])
                 else:
-                    self.merging_dict[column] = pd.concat([self.merging_dict[column], self.merged_dict[key][column]], axis=0)
+                    self.merging_dict[column] = pd.concat([self.merging_dict[column], pd.DataFrame(self.merged_dict[key][column])], axis=0)
             self.merging_dict = {k: v.reset_index(drop=True) for k, v in self.merging_dict.items()}
+
+
 
     
 
