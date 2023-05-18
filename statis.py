@@ -116,7 +116,7 @@ class Group():
 
 
 with tab2:
-    group = Group(file=file_uploader.file)
+    group = Group(file_uploader.file)
     group.input()
     # 一个button判定是否执行下面的代码
     if st.button("输入完成"):
