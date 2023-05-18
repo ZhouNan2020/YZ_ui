@@ -59,9 +59,7 @@ with tab1:
     data_preview.display_data()
 
 
-#%%
-# 使用pandas读取raw_data
-df = pd.ExcelFile("raw_data.xlsx")
+
 #%%
 
 
