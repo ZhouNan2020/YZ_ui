@@ -21,9 +21,10 @@ class FileUploader:
 
     def run(self):
         self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
-        self.file = pd.ExcelFile(self.file)
+        
         if self.file is not None:
             st.sidebar.write(self.file.name)
+        self.file = pd.ExcelFile(self.file)
         
 
 
