@@ -100,7 +100,7 @@ class Group(SheetSelector):
     def mean(self,select_columns):
         
         for column, merged_df in self.merging_dict.items():
-            merged_df = merged_df.filter(regex=str(select_columns))
+            merged_df = merged_df.filter(regex=select_columns)
             row_means = merged_df.apply(lambda x: pd.to_numeric(x, errors='coerce').sum() / pd.to_numeric(x, errors='coerce').count() if pd.to_numeric(x, errors='coerce').count() != 0 else float('nan'), axis=1)
             merged_df.insert(len(merged_df.columns), str(column) + "_mean", row_means)
             self.merging_dict[column] = merged_df
@@ -120,7 +120,14 @@ with tab2:
     na_rep = st.text_input("空值符号")
     select_columns = st.text_input("是否有需要删除的列（请连续输入，以英文逗号分隔，例如：是否进行生命体征检查, 检查日期）")
     
+
+
+    
     if st.button("输入完成并执行"):
+        if "," in select_columns:
+            select_columns = select_columns.split(",")
+        else:
+            pass
         group.refine(common_name,index_name)
         group.process(na_rep)
         group.merge()
