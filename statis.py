@@ -24,7 +24,9 @@ class FileUploader:
         
         if self.file is not None:
             st.sidebar.write(self.file.name)
-            self.file = pd.ExcelFile(self.file)
+        else:
+            st.sidebar.write("未上传文件")
+        self.file = pd.ExcelFile(self.file)
         
 
 
