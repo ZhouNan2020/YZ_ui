@@ -207,8 +207,8 @@ with tab2:
         group.merge()
         group.show()
         
-
-group.write_to_excel()
+if st.button('确认结果'):
+    group.write_to_excel()
 
 
 
