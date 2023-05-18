@@ -115,6 +115,7 @@ class Group(SheetSelector):
 
  
 
+
 class Download(Group):
     def __init__(self):
         super().__init__()
@@ -125,7 +126,8 @@ class Download(Group):
             if st.button("下载确认好的数据"):
                 with pd.ExcelWriter("vitalsigns.xlsx") as writer:
                     for key in self.merged_dict:
-                        self.merged_dict[key].to_excel(writer, sheet_name=key)
+                        self.merged_dict[key].to_excel(writer, sheet_name=key, index=False)
+
 
 # 实例化并调用
 
