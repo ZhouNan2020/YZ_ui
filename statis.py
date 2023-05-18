@@ -82,7 +82,7 @@ class Group(SheetSelector):
         else:
             st.write("请先上传文件")
 
-    def process(self,na_rep,drop_columns):
+    def process(self,na_rep):
         
         for key in self.merged_dict:
             self.merged_dict[key].replace(na_rep, np.nan, inplace=True)
