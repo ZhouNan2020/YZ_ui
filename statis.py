@@ -60,7 +60,7 @@ class SheetSelector(FileUploader):
 
 
 #%%
-data={}
+
 class Group(SheetSelector):
     def __init__(self):
         super().__init__()
@@ -76,9 +76,9 @@ class Group(SheetSelector):
             sheet_names = [sheet_name for sheet_name in self.file.sheet_names if str(common_name) in sheet_name]
             # 遍历sheet_names，将每个sheet另存为一个新的dataframe，命名为“第{i}周期用药情况”
             for i, sheet_name in enumerate(sheet_names, start=1):
-                self.merged_dict[f"第{i}周期用药情况"] = self.file.parse(sheet_name)
+                self.merged_dict[str(i)+common_name] = self.file.parse(sheet_name)
                 # 设置列名为“subject_id”的列为索引
-                self.merged_dict[f"第{i}周期用药情况"].set_index(str(index_name), inplace=True)
+                self.merged_dict[str(i)+common_name].set_index(str(index_name), inplace=True)
         else:
             st.write("请先上传文件")
 
