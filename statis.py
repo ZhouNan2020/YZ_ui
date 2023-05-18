@@ -34,8 +34,7 @@ class FileUploader:
 
 
 # ______________________________________
-'''tab1的内容是展示数据，需要一个类，首先获取被上传excel文件中的所有sheet名称供选择，
-将这些名称使用一个st.selectbox展示,在seclectbox中被选中的sheet将以st.dataframe显示'''
+
 
 
 class SheetSelector(FileUploader):
@@ -140,38 +139,94 @@ class ExcelWriter(NewGroup):
 # 实例化并调用
 
 
-group = ExcelWriter()
-group.run_1()
 
-with tab1:
-    
-    group.run_2()
-        
+
+
+
+
+file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"],key="upforgroup")
+
+
 with tab2:
-    common_name = st.text_input("要提取的sheet名称中的通用字符")
-    index_name = st.text_input("索引列名称")
-    na_rep = st.text_input("空值符号")
-    select_columns = st.text_input("是否有需要删除的列（请连续输入，以英文逗号分隔，例如：是否进行生命体征检查, 检查日期）")
+        common_name = st.text_input("要提取的sheet名称中的通用字符")
+        index_name = st.text_input("索引列名称")
+        na_rep = st.text_input("空值符号")
+        select_columns = st.text_input("是否有需要删除的列（请连续输入，以英文逗号分隔，例如：是否进行生命体征检查, 检查日期）")
     
 
 
     
-    if st.button("输入完成并执行"):
-        if "," in select_columns:
-            select_columns = select_columns.split(",")
-        else:
-            pass
+        if st.button("输入完成并执行"):
+            if "," in select_columns:
+                select_columns = select_columns.split(",")
+            else:
+                pass
         
-        group.refine(common_name,index_name)
-        group.process(na_rep)
-        group.merge()
-        group.mean(select_columns)
-        group.merging_dict
-        group.show()
-        
-if st.button('确认结果'):
-    group.write_to_excel()
+
+            df = pd.ExcelFile(file)
 
 
+            sheet_names = [sheet_name for sheet_name in df.sheet_names if "优替德隆用药记录" in sheet_name]
+
+        # 创建一个空字典用于存储新的dataframe
+            cycle_dfs = {}
+        # 遍历sheet_names，将每个sheet另存为一个新的dataframe，命名为“第{i}周期用药情况”
+            for i, sheet_name in enumerate(sheet_names, start=1):
+                cycle_dfs[str(i)+str(common_name)] = df.parse(sheet_name)
+            # 设置列名为“subject_id”的列为索引
+                cycle_dfs[str(i)+str(common_name)].set_index(index_name, inplace=True)
+
+            # 创建一个空字典用于存储包含"给药量"列的dataframe
+            useage_dfs = {}
+            # 遍历cycle_dfs中的dataframe
+
+            for name, cycle_df in cycle_dfs.items():
+                # 保留列名在列表select_columns中的列
+                useage_columns = [col for col in cycle_df.columns if col in select_columns]
+                useage_dfs[name] = cycle_df[useage_columns]
+
+#%
+# 遍历useage_dfs中的dataframe，重新命名列名为"D1", "D2", "D3"等
+            for i, (name, useage_df) in enumerate(useage_dfs.items(), start=1):
+                new_columns = [f"{i}_{col}" for col in useage_df.columns]
+                useage_df.columns = new_columns
+
+            # 创建一个空字典用于存储合并后的dataframes
+            merged_dfs = {}
+
+# 获取所有useage_dfs中的dataframes的列名
+            all_columns = set(useage_dfs[list(useage_dfs.keys())[0]].columns)
+# 遍历所有列名
+            for column in all_columns:
+    # 创建一个空列表用于存储每个useage_df中的指定列
+                columns_to_merge = []
+    # 遍历useage_dfs中的dataframes
+                for name, useage_df in useage_dfs.items():
+        # 提取指定列并重命名
+                    renamed_column = useage_df[[column]].rename(columns={column: f"{name}_{column}"})
+        # 将重命名后的列添加到列表中
+                    columns_to_merge.append(renamed_column)
+    
+    # 按索引横向合并所有指定列
+            merged_dfs[column] = pd.concat(columns_to_merge, axis=1, join="outer")
+            
+
+
+            for column, merged_df in merged_dfs.items():
+                row_means = merged_df.apply(lambda x: pd.to_numeric(x, errors='coerce').sum() / pd.to_numeric(x, errors='coerce').count() if pd.to_numeric(x, errors='coerce').count() != 0 else float('nan'), axis=1)
+    # 计算每一行的均值（不包含nan值，nan值不计入分母）
+                merged_df.insert(len(merged_df.columns), column, row_means)
 
  
+            def write_to_excel(self):
+                if self.file is not None:
+                    with pd.ExcelWriter("output.xlsx") as writer:
+                        for key in self.merging_dict:
+                            self.merging_dict[key].to_excel(writer, sheet_name=key)
+                    st.download_button(label="下载结果", data="output.xlsx", file_name="output.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                else:
+                    st.write("请先上传文件")
+
+
+            
+            write_to_excel()
