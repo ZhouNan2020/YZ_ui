@@ -143,12 +143,11 @@ with tab2:
         
     
 
-
-    
-    
  
-class Download:
+
+class Download(Group):
     def __init__(self, merged_dict):
+        super().__init__()
         self.merged_dict = merged_dict
 
     def run(self):
@@ -160,8 +159,9 @@ class Download:
 
 # 实例化并调用
 
-    # 提供一个button，实例化并调用
-    
+download = Download(group.mean(select_columns))
+download.run()
 
 
-    
+
+ 
