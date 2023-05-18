@@ -97,10 +97,13 @@ class Group(SheetSelector):
             self.merging_dict = {k: v.reset_index(drop=True) for k, v in self.merging_dict.items()}
 
     
+
     def mean(self, select_columns):
         for key in self.merging_dict:
-            if key not in select_columns:
-                self.merging_dict[key] = self.merging_dict[key].drop(key, axis=1)
+            for column in self.merging_dict[key].columns:
+                if column not in select_columns:
+                    self.merging_dict[key] = self.merging_dict[key].drop(column, axis=1)
+
         self.merging_dict = {k: v.reset_index(drop=True) for k, v in self.merging_dict.items()}
         for key in self.merging_dict:
             row_means = self.merging_dict[key].apply(lambda x: pd.to_numeric(x, errors='coerce').sum() / pd.to_numeric(x, errors='coerce').count() if pd.to_numeric(x, errors='coerce').count() != 0 else float('nan'), axis=1)
