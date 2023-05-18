@@ -82,7 +82,7 @@ class Group(SheetSelector):
         else:
             st.write("请先上传文件")
 
-    def process(self,na_rep):
+    def process(self,na_rep,drop_columns):
         
         for key in self.merged_dict:
             self.merged_dict[key].replace(na_rep, np.nan, inplace=True)
@@ -98,6 +98,9 @@ class Group(SheetSelector):
                     self.merging_dict[col] = pd.concat([self.merging_dict[col], self.merged_dict[key][col]], axis=1)
 
     def mean(self,select_columns):
+        for column, merged_df in self.merging_dict.items():
+            merged_df = merged_df[select_columns]
+            self.merging_dict[column] = merged_df
         
         for column, merged_df in self.merging_dict.items():
             merged_df = merged_df.filter(regex=select_columns)
