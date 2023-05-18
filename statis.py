@@ -196,10 +196,10 @@ with tab2:
 
 # 获取所有useage_dfs中的dataframes的列名
             all_columns = set(useage_dfs[list(useage_dfs.keys())[0]].columns)
-# 遍历所有列名
+            columns_to_merge = []
             for column in all_columns:
-    # 创建一个空列表用于存储每个useage_df中的指定列
-                columns_to_merge = []
+   
+                
     # 遍历useage_dfs中的dataframes
                 for name, useage_df in useage_dfs.items():
         # 提取指定列并重命名
