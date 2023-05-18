@@ -130,6 +130,7 @@ with tab2:
         st.write(group.merged_dict)
         st.write(group.data)
         st.write(group.common_name)
+        st.write(group.file)
 
 
     
