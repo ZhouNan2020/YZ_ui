@@ -97,9 +97,7 @@ class Group(SheetSelector):
                     self.merging_dict[column] = pd.concat([self.merging_dict[column], pd.DataFrame(self.merged_dict[key][column])], axis=0)
             self.merging_dict = {k: v.reset_index(drop=True) for k, v in self.merging_dict.items()}
 
-
-
-    
+ 
 
     def mean(self, select_columns):
         for key in self.merging_dict:
@@ -114,34 +112,6 @@ class Group(SheetSelector):
         return self.merging_dict
     
 
-group = Group()
-group.run_1()
-
-with tab1:
-    
-    group.run_2()
-        
-with tab2:
-    common_name = st.text_input("要提取的sheet名称中的通用字符")
-    index_name = st.text_input("索引列名称")
-    na_rep = st.text_input("空值符号")
-    select_columns = st.text_input("是否有需要删除的列（请连续输入，以英文逗号分隔，例如：是否进行生命体征检查, 检查日期）")
-    
-
-
-    
-    if st.button("输入完成并执行"):
-        if "," in select_columns:
-            select_columns = select_columns.split(",")
-        else:
-            pass
-        st.write(select_columns)
-        group.refine(common_name,index_name)
-        group.process(na_rep)
-        group.merge()
-        st.write(group.mean(select_columns))
-        
-    
 
  
 
