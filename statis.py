@@ -75,10 +75,13 @@ class Group(FileUploader):
     
     
     def refine(self,common_name):
-        
-        for sheet_name in self.file.sheet_names:
-            if common_name in sheet_name:
-                self.data[sheet_name] = pd.ExcelFile(self.file, sheet_name=sheet_name)
+        self.file = pd.ExcelFile(self.file)
+        if self.file is not None:
+            for sheet_name in self.file.sheet_names:
+                if common_name in sheet_name:
+                    self.data[sheet_name] = pd.ExcelFile(self.file, sheet_name=sheet_name)
+        else:
+            st.write("请先上传文件")
 
     def process(self,index_name,na_rep,drop_columns):
         for key in self.data:
@@ -113,7 +116,7 @@ with tab2:
     na_rep = st.text_input("空值符号")
     drop_columns = st.text_input("是否有需要删除的列（请连续输入，以英文逗号分隔，例如：是否进行生命体征检查, 检查日期）")
     group = Group()
-    group()
+    
 
     if st.button("输入完成并执行"):
         group.refine(common_name)
