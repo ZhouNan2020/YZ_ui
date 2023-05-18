@@ -111,30 +111,76 @@ class Group(SheetSelector):
             self.merging_dict[key].insert(len(self.merging_dict[key].columns), str(key) + "_mean", row_means)
         return self.merging_dict
     
+ 
+class NewGroup(Group):
+    def __init__(self):
+        super().__init__()
+        
+    def show(self):
+        for key in self.merging_dict:
+            st.write(key)
+            st.table(self.merging_dict[key])
+
+ 
+class ExcelWriter(NewGroup):
+    def __init__(self):
+        super().__init__()
+        
+    def write_to_excel(self):
+        if self.file is not None:
+            with pd.ExcelWriter("output.xlsx") as writer:
+                for key in self.merging_dict:
+                    self.merging_dict[key].to_excel(writer, sheet_name=key)
+            st.download_button(label="下载结果", data="output.xlsx", file_name="output.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        else:
+            st.write("请先上传文件")
+
+
 
 
  
 
 
-class Download(Group):
-    def __init__(self):
-        super().__init__()
 
-    def run_3(self):
-        if self.merged_dict is not None:
-            if st.button("下载确认好的数据"):
-                with pd.ExcelWriter("vitalsigns.xlsx") as writer:
-                    for key in self.merged_dict:
-                        self.merged_dict[key].to_excel(writer, sheet_name=key, index=False)
-                    # Set the first sheet as the active sheet
-                    writer.sheets[list(writer.sheets.keys())[0]].sheet_state = 'visible'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
 
 
 
 # 实例化并调用
 
 
-group = Download()
+group = ExcelWriter()
 group.run_1()
 
 with tab1:
@@ -155,14 +201,14 @@ with tab2:
             select_columns = select_columns.split(",")
         else:
             pass
-        st.write(select_columns)
+        
         group.refine(common_name,index_name)
         group.process(na_rep)
         group.merge()
-        st.write(group.mean(select_columns))
+        group.show()
         
 
-group.run_3()
+group.write_to_excel()
 
 
 
