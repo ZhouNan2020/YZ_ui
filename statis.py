@@ -90,7 +90,7 @@ class Group(SheetSelector):
             pass
         else:
             for key in self.merged_dict:
-                self.merged_dict[key].drop(columns=list(drop_columns), inplace=True)
+                self.merged_dict[key].drop(columns=drop_columns, inplace=True)
         return self.data
     
     def merge(self):
