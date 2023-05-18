@@ -88,7 +88,7 @@ class Group():
     def refine(self):
         self.data = {}
         for sheet_name in self.file.sheet_names:
-            if self.common_name in sheet_name:
+            if str(self.common_name) in sheet_name:
                 self.data[sheet_name] = pd.read_excel(self.file, sheet_name=sheet_name)
 
     def process(self):
