@@ -119,6 +119,9 @@ class NewGroup(Group):
             self.merge()
             self.mean()
             st.write(self.merged_dict)
+            st.write(self.data)
+            st.write(self.file)
+            st.write(self.common_name)
             
 with tab2:
     new_group = NewGroup()
