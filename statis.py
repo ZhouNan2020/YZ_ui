@@ -23,7 +23,7 @@ class FileUploader:
         self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
         if self.file is not None:
             st.sidebar.write(self.file.name)
-            self.file = pd.ExcelFile(self.file)
+            
         else:
             st.sidebar.write("未上传文件")
             
@@ -70,6 +70,8 @@ class Group(FileUploader):
         super().__init__()
         self.data = {}
         self.merged_dict = {}
+        if self.file is not None:
+            self.file = pd.ExcelFile(self.file)
     
     
     def refine(self,common_name):
@@ -111,6 +113,8 @@ with tab2:
     na_rep = st.text_input("空值符号")
     drop_columns = st.text_input("是否有需要删除的列（请连续输入，以英文逗号分隔，例如：是否进行生命体征检查, 检查日期）")
     group = Group()
+    group()
+
     if st.button("输入完成并执行"):
         group.refine(common_name)
         group.process(index_name,na_rep,drop_columns)
