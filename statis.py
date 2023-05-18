@@ -127,6 +127,7 @@ with tab2:
         group.process()
         group.merge()
         group.mean()
+        st.write(group.merged_dict)
 
 
     
@@ -143,8 +144,9 @@ class Download:
                         self.merged_dict[key].to_excel(writer, sheet_name=key)
 
 # 实例化并调用
-with tab2:
-    download = Download(group.merged_dict)
-    download.run()
-    st.dataframe(group.merged_dict)
- 
+
+    # 提供一个button，实例化并调用
+    
+
+
+    
