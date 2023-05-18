@@ -95,19 +95,18 @@ class Group(SheetSelector):
                 else:
                     self.merging_dict[column] = pd.concat([self.merging_dict[column], self.merged_dict[key][column]], axis=0)
             self.merging_dict = {k: v.reset_index(drop=True) for k, v in self.merging_dict.items()}
-            
-    def mean(self,select_columns):
-        for column, merged_df in self.merging_dict.items():
-            merged_df = merged_df[select_columns]
-            self.merging_dict[column] = merged_df
-        
-        for column, merged_df in self.merging_dict.items():
-            merged_df = merged_df.filter(regex=select_columns)
-            row_means = merged_df.apply(lambda x: pd.to_numeric(x, errors='coerce').sum() / pd.to_numeric(x, errors='coerce').count() if pd.to_numeric(x, errors='coerce').count() != 0 else float('nan'), axis=1)
-            merged_df.insert(len(merged_df.columns), str(column) + "_mean", row_means)
-            self.merging_dict[column] = merged_df
+
+    
+    def mean(self, select_columns):
+        for key in self.merging_dict:
+            if key not in select_columns:
+                self.merging_dict[key] = self.merging_dict[key].drop(key, axis=1)
+        self.merging_dict = {k: v.reset_index(drop=True) for k, v in self.merging_dict.items()}
+        for key in self.merging_dict:
+            row_means = self.merging_dict[key].apply(lambda x: pd.to_numeric(x, errors='coerce').sum() / pd.to_numeric(x, errors='coerce').count() if pd.to_numeric(x, errors='coerce').count() != 0 else float('nan'), axis=1)
+            self.merging_dict[key].insert(len(self.merging_dict[key].columns), str(key) + "_mean", row_means)
         return self.merging_dict
-        
+    
 
 group = Group()
 group.run_1()
