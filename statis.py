@@ -117,7 +117,7 @@ with tab2:
     def group(file_uploader):
         if file_uploader.file is not None:
             group = Group(file_uploader.file)
-            group()
+            group.run()  # 将 group() 改为 group.run()
     group(file_uploader)
     # 设置一个button，执行refine
     if st.button("提取数据"):
