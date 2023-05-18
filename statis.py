@@ -150,7 +150,7 @@ class Download(Group):
         super().__init__()
         self.merged_dict = merged_dict
 
-    def run(self):
+    def run_3(self):
         if self.merged_dict is not None:
             if st.button("下载确认好的数据"):
                 with pd.ExcelWriter("vitalsigns.xlsx") as writer:
@@ -159,8 +159,36 @@ class Download(Group):
 
 # 实例化并调用
 
-download = Download(group.mean(select_columns))
-download.run()
+
+group = Download()
+group.run_1()
+
+with tab1:
+    
+    group.run_2()
+        
+with tab2:
+    common_name = st.text_input("要提取的sheet名称中的通用字符")
+    index_name = st.text_input("索引列名称")
+    na_rep = st.text_input("空值符号")
+    select_columns = st.text_input("是否有需要删除的列（请连续输入，以英文逗号分隔，例如：是否进行生命体征检查, 检查日期）")
+    
+
+
+    
+    if st.button("输入完成并执行"):
+        if "," in select_columns:
+            select_columns = select_columns.split(",")
+        else:
+            pass
+        st.write(select_columns)
+        group.refine(common_name,index_name)
+        group.process(na_rep)
+        group.merge()
+        st.write(group.mean(select_columns))
+        
+
+group.run_3()
 
 
 
