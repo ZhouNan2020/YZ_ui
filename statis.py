@@ -69,32 +69,27 @@ class Group(FileUploader):
         super().__init__()
         self.data = {}
         self.merged_dict = {}
-        self.common_name = st.text_input("要提取的sheet名称中的通用字符")
-        self.index_name = st.text_input("索引列名称")
-        self.na_rep = st.text_input("空值符号")
-        self.drop_columns = st.text_input("是否有需要删除的列（请连续输入，以英文逗号分隔，例如：是否进行生命体征检查, 检查日期）")
-        
-                
     
-    def refine(self):
+    
+    def refine(self,common_name):
         
         for sheet_name in self.file.sheet_names:
-            if self.common_name in sheet_name:
-                self.data[sheet_name] = pd.read_excel(self.file, sheet_name=sheet_name)
+            if common_name in sheet_name:
+                self.data[sheet_name] = pd.ExcelFile(self.file, sheet_name=sheet_name)
 
-    def process(self):
+    def process(self,index_name,na_rep,drop_columns):
         for key in self.data:
-            self.data[key].set_index(str(self.index_name), inplace=True)
+            self.data[key].set_index(index_name, inplace=True)
         for key in self.data:
-            self.data[key].replace(str(self.na_rep), np.nan, inplace=True)
-        if self.drop_columns=="":
+            self.data[key].replace(na_rep, np.nan, inplace=True)
+        if drop_columns=="":
             pass
         else:
             for key in self.data:
-                self.data[key].drop(columns=["是否进行生命体征检查", "检查日期"], inplace=True)
+                self.data[key].drop(columns=list(drop_columns), inplace=True)
     
     def merge(self):
-        self.merged_dict = {}
+        
         for key in self.data:
             for col in self.data[key].columns:
                 if col not in self.merged_dict:
@@ -107,28 +102,21 @@ class Group(FileUploader):
             row_means = merged_df.apply(lambda x: pd.to_numeric(x, errors='coerce').sum() / pd.to_numeric(x, errors='coerce').count() if pd.to_numeric(x, errors='coerce').count() != 0 else float('nan'), axis=1)
             merged_df.insert(len(merged_df.columns), str(column) + "_mean", row_means)
 
- 
 
-class NewGroup(Group):
-    def __init__(self):
-        super().__init__()
         
-    def run(self):
-        if self.file is not None:
-            self.refine()
-            self.process()
-            self.merge()
-            self.mean()
-            st.write(self.merged_dict)
-            st.write(self.data)
-            st.write(self.file)
-            st.write(self.common_name)
-            
 with tab2:
-    new_group = NewGroup()
-    if st.button("提取数据并处理"):
-        new_group.run()
-
+    common_name = st.text_input("要提取的sheet名称中的通用字符")
+    index_name = st.text_input("索引列名称")
+    na_rep = st.text_input("空值符号")
+    drop_columns = st.text_input("是否有需要删除的列（请连续输入，以英文逗号分隔，例如：是否进行生命体征检查, 检查日期）")
+    group = Group()
+    if st.button("输入完成并执行"):
+        group.refine(common_name)
+        group.process(index_name,na_rep,drop_columns)
+        group.merge()
+        group.mean()
+        st.write(group.merged_dict)
+    
 
 
     
