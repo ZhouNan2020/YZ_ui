@@ -64,9 +64,9 @@ with tab1:
 #%%
 
 class Group():
-    def __init__(self,file):
+    def __init__(self,file=file_uploader.file):
         
-        self.file = file
+        
         self.data = {}
         self.common_name = None
         self.index_name = None
@@ -113,21 +113,24 @@ class Group():
 
 
 with tab2:
-    group = Group(file_uploader.file)
-    group()
-    # 一个button判定是否执行下面的代码
-    if st.button("输入完成"):
+    
+    def group(file_uploader):
+        if file_uploader.file is not None:
+            group = Group(file_uploader.file)
+            group()
+    group(file_uploader)
+    # 设置一个button，执行refine
+    if st.button("提取数据"):
         group.refine()
-    if st.button("执行"):
+        st.write(group.data)
+    # 设置一个button，执行process，merge，mean
+    if st.button("处理数据"):
         group.process()
         group.merge()
         group.mean()
         st.write(group.merged_dict)
-        st.write(group.data)
-        st.write(group.common_name)
-        st.write(group.file)
 
-
+    
     
  
 class Download:
