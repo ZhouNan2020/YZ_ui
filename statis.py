@@ -86,11 +86,7 @@ class Group(SheetSelector):
         
         for key in self.merged_dict:
             self.merged_dict[key].replace(na_rep, np.nan, inplace=True)
-        if drop_columns=="":
-            pass
-        else:
-            for key in self.merged_dict:
-                self.merged_dict[key].drop(columns=drop_columns, inplace=True)
+        
         return self.data
     
     def merge(self):
@@ -101,11 +97,15 @@ class Group(SheetSelector):
                 else:
                     self.merging_dict[col] = pd.concat([self.merging_dict[col], self.merged_dict[key][col]], axis=1)
 
-    def mean(self):
+    def mean(self,select_columns):
+        
         for column, merged_df in self.merging_dict.items():
+            merged_df = merged_df.filter(regex=str(select_columns))
             row_means = merged_df.apply(lambda x: pd.to_numeric(x, errors='coerce').sum() / pd.to_numeric(x, errors='coerce').count() if pd.to_numeric(x, errors='coerce').count() != 0 else float('nan'), axis=1)
             merged_df.insert(len(merged_df.columns), str(column) + "_mean", row_means)
-            return merged_df
+            self.merging_dict[column] = merged_df
+        return self.merging_dict
+        
 
 group = Group()
 group.run_1()
@@ -118,13 +118,13 @@ with tab2:
     common_name = st.text_input("要提取的sheet名称中的通用字符")
     index_name = st.text_input("索引列名称")
     na_rep = st.text_input("空值符号")
-    drop_columns = st.text_input("是否有需要删除的列（请连续输入，以英文逗号分隔，例如：是否进行生命体征检查, 检查日期）")
+    select_columns = st.text_input("是否有需要删除的列（请连续输入，以英文逗号分隔，例如：是否进行生命体征检查, 检查日期）")
     
     if st.button("输入完成并执行"):
         group.refine(common_name,index_name)
-        group.process(na_rep,drop_columns)
+        group.process(na_rep)
         group.merge()
-        group.mean()
+        group.mean(select_columns)
         
     
 
