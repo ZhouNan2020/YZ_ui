@@ -85,21 +85,21 @@ class Group(SheetSelector):
     def process(self,na_rep,drop_columns):
         
         for key in self.merged_dict:
-            self.data[key].replace(na_rep, np.nan, inplace=True)
+            self.merged_dict[key].replace(na_rep, np.nan, inplace=True)
         if drop_columns=="":
             pass
         else:
             for key in self.merged_dict:
-                self.data[key].drop(columns=list(drop_columns), inplace=True)
+                self.merged_dict[key].drop(columns=list(drop_columns), inplace=True)
         return self.data
     
     def merge(self):
-        for key in self.data:
-            for col in self.data[key].columns:
+        for key in self.merged_dict:
+            for col in self.merged_dict[key].columns:
                 if col not in self.merging_dict:
-                    self.merging_dict[col] = self.data[key][col]
+                    self.merging_dict[col] = self.merged_dict[key][col]
                 else:
-                    self.merging_dict[col] = pd.concat([self.merging_dict[col], self.data[key][col]], axis=1)
+                    self.merging_dict[col] = pd.concat([self.merging_dict[col], self.merged_dict[key][col]], axis=1)
 
     def mean(self):
         for column, merged_df in self.merging_dict.items():
