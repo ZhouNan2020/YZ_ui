@@ -127,7 +127,6 @@ with tab2:
 
     if st.button("输入完成并执行"):
         group.refine(common_name,index_name)
-        
         group.merge(index_name,na_rep,drop_columns)
         group.mean()
         st.write(group.merged_dict)
