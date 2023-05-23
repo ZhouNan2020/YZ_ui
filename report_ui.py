@@ -83,10 +83,9 @@ class MyApp:
                         max_val = pd.to_numeric(df[col], errors='coerce').max(skipna=True)
                         min_val = pd.to_numeric(df[col], errors='coerce').min(skipna=True)
                         df_new[col] = [non_null_count, round(mean,2),mean_plus_std, round(median,2), round(max_val,2), round(min_val,2)]
-                        df_new["统计值"] = ["非空值数量", "平均值", "平均值±标准差", "中位数", "最大值", "最小值"]
-                        df_new = df_new[["统计值"] + list(df_new.columns[:-1])]
-
                     df_new["sheet"] = sheet
+                    df_new["统计值"] = ["非空值计数", "平均值", "平均值±标准差", "中位数", "最大值", "最小值"]
+                    df_new = df_new[["统计值"] + list(df_new.columns[:-1])]
                     df_new = df_new.set_index('sheet')
                     df_list.append(df_new)
 
