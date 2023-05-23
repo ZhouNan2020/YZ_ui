@@ -1,11 +1,11 @@
 
 
 
-import streamlit as st
-import pandas as pd
+
 
 import streamlit as st
 import pandas as pd
+import numpy as np
 
 class MyApp:
     def __init__(self):
@@ -56,10 +56,6 @@ class MyApp:
 
 
 
-
-
-
-
     def tab2(self):
         if self.file is not None:
             self.sheet_names = pd.ExcelFile(self.file).sheet_names
@@ -76,20 +72,26 @@ class MyApp:
                 df_list = []
                 for sheet in self.sheetdict:
                     df = self.sheetdict[sheet][self.col_selected]
+                    df = df.replace(['', 'ND'], np.nan)
                     df_new = pd.DataFrame()
                     for col in df.columns:
-                        df_mean = str(round(df[col].mean(), 2))
-                        df_std = str(round(df[col].std(), 2))
-                        df_std_str = str(df_mean) + "±" + str(df_std)
-                        df_median = str(round(df[col].median(), 2))
-                        df_max = str(round(df[col].max(), 2))
-                        df_min = str(round(df[col].min(), 2))
-                        df_new[col] = [df_mean, df_std_str, df_median, df_max, df_min]
+                        non_null_count = df[col].count()
+                        mean = pd.to_numeric(df[col], errors='coerce').mean(skipna=True)
+                        std = pd.to_numeric(df[col], errors='coerce').std(skipna=True)
+                        median = pd.to_numeric(df[col], errors='coerce').median(skipna=True)
+                        mean_plus_std = f"{mean:.2f}±{std:.2f}"
+                        max_val = pd.to_numeric(df[col], errors='coerce').max(skipna=True)
+                        min_val = pd.to_numeric(df[col], errors='coerce').min(skipna=True)
+                        df_new[col] = [non_null_count, round(mean,2),mean_plus_std, round(median,2), round(max_val,2), round(min_val,2)]
+                        df_new["统计值"] = ["非空值数量", "平均值", "平均值±标准差", "中位数", "最大值", "最小值"]
+                        df_new = df_new[["统计值"] + list(df_new.columns[:-1])]
 
                     df_new["sheet"] = sheet
-                    df_new["column"] = df_new.index
-                    df_new = df_new.reset_index(drop=True)
+                    df_new = df_new.set_index('sheet')
                     df_list.append(df_new)
+
+                
+
                 self.df_final = pd.concat(df_list, axis=0)
                 st.dataframe(self.df_final)
                 st.download_button(
