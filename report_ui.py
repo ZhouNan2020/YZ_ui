@@ -157,6 +157,54 @@ class MyApp:
             for key in self.dfdict:
                 group_dict[key] = {k: v.to_dict('records') for k, v in self.dfdict[key].groupby(groupcol)}
             self.dfdict = group_dict
+
+
+    def tab4(self):
+        st.markdown("**请选择分组参考列**")
+        groupsheet = st.selectbox("选择一个sheet", self.sheet_names, key="groupsheet")
+        groupcol = st.selectbox("选择一个列", self.sheetdict[groupsheet].columns, key="groupcol")
+        if st.button("开始分组"):
+            self.dfdict = {}
+            for sheet in self.sheetdict:
+                self.dfdict[sheet] = pd.read_excel(self.file, sheet_name=sheet)
+            group_df = self.sheetdict[groupsheet][groupcol]
+            for key in self.dfdict:
+                self.dfdict[key] = pd.merge(self.dfdict[key], group_df, on='subject_id', how='left')
+            group_dict = {}
+            for key in self.dfdict:
+                group_dict[key] = {k: v.to_dict('records') for k, v in self.dfdict[key].groupby(groupcol)}
+            self.dfdict = group_dict
+            
+            valuedict = {}
+            for key in self.dfdict:
+                valuedict[key] = self.dfdict[key]
+            tab4_sheetname = st.multiselect("选择一个sheet", list(valuedict.keys()), key="tab4_sheetname")
+            if st.button("选择完成"):
+                valuedict = {}
+                for sheet in tab4_sheetname:
+                    valuedict[sheet] = self.dfdict[sheet]
+                colnames = []
+                for sheet in valuedict:
+                    for col in valuedict[sheet][0].keys():
+                        if col not in colnames:
+                            colnames.append(col)
+                valuedict_new = []
+                for sheet in valuedict:
+                    df = pd.DataFrame(valuedict[sheet])
+                    valuedict_new.append(df)
+                valuedict = pd.concat(valuedict_new, axis=0)
+                valuedict = valuedict[colnames]
+                valuedict = valuedict.drop_duplicates()
+                valuedict = valuedict.to_dict('list')
+                
+                tab4_colname = st.multiselect("选择一个列", list(valuedict.keys()), key="tab4_colname")
+                if st.button("选择完成"):
+                    valuedict_new = {}
+                    for col in tab4_colname:
+                        valuedict_new[col] = valuedict[col]
+                    valuedict = valuedict_new
+                    self.dfdict = valuedict
+
         
 
 
