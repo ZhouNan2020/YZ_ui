@@ -237,7 +237,7 @@ class MyApp:
             self.combinedata = pd.concat([self.tab5raw_data.parse(sheet_name) for sheet_name in self.tab5raw_data.sheet_names], axis=1, join='outer')
             self.combinedata = self.combinedata.loc[:,~self.combinedata.columns.duplicated()] 
             self.combinedata = self.combinedata.fillna("未知")
-            st.write(self.combinedata)
+            #st.write(self.combinedata)
             st.markdown("**请选择作为分组依据的列**") #在页面上显示文本
             self.tab5selectcol = st.selectbox("选择列", self.combinedata.columns, key="tab5selectcol") #提供一个下拉单选框，标签为“请选择作为分组依据的列”备选项是self.combinedata中的所有列，选择结果赋值给self.tab5selectcol
             st.markdown("**请选择需要进行描述性统计的列**") #在页面上显示文本
