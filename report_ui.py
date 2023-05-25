@@ -234,7 +234,7 @@ class MyApp:
     def tab5(self):
         if self.file is not None: #如果self.file不为空
             self.tab5raw_data = pd.ExcelFile(self.file)
-            self.combinedata = pd.concat([self.tab5raw_data.parse(sheet_name) for sheet_name in self.tab5raw_data.sheet_names], axis=1, join='outer')
+            self.combinedata = pd.concat([self.tab5raw_data.parse(sheet_name) for sheet_name in self.tab5raw_data.sheet_names], axis=1, join='inner')
             self.combinedata = self.combinedata.loc[:,~self.combinedata.columns.duplicated()] 
             self.combinedata = self.combinedata.fillna("未知")
             st.write(self.combinedata)
