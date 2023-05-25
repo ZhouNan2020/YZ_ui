@@ -303,6 +303,7 @@ class MyApp:
                     cate_dict = {}
                     for key in self.tab5groupdict.keys():
                         cate_df = self.tab5groupdict[key]
+                        cate_df[self.tab5stacol].fillna('未知', inplace=True) #将cate_df中空值使用‘未知’替代
                         cate_df_count = cate_df[self.tab5stacol].value_counts(dropna=True)
                         cate_df_percent = cate_df[self.tab5stacol].value_counts(normalize=True, dropna=True)
                         cate_df_percent = cate_df_percent.round(2) #保留2位小数
