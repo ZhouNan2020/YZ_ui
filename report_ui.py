@@ -395,7 +395,7 @@ class MyApp:
                     
     def tab6(self):
         st.write('将单个ID属于多个分组的情况转换为哑变量，然后再实现分组')
-        st.write('这个运行特别慢，先不要用')
+        
         if self.file is not None:
             tab6rawdata = pd.ExcelFile(self.file)
             tab6sheet_selected = st.selectbox("选择需要处理的sheet", tab6rawdata.sheet_names, key="tab6sheetname") #提供tab6rawdata中所有的sheet名称供选择，使用st,selectbox,
