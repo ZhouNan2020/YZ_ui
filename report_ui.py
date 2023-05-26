@@ -110,6 +110,7 @@ class MyApp:
                     st.warning("请先上传索引文件。")
     
     def tab3(self):
+        
         self.sheet_names_tab3 = pd.ExcelFile(self.file).sheet_names #获取文件中的所有sheet名
         sheet_selected = st.multiselect("选择sheet", self.sheet_names_tab3, key="sheetname") #创建一个多选框，用于选择不同的sheet
         
@@ -165,6 +166,7 @@ class MyApp:
 
 
     def tab4(self):
+        st.write("注意：目前只支持将'subject_id'唯一的列作为分组依据")
         if self.file is not None:
             st.markdown("**请选择作为分组依据的列**")
             groupsheet = st.selectbox("选择分组依据列所在的sheet", list(self.sheetdict.keys()), key="groupsheet")
@@ -190,8 +192,8 @@ class MyApp:
                         #continue #如果self.sheetdict的key对应的dataframe中没有列名为subject_id的列，则删除这个key以及对应的值
                 
                 for key in self.sheetdict.keys():
-                    #如果self.sheetdict的key对应的dataframe中有列名为groupcol的列，则按照groupcol进行分组
-                    self.sheetdict[key] = self.sheetdict[key].groupby(groupcol) #按照groupcol进行分组
+                    if groupcol in self.sheetdict[key].columns: #如果self.sheetdict的key对应的dataframe中有列名为groupcol的列，则按照groupcol进行分组
+                        self.sheetdict[key] = self.sheetdict[key].groupby(groupcol) #按照groupcol进行分组
                         # 将分组后的数据转换为字典格式
                 self.sheetdict = {key: dict(list(group)) for key, group in self.sheetdict.items()}
                     #else:
@@ -232,6 +234,7 @@ class MyApp:
 
 
     def tab5(self):
+        st.write("注意：目前只支持将'subject_id'唯一的列作为分组依据")
         if self.file is not None: #如果self.file不为空
             self.tab5raw_data = pd.ExcelFile(self.file)
             for i in range(len(self.tab5raw_data.sheet_names)):
