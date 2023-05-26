@@ -394,7 +394,7 @@ class MyApp:
 
                     
     def tab6(self):
-        st.write('将单个ID属于多个分组的情况转换为哑变量，然后再实现分组')
+        st.write('将单个ID属于多个分组的情况转换为哑变量')
         
         if self.file is not None:
             tab6rawdata = pd.ExcelFile(self.file)
