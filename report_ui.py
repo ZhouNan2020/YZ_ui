@@ -238,13 +238,15 @@ class MyApp:
                 self.tab5raw_data.parse(self.tab5raw_data.sheet_names[i]).set_index('subject_id', inplace=True)
             self.combinedata = pd.concat([self.tab5raw_data.parse(sheet_name) for sheet_name in self.tab5raw_data.sheet_names], axis=1, join='outer')
             self.combinedata = self.combinedata.loc[:,~self.combinedata.columns.duplicated()] 
+            self.combinedata.dropna(subset=['subject_id'], inplace=True)
             #self.combinedata = self.combinedata.fillna("未知")
-            #st.write(self.combinedata)
+            st.write(self.combinedata)
             st.markdown("**请选择作为分组依据的列**") #在页面上显示文本
             self.tab5selectcol = st.selectbox("选择列", self.combinedata.columns, key="tab5selectcol") #提供一个下拉单选框，标签为“请选择作为分组依据的列”备选项是self.combinedata中的所有列，选择结果赋值给self.tab5selectcol
             st.markdown("**请选择需要进行描述性统计的列**") #在页面上显示文本
             self.tab5stacol = st.selectbox("选择列", self.combinedata.columns, key="tab5stacol") #提供第二个下拉单选框，标签为“请选择需要进行描述性统计的列”，赋值给self.tab5stacol
-            self.combinedata[self.tab5selectcol] = self.combinedata[self.tab5selectcol].fillna("未知")
+            #self.combinedata[self.tab5selectcol] = self.combinedata[self.tab5selectcol].fillna("未知") #将self.combinedata中的空值填充为“未知”
+
             ##self.sheetdict = pd.read_excel(self.file, sheet_name=None) #读取excel文件中的所有sheet，存入self.sheetdict中
             #for key in self.sheetdict.keys(): #遍历self.sheetdict中的每一个sheet
             #    if 'subject_id' in self.sheetdict[key].columns: #如果当前sheet中有subject_id列
@@ -285,8 +287,7 @@ class MyApp:
                                              index=[str(self.tab5stacol)])
                         staed_df = staed_df.T #将sta_df转置
                         sta_dict[key] = staed_df #将sta_df存入sta_dict中
-                    for key in sta_dict.keys():
-                        st.write(key)
+                   
 
                     writer = pd.ExcelWriter(f"{self.tab5stacol}.xlsx") #将sta_dict写入一个excel中，命名为self.tab5stacol.xlsx,sta_dict中不同的key，对应excel中不同的sheet
                     for key in sta_dict.keys():
@@ -306,8 +307,9 @@ class MyApp:
                     cate_dict = {}
                     for key in self.tab5groupdict.keys():
                         cate_df = self.tab5groupdict[key]
-                        st.write(cate_df[self.tab5stacol])
-                        cate_df[self.tab5stacol].fillna('未知', limit=cate_df.shape[0]-1, inplace=True) #将cate_df中空值使用‘未知’替代，限制为cate_df的总行数，即不填充尾行之后的值
+                        
+                        cate_df[self.tab5stacol].fillna('未知', inplace=True)
+                        
                         cate_df_count = cate_df[self.tab5stacol].value_counts(dropna=True)
                         cate_df_percent = cate_df[self.tab5stacol].value_counts(normalize=True, dropna=True)
                         cate_df_percent = cate_df_percent.round(2) #保留2位小数
@@ -329,7 +331,7 @@ class MyApp:
                         file_name=f"{self.tab5stacol}.xlsx",
                         mime="application/vnd.ms-excel"
                     )
-            if st.button('额外统计：对年龄进行分层计数'):    
+            if st.button('额外统计：对年龄进行分层计数（仅用于优替）'):    
     
                 def age_group(age):
                     try:
@@ -343,8 +345,8 @@ class MyApp:
                     except ValueError:
                         if 'UK' in str(age) or 'uk' in str(age):
                             return '未知'
-                        #else:
-                            #return '未知'
+                        else:
+                            return '未知'
 
                 age_dict = {}
                 for key in self.tab5groupdict.keys():
