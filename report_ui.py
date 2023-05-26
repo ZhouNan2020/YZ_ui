@@ -38,7 +38,7 @@ class MyApp:
 
         self.sidebar()
 
-        tabs = ["数据预览", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计']
+        tabs = ["数据预览", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算']
         st.sidebar.title("导航")
         selected_tab = st.sidebar.radio("选择一个标签页", tabs)
 
@@ -52,6 +52,10 @@ class MyApp:
             self.tab4()
         elif selected_tab == '多试验组的计数统计':
             self.tab5()
+        elif selected_tab == '哑变量转换':
+            self.tab6()
+        elif selected_tab == '每周期用药人数计算':
+            self.tab7()
 
     def sidebar(self):
         st.sidebar.title("上传文件")
@@ -110,7 +114,7 @@ class MyApp:
                     st.warning("请先上传索引文件。")
     
     def tab3(self):
-        
+        st.write('用于用药记录、生命体征等复杂分组')
         self.sheet_names_tab3 = pd.ExcelFile(self.file).sheet_names #获取文件中的所有sheet名
         sheet_selected = st.multiselect("选择sheet", self.sheet_names_tab3, key="sheetname") #创建一个多选框，用于选择不同的sheet
         
@@ -160,10 +164,6 @@ class MyApp:
         
     
     
-
-   
-
-
 
     def tab4(self):
         st.write("注意：目前只支持将'subject_id'唯一的列作为分组依据")
@@ -234,11 +234,15 @@ class MyApp:
 
 
     def tab5(self):
-        st.write("注意：目前只支持将'subject_id'唯一的列作为分组依据")
+        st.write("注意：目前只支持将'subject_id'列为唯一值的sheet中的列作为分组依据")
         if self.file is not None: #如果self.file不为空
             self.tab5raw_data = pd.ExcelFile(self.file)
-            for i in range(len(self.tab5raw_data.sheet_names)):
-                self.tab5raw_data.parse(self.tab5raw_data.sheet_names[i]).set_index('subject_id', inplace=True)
+            for i in range(len(self.tab5raw_data.sheet_names)): #遍历excel文件中的每一个sheet
+                sheet = self.tab5raw_data.parse(self.tab5raw_data.sheet_names[i]) #获取当前sheet的数据
+                if 'subject_id' in sheet.columns: #如果当前sheet中有"subject_id"列
+                    sheet.set_index('subject_id', inplace=True) #将"subject_id"列设置为索引列
+                else: #如果当前sheet中没有"subject_id"列
+                    del self.tab5raw_data.sheet_names[i] #删除当前sheet
             self.combinedata = pd.concat([self.tab5raw_data.parse(sheet_name) for sheet_name in self.tab5raw_data.sheet_names], axis=1, join='outer')
             self.combinedata = self.combinedata.loc[:,~self.combinedata.columns.duplicated()] 
             self.combinedata.dropna(subset=['subject_id'], inplace=True)
@@ -308,18 +312,19 @@ class MyApp:
                 else: #如果radio选择分类变量
                 
                     cate_dict = {}
-                    for key in self.tab5groupdict.keys():
-                        cate_df = self.tab5groupdict[key]
+                    for key in self.tab5groupdict.keys(): #遍历self.tab5groupdict中的每一个key
+                        cate_df = self.tab5groupdict[key] #获取当前key对应的dataframe
                         
-                        cate_df[self.tab5stacol].fillna('未知', inplace=True)
+                        cate_df[self.tab5stacol].fillna('未知', inplace=True) #将self.tab5stacol列中的空值填充为“未知”
                         
-                        cate_df_count = cate_df[self.tab5stacol].value_counts(dropna=True)
-                        cate_df_percent = cate_df[self.tab5stacol].value_counts(normalize=True, dropna=True)
+                        cate_df_count = cate_df[self.tab5stacol].value_counts(dropna=True) #计算self.tab5stacol列中每个值的例数，不包括空值
+                        cate_df_percent = cate_df[self.tab5stacol].value_counts(normalize=True, dropna=True) * 100 #计算self.tab5stacol列中每个值的占比，不包括空值
                         cate_df_percent = cate_df_percent.round(2) #保留2位小数
-                        cate_count_df = pd.concat([cate_df_count, cate_df_percent], axis=1)
-                        cate_count_df.columns = ['例数', '占比']
-                        cate_count_df.loc['合计'] = cate_count_df.sum()
-                        cate_dict[key] = cate_count_df
+                        cate_count_df = pd.concat([cate_df_count, cate_df_percent], axis=1) #将cate_df_count和cate_df_percent合并成一个dataframe
+                        cate_count_df.columns = ['例数', '占比(%)'] #将列名改为“例数”和“占比(%)”
+                        cate_count_df['占比(%)'] = cate_count_df['占比(%)'].apply(lambda x: f"{x:.2f}%") #将“占比(%)”列的值加上%
+                        cate_count_df.loc['合计'] = cate_count_df.sum() #计算每一列的合计值，并将合计值添加到cate_count_df的最后一行
+                        cate_dict[key] = cate_count_df #将cate_count_df存入cate_dict中
                     writer = pd.ExcelWriter(f"{self.tab5stacol}.xlsx") #将cate_dict写入一个excel中，命名为self.tab5stacol.xlsx,cate_dict中不同的key，对应excel中不同的sheet
                     for key in cate_dict.keys():
                         key = key.replace('[','').replace(']','').replace(',','和').replace('"','').replace("'","") #将key中的"[]''"全部替换成无（不是空格），把“,”替换成“和”，将单引号和双引号替换成无（不是空格）
@@ -356,11 +361,10 @@ class MyApp:
                     df = self.tab5groupdict[key]
                     df['年龄_AGE'] = df['年龄_AGE'].apply(age_group)
                     age_count = df['年龄_AGE'].value_counts()
-                    age_percent = df['年龄_AGE'].value_counts(normalize=True)
+                    age_percent = df['年龄_AGE'].value_counts(normalize=True).apply(lambda x: f"{x*100:.2f}%")
                     age_df = pd.concat([age_count, age_percent], axis=1)
                     age_df.columns = ['计数', '占比']
                     age_dict[key] = age_df
-
                 writer = pd.ExcelWriter('age.xlsx')
                 for key in age_dict.keys():
                     key = key.replace('[','').replace(']','').replace(',','和').replace('"','').replace("'","")
@@ -375,6 +379,106 @@ class MyApp:
                 )
 
                     
+    def tab6(self):
+        st.write('将单个ID属于多个分组的情况转换为哑变量，然后再实现分组')
+        st.write('这个运行特别慢，先不要用')
+        if self.file is not None:
+            self.tab6data = pd.ExcelFile(self.file)
+
+
+            sheet_options = self.tab6data.sheet_names
+            self.dummysheet = st.selectbox('选择sheet', sheet_options)
+            col_options = self.tab6data.parse(self.dummysheet).columns
+            self.dummycol = st.selectbox('选择列', col_options)
+            if st.button("选择完成",key='tab6button1'):
+                dummied_sheet = self.tab6data.parse(self.dummysheet)
+                dummied_sheet = pd.get_dummies(dummied_sheet, columns=[self.dummycol])
+                
+                dummied_sheet = dummied_sheet.groupby('subject_id').sum().reset_index()
+                dummied_sheet_cols = [col for col in dummied_sheet.columns if col.startswith(self.dummycol)]
+                dummied_sheet_cols.append('subject_id')
+                dummied_sheet = dummied_sheet[dummied_sheet_cols]
+                st.write(dummied_sheet)
+                self.tab6combinedata = pd.concat([self.tab6data.parse(sheet_name) for sheet_name in self.tab6data.sheet_names], axis=1, join='outer')
+                self.tab6combinedata = self.tab6combinedata.loc[:,~self.tab6combinedata.columns.duplicated()]
+                self.tab6combinedata = pd.merge(self.tab6combinedata, dummied_sheet, how='outer', on='subject_id')
+
+                def classify(df):
+                    df['最终分类'] = ''
+                    columns = dummied_sheet.columns
+                    for i in range(len(df)):
+                        if all(pd.isna(df.loc[df.index[i], col]) for col in columns):
+                            df.loc[df.index[i], '最终分类'] = '未知'
+                        else:
+                            for col in columns:
+                                if df.loc[df.index[i], col] != 0:
+                                    df.loc[self.tab6combinedata.index[i], '最终分类'] += col + '+'
+                            df.loc[df.index[i], '最终分类'] = df.loc[df.index[i], '最终分类'][:-1]
+                    return df
+                self.tab6combinedata = classify(self.tab6combinedata)
+                self.tab6dict = {}
+                for i in range(len(self.tab6combinedata)):
+                    if self.tab6combinedata.loc[self.tab6combinedata.index[i], '最终分类'] not in self.tab6dict:
+                        self.tab6dict[self.tab6combinedata.loc[self.tab6combinedata.index[i], '最终分类']] = self.tab6combinedata.iloc[[i]]
+                    else:
+                        self.tab6dict[self.tab6combinedata.loc[self.tab6combinedata.index[i], '最终分类']] = pd.concat([self.tab6dict[self.tab6combinedata.loc[self.tab6combinedata.index[i], '最终分类'] ], self.tab6combinedata.iloc[[i]]], axis=0)
+                        self.tab6dict[self.tab6combinedata.loc[self.tab6combinedata.index[i], '最终分类']] = self.tab6dict[self.tab6combinedata.loc[self.tab6combinedata.index[i], '最终分类']].replace(self.dummycol, '', regex=True)
+                writer = pd.ExcelWriter('dummiegroup.xlsx')
+                for key in self.tab6dict.keys():
+                    key = key.replace('[','').replace(']','').replace(',','和').replace('"','').replace("'","")
+                    self.tab6dict[key].to_excel(writer, sheet_name=key, index=False)
+                writer.save()
+
+
+                st.download_button(
+                    label="下载哑变量分组结果",
+                    data=open('dummiegroup.xlsx', 'rb').read(),
+                    file_name='dummiegroup.xlsx',
+                    mime="application/vnd.ms-excel"
+                    )
+
+    def tab7(self):
+        if self.file is not None:
+            st.write('每周期用药人数计算')
+            self.sheet_names_tab3 = pd.ExcelFile(self.file).sheet_names #获取文件中的所有sheet名
+            sheet_selected = st.multiselect("选择sheet", self.sheet_names_tab3, key="sheetname") #创建一个多选框，用于选择不同的sheet
+
+            for sheet in sheet_selected: #遍历选择的sheet
+                self.selectedsheet[sheet] = pd.read_excel(self.file, sheet_name=sheet) #将选择的sheet读取到self.sheetdict中
+             #创建一个空列表，用于存储所有的列名
+            self.tab3colnames = []
+            for sheet in self.selectedsheet: #遍历self.sheetdict中的每个sheet
+                for col in self.selectedsheet[sheet].columns: #遍历当前sheet中的每一列
+                    if col not in self.tab3colnames: #如果当前列名不在colnames中
+                        self.tab3colnames.append(col) #将当前列名添加到colnames中
+
+            self.col_selected = st.multiselect("选择列", self.tab3colnames, key="colname")
+            df_count = pd.DataFrame()
+            if st.button("开始计算"):
+                self.tab3df_list = []
+                for sheet in self.selectedsheet: #遍历self.sheetdict中的每个sheet
+                    if set(self.col_selected).issubset(set(self.selectedsheet[sheet].columns)): #如果self.col_selected中的所有列名都在self.sheetdict[sheet]的列名中
+                        df = self.selectedsheet[sheet][self.col_selected] #获取当前sheet中self.col_selected列的数据
+                        df_count = pd.concat([df_count, pd.DataFrame({'计数': [len(df)]}, index=[sheet])])
+                        
+                df_count['占比'] = df_count['计数'] / df_count.iloc[0]['计数'] * 100
+                df_count['占比'] = df_count['占比'].apply(lambda x: '{:.2f}%'.format(x))
+                st.write(df_count)
+                
+                if not df_count.empty:
+                    st.download_button(
+                        label="下载用药周期人数计数",
+                        data=df_count.to_csv(index=True).encode(),
+                        file_name='用药周期人数计数.csv',
+                        mime="text/csv"
+                    )
+
+                
+                        
+                
+                
+                        
+                     
 
  
 
