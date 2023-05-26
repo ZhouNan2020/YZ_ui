@@ -150,7 +150,7 @@ class MyApp:
             st.dataframe(self.df_final) #在页面上显示合并后的dataframe
             st.download_button(
                 label="下载结果",
-                data=self.df_final.to_csv(index=False).encode(),
+                data=self.df_final.to_csv(index=True).encode(),
                 file_name="finaldata.csv",
                 mime="text/csv"
             )
@@ -234,9 +234,11 @@ class MyApp:
     def tab5(self):
         if self.file is not None: #如果self.file不为空
             self.tab5raw_data = pd.ExcelFile(self.file)
+            for i in range(len(self.tab5raw_data.sheet_names)):
+                self.tab5raw_data.parse(self.tab5raw_data.sheet_names[i]).set_index('subject_id', inplace=True)
             self.combinedata = pd.concat([self.tab5raw_data.parse(sheet_name) for sheet_name in self.tab5raw_data.sheet_names], axis=1, join='outer')
             self.combinedata = self.combinedata.loc[:,~self.combinedata.columns.duplicated()] 
-            self.combinedata = self.combinedata.fillna("未知")
+            #self.combinedata = self.combinedata.fillna("未知")
             #st.write(self.combinedata)
             st.markdown("**请选择作为分组依据的列**") #在页面上显示文本
             self.tab5selectcol = st.selectbox("选择列", self.combinedata.columns, key="tab5selectcol") #提供一个下拉单选框，标签为“请选择作为分组依据的列”备选项是self.combinedata中的所有列，选择结果赋值给self.tab5selectcol
