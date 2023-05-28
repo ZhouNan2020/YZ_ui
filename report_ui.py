@@ -468,7 +468,7 @@ class MyApp:
                         df = self.selectedsheet[sheet][self.col_selected] #获取当前sheet中self.col_selected列的数据
                         df_count = pd.concat([df_count, pd.DataFrame({'计数': [len(df.dropna())]}, index=[sheet])])
                         
-                denominator = len(self.selectedsheet[sheet_selected[0]][self.col_selected].dropna()) #计算分母
+                denominator = len(self.selectedsheet[sheet_selected[0]][self.col_selected]) #计算分母
                 df_count['占比'] = df_count['计数'] / denominator * 100 #计算占比
                 df_count['占比'] = df_count['占比'].apply(lambda x: '{:.2f}%'.format(x))
                 st.write(df_count)
