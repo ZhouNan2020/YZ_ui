@@ -38,7 +38,7 @@ class MyApp:
 
         self.sidebar()
 
-        tabs = ["关于","数据预览", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算']
+        tabs = ["关于","数据预览", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算','ECOG计数']
         st.sidebar.title("导航")
         selected_tab = st.sidebar.radio("选择一个标签页", tabs)
 
@@ -58,6 +58,8 @@ class MyApp:
             self.tab6()
         elif selected_tab == '每周期用药人数计算':
             self.tab7()
+        elif selected_tab == 'ECOG计数':
+            self.tab8()
     def tabintro(self):
         st.subheader("更新日志")
         st.markdown('**2023年5月26日：**') #将日期加粗
@@ -486,9 +488,64 @@ class MyApp:
         else:
             st.write('请先上传文件')
 
+
+
+
+
+
+    def tab8(self):
+        if self.file is not None: #如果上传了文件
+            if st.button('开始计算'):
+                tab8df = pd.ExcelFile(self.file)
+                tab8dfdict = {}
+                for sheet_name in tab8df.sheet_names:
+                    tab8dfdict[sheet_name] = tab8df.parse(sheet_name)
+                ecog_dict = {}
+                for sheet_name in tab8dfdict.keys():
+                    if 'ECOG评分(若有)' in sheet_name:
+                        ecog_dict[sheet_name] = tab8dfdict[sheet_name]
+ 
+                tab8_count_dict = {}
+                for key in ecog_dict.keys(): #遍历ecog_dict中的每个key
+                    tab8_count_dict[key] = {} #为当前key创建一个空字典
+                    df = ecog_dict[key] #获取当前key对应的DataFrame
+                    count = df['评分结果'].value_counts() #计算评分结果的计数
+                    count_df = pd.DataFrame({'计数': count, '占比': count/len(df)*100}) 
+                    count_df['占比'] = count_df['占比'].apply(lambda x: '{:.2f}%'.format(x))
+                    #占比只保留两位小数，且以百分数形式表示
+                    tab8_count_dict[key]= count_df #将当前key对应的计数结果存储到ecog_count_dict中
                 
-                        
-                     
+                for key in tab8_count_dict.keys(): #遍历tab8_count_dict中的每一个key
+                    df = tab8_count_dict[key] #获取当前key对应的DataFrame
+                    df = df.sort_index() #将df的索引列按照数字从小到大的顺序排列  
+                    tab8_count_dict[key] = df #将排序后的df存储回tab8_count_dict中
+                tab8_combined_df = pd.concat([tab8_count_dict[key] for key in tab8_count_dict.keys()], axis=1, join='outer') #遍历tab8_count_dict中的每一个df，将这些df纵向合并，以列名为参考
+                tab8_combined_df.columns = pd.MultiIndex.from_tuples([(key, col) for key in tab8_count_dict.keys() for col in tab8_count_dict[key].columns]) #将列名中的key和原始列名合并
+                tab8_combined_df.loc['合计'] = tab8_combined_df.sum(numeric_only=True) #增加一行合计行在尾部，不对“占比”列执行sum
+                #tab8_combined_df.loc['合计', ('占比', slice(None))] = tab8_combined_df.loc['合计', ('计数', slice(None))] / tab8_combined_df.loc['合计', ('计数', slice(None))].sum() * 100 #将占比列作为数字求值
+                
+                st.write(tab8_combined_df)
+ 
+                st.download_button( #提供st.download_button,使用户可以下载csv格式的tab8_combined_df，命名为“ecog.csv”
+                    label="下载结果",
+                    data=tab8_combined_df.to_csv(index=True),
+                    file_name="ecog.csv",
+                    mime="text/csv"
+                )
+                st.write('下载结果后需要手动计算占比列的合计值')
+        else:
+            st.write('请先上传文件')
+
+            
+ 
+   
+            
+
+
+
+
+            
+            
 
  
 
