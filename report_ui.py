@@ -514,7 +514,7 @@ class MyApp:
                     count_df['占比'] = count_df['占比'].apply(lambda x: '{:.2f}%'.format(x))
                     #占比只保留两位小数，且以百分数形式表示
                     tab8_count_dict[key]= count_df #将当前key对应的计数结果存储到ecog_count_dict中
-                
+
                 for key in tab8_count_dict.keys(): #遍历tab8_count_dict中的每一个key
                     df = tab8_count_dict[key] #获取当前key对应的DataFrame
                     df = df.sort_index() #将df的索引列按照数字从小到大的顺序排列  
@@ -523,7 +523,7 @@ class MyApp:
                 tab8_combined_df.columns = pd.MultiIndex.from_tuples([(key, col) for key in tab8_count_dict.keys() for col in tab8_count_dict[key].columns]) #将列名中的key和原始列名合并
                 tab8_combined_df.loc['合计'] = tab8_combined_df.sum(numeric_only=True) #增加一行合计行在尾部，不对“占比”列执行sum
                 #tab8_combined_df.loc['合计', ('占比', slice(None))] = tab8_combined_df.loc['合计', ('计数', slice(None))] / tab8_combined_df.loc['合计', ('计数', slice(None))].sum() * 100 #将占比列作为数字求值
-                
+
                 st.write(tab8_combined_df)
  
                 st.download_button( #提供st.download_button,使用户可以下载csv格式的tab8_combined_df，命名为“ecog.csv”
@@ -553,12 +553,6 @@ class MyApp:
 
 
         
-        
-
-        
-
-        
-
 
 if __name__ == "__main__":
     app = MyApp()
