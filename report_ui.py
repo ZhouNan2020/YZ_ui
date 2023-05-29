@@ -61,6 +61,9 @@ class MyApp:
         elif selected_tab == 'ECOG计数':
             self.tab8()
     def tabintro(self):
+        st.subheader('更新日志')
+        st.markdown('**2021年5月29日：**') #将日期加粗
+        st.markdown('1.增加ECOG评分计数模块')
         st.subheader("更新日志")
         st.markdown('**2023年5月26日：**') #将日期加粗
         st.markdown('1.增加哑变量转换模块，用于subject_id不唯一的分组预处理')
