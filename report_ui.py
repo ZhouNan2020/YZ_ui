@@ -160,11 +160,12 @@ class MyApp:
                         df_new["sheet"] = sheet #添加一个名为“sheet”的列，值为当前sheet的名称
                         df_new["统计值"] = ["非空值计数", "平均值", "平均值±标准差", "中位数", "最大值", "最小值"] #添加一个名为“统计值”的列，值为统计结果的名称
                         df_new = df_new[["统计值"] + list(df_new.columns[:-1])] #调整列的顺序
-                        df_new = df_new.set_index('统计值').T #将“统计值”列设置为新索引，然后转置
+                        df_new = df_new.set_index('sheet') #将“sheet”列设置为索引
                         self.tab3df_list.append(df_new) #将当前sheet的统计结果添加到df_list中
                     else: #如果self.col_selected中的所有列名不都在self.sheetdict[sheet]的列名中
                         continue #跳过当前循环，执行下一个循环
                 self.df_final = pd.concat(self.tab3df_list, axis=0) #将df_list中的所有dataframe合并成一个dataframe
+                
                 st.dataframe(self.df_final) #在页面上显示合并后的dataframe
                 st.download_button(
                     label="下载结果",
