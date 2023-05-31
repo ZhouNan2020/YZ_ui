@@ -126,6 +126,7 @@ class MyApp:
                     st.warning("请先上传索引文件。")
     
     def tab3(self):
+        st.subheader('这个模块用来算下面这个表或类似的表')
  
         st.image('druguse.png',use_column_width=True)
 
