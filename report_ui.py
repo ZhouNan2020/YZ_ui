@@ -126,6 +126,10 @@ class MyApp:
                     st.warning("请先上传索引文件。")
     
     def tab3(self):
+ 
+        st.image('druguse.png',use_column_width=True)
+
+        
         if self.file is not None: #如果上传了文件
             st.write('用于用药记录、生命体征等复杂分组')
             self.sheet_names_tab3 = pd.ExcelFile(self.file).sheet_names #获取文件中的所有sheet名
