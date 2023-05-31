@@ -455,6 +455,10 @@ class MyApp:
 
 
     def tab7(self):
+        st.subheader('这个模块用来计算下面这个表')
+        st.image('drugcount.png', use_column_width=True)
+
+        
         if self.file is not None:
             st.write('每周期用药人数计算')
             self.sheet_names_tab3 = pd.ExcelFile(self.file).sheet_names #获取文件中的所有sheet名
@@ -502,6 +506,11 @@ class MyApp:
 
 
     def tab8(self):
+ 
+        st.subheader('这个模块用来算下面这个表')
+        st.image('ecog.png', use_column_width=True)
+
+        
         if self.file is not None: #如果上传了文件
             if st.button('开始计算'):
                 tab8df = pd.ExcelFile(self.file)
