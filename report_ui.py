@@ -163,7 +163,7 @@ class MyApp:
                             min_val = pd.to_numeric(df[col], errors='coerce').min(skipna=True) #获取当前列的最小值
                             df_new[col] = [non_null_count, round(mean,2),mean_plus_std, round(median,2), round(max_val,2), round(min_val,2)] #将当前列的统计结果添加到df_new中
                         df_new["sheet"] = sheet #添加一个名为“sheet”的列，值为当前sheet的名称
-                        df_new["统计值"] = ["非空值计数", "平均值", "平均值±标准差", "中位数", "最大值", "最小值"] #添加一个名为“统计值”的列，值为统计结果的名称
+                        df_new["统计值"] = ["n", "mean", "mean±std", "median", "max", "min"] #添加一个名为“统计值”的列，值为统计结果的名称
                         df_new = df_new[["统计值"] + list(df_new.columns[:-1])] #调整列的顺序
                         df_new = df_new.set_index('sheet') #将“sheet”列设置为索引
                         self.tab3df_list.append(df_new) #将当前sheet的统计结果添加到df_list中
