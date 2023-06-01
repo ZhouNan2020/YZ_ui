@@ -40,7 +40,7 @@ class MyApp:
 
         tabs = ["关于","数据预览", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算','ECOG计数']
         st.sidebar.title("导航")
-        selected_tab = st.sidebar.radio("选择一个标签页", tabs)
+        selected_tab = st.sidebar.radio("选择一个功能模块", tabs)
 
         if selected_tab =="关于":
             self.tabintro()
@@ -65,6 +65,8 @@ class MyApp:
         st.subheader('更新日志')
         st.markdown('**2023年6月1日：**') #将日期加粗
         st.success('六一快乐！')
+        st.markdown('1.之前“按索引筛选”模块和“复杂分组”模块产出结果的文件名太相似了，现更改“按索引筛选”模块产出结果的文件名为“筛选后数据.xlsx”')
+        st.markdown('2.移除“复杂分组”模块计算结果中的均值')
         st.markdown('**2023年5月31日：**') #将日期加粗
         st.markdown('1.给部分模块增加了解释性图例')
         st.markdown('2.复杂分组模块计算结果中将统计值以英文表示') #将日期加粗
