@@ -119,7 +119,7 @@ class MyApp:
                                 st.download_button( #添加一个下载按钮，用于下载筛选后的数据
                                     label="下载结果",
                                     data=open('filterdata.xlsx', 'rb').read(),
-                                    file_name="filterdata.xlsx",
+                                    file_name="筛选后数据.xlsx",
                                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                                 )
 
