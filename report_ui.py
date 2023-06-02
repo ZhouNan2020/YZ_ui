@@ -61,10 +61,10 @@ class MyApp:
         elif selected_tab == 'ECOG计数':
             self.tab8()
     def tabintro(self):
-        st.balloons()
+        
         st.subheader('更新日志')
         st.markdown('**2023年6月1日：**') #将日期加粗
-        st.success('六一快乐！')
+        
         st.markdown('1.之前“按索引筛选”模块和“复杂分组”模块产出结果的文件名太相似了，现更改“按索引筛选”模块产出结果的文件名为“筛选后数据.xlsx”')
         st.markdown('2.移除“复杂分组”模块计算结果中的均值')
         st.markdown('**2023年5月31日：**') #将日期加粗
@@ -83,7 +83,7 @@ class MyApp:
             self.sheetdict = pd.ExcelFile(self.file).parse(sheet_name=None) #使用pd.ExcelFile和parse方法读取文件中的所有sheet
 
     def tab1(self):
-        st.balloons()
+        
         if self.file is not None: #如果上传了文件
             self.sheet_names = list(self.sheetdict.keys()) #直接从self.sheetdict中读取不同的键
             sheet_selected = st.selectbox("选择一个sheet", self.sheet_names) #创建一个下拉选择菜单，用于选择不同的sheet
@@ -96,7 +96,7 @@ class MyApp:
 
 
     def tab2(self):
-            st.balloons()
+            
             st.title("按索引筛选")
             st.write("请上传索引文件")
             self.index = st.file_uploader("选择一个文件", type=["xls", "xlsx"],key='tab3')
@@ -135,7 +135,7 @@ class MyApp:
                     st.warning("请先上传索引文件。")
     
     def tab3(self):
-        st.balloons()
+        
         st.subheader('这个模块用来算下面这个表或类似的表')
  
         st.image('druguse.png',use_column_width=True)
@@ -196,7 +196,7 @@ class MyApp:
     
 
     def tab4(self):
-        st.balloons()
+        
         st.write("注意：目前只支持将'subject_id'唯一的列作为分组依据")
         if self.file is not None:
             st.markdown("**请选择作为分组依据的列**")
@@ -265,7 +265,7 @@ class MyApp:
 
 
     def tab5(self):
-        st.balloons()
+        
         st.write("注意：目前只支持将'subject_id'列为唯一值的sheet中的列作为分组依据")
         if self.file is not None: #如果self.file不为空
             self.tab5raw_data = pd.ExcelFile(self.file)
@@ -416,7 +416,7 @@ class MyApp:
 
                     
     def tab6(self):
-        st.balloons()
+        
         st.write('将单个ID属于多个分组的情况转换为哑变量')
         
         if self.file is not None:
@@ -468,7 +468,7 @@ class MyApp:
 
 
     def tab7(self):
-        st.balloons()
+        
         st.subheader('这个模块用来计算下面这个表')
         st.image('drugcount.png', use_column_width=True)
 
@@ -520,7 +520,7 @@ class MyApp:
 
 
     def tab8(self):
-        st.balloons()
+        
  
         st.subheader('这个模块用来算下面这个表')
         st.image('ecog.png', use_column_width=True)
