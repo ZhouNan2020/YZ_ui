@@ -66,6 +66,8 @@ class MyApp:
     def tabintro(self):
         
         st.subheader('更新日志')
+        st.markdown('**2023年6月5日：**') #将日期加粗
+        st.markdown('1.接入GPT模型，开放chat with AI模块')
         st.markdown('**2023年6月1日：**') #将日期加粗
         
         st.markdown('1.之前“按索引筛选”模块和“复杂分组”模块产出结果的文件名太相似了，现更改“按索引筛选”模块产出结果的文件名为“筛选后数据.xlsx”')
