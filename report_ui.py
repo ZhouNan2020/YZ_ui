@@ -38,14 +38,17 @@ class MyApp:
 
         self.sidebar()
 
-        tabs = ["关于","数据预览", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算','ECOG计数']
+        tabs = ["关于","数据预览", "Chat with AI", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算','ECOG计数']
         st.sidebar.title("导航")
         selected_tab = st.sidebar.radio("选择一个功能模块", tabs)
 
         if selected_tab =="关于":
             self.tabintro()
+        
         elif selected_tab == "数据预览":
             self.tab1()
+        elif selected_tab =="Chat with AI":
+            self.tabchat()
         elif selected_tab =="按索引筛选":
             self.tab2()
         elif selected_tab ==  "复杂分组":
@@ -82,6 +85,12 @@ class MyApp:
         if self.file is not None: #如果上传了文件
             self.sheetdict = pd.ExcelFile(self.file).parse(sheet_name=None) #使用pd.ExcelFile和parse方法读取文件中的所有sheet
 
+    
+    
+    
+    
+    
+    
     def tab1(self):
         st.balloons()
         if self.file is not None: #如果上传了文件
@@ -93,8 +102,11 @@ class MyApp:
         else: #如果没有上传文件
             st.warning("请先上传文件。")
 
-
-
+    def tabchat(self):
+        st.markdown('**注意**')
+        st.markdown('在针对任何一个课题的数据处理中，应当优先使用具有针对性的模块，当现有模块无法解决问题/临时性需求时，才考虑使用AI模块')
+        st.markdown('为了程序的稳定性，AI模块需要点击下方链接跳转')
+        st.markdown('[点击跳转](https://zhounan2020-pythonproject-app-vbvbxd.streamlit.app/)')
     def tab2(self):
             st.balloons()
             st.title("按索引筛选")
