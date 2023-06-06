@@ -1,127 +1,605 @@
-# import streamlit和其它的处理word的库
-import docx
-import pandas as pd
+
+
 import streamlit as st
-# 导入import docx和Python-docx-template
-
-from docxtpl import DocxTemplate
-
-# ______________________________________
-# 在整个脚本中，能够使用@cache缓存的函数一定要用@st.cache
-# 用于缓存函数的返回值，避免st频繁刷新
-# 项目标题“优卓医药科技”
-
-st.set_page_config(page_title="优卓医药科技", page_icon="🧊", layout="wide")
-# 将主界面分一下st.tab，分成3个tab，分别是“数据浏览”，“报告生成”，“关于”
-tab1, tab2, tab3 = st.tabs(["数据浏览", "报告生成", "关于"])
+import pandas as pd
+import numpy as np
 
 
-# 定义一个class，在st.sidebar中中用于上传excel，并显示文件名
-class FileUploader:
+
+
+class MyApp:
     def __init__(self):
         self.file = None
-
-    def run(self):
-        self.file = st.sidebar.file_uploader("上传excel文件", type=["xlsx", "xls"])
-        if self.file is not None:
-            st.sidebar.write(self.file.name)
-        # return self.file
-
-
-# 实例化并调用
-file_uploader = FileUploader()
-file_uploader.run()
-
-# ______________________________________
-'''tab1的内容是展示数据，需要一个类，首先获取被上传excel文件中的所有sheet名称供选择，
-将这些名称使用一个st.selectbox展示,在seclectbox中被选中的sheet将以st.dataframe显示'''
-
-
-class SheetSelector:
-    def __init__(self, file):
-        self.file = file
+        self.sheetdict = {}
+        self.sheet_selected = None
+        self.col_selected = []
+        self.df_final = None
+        self.dfdict = {}
         self.sheet_names = None
-        self.selected_sheet = None
+        self.sheet_names_tab3 = []
+        self.index = None
+        self.sheet_names_tab4 = None
+        self.selectedsheet = {}
+        self.tab3colnames = []
+        
 
     def run(self):
+        st.set_page_config(page_title="优卓医药科技", page_icon=":guardsman:", layout="wide", initial_sidebar_state="expanded", )
+        st.markdown(
+            """
+            <style>
+            .reportview-container {
+                background: #FFFACD
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
+        self.sidebar()
+
+        tabs = ["关于","数据预览", "Chat with AI", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算','ECOG计数']
+        st.sidebar.title("导航")
+        selected_tab = st.sidebar.radio("选择一个功能模块", tabs)
+
+        if selected_tab =="关于":
+            self.tabintro()
+        
+        elif selected_tab == "数据预览":
+            self.tab1()
+        elif selected_tab =="Chat with AI":
+            self.tabchat()
+        elif selected_tab =="按索引筛选":
+            self.tab2()
+        elif selected_tab ==  "复杂分组":
+            self.tab3()
+        elif selected_tab ==  '划分试验组':
+            self.tab4()
+        elif selected_tab == '多试验组的计数统计':
+            self.tab5()
+        elif selected_tab == '哑变量转换':
+            self.tab6()
+        elif selected_tab == '每周期用药人数计算':
+            self.tab7()
+        elif selected_tab == 'ECOG计数':
+            self.tab8()
+    def tabintro(self):
+        
+        st.subheader('更新日志')
+        st.markdown('**2023年6月5日：**') #将日期加粗
+        st.markdown('1.接入GPT模型，开放chat with AI模块')
+        st.markdown('**2023年6月1日：**') #将日期加粗
+        
+        st.markdown('1.之前“按索引筛选”模块和“复杂分组”模块产出结果的文件名太相似了，现更改“按索引筛选”模块产出结果的文件名为“筛选后数据.xlsx”')
+        st.markdown('2.移除“复杂分组”模块计算结果中的均值')
+        st.markdown('**2023年5月31日：**') #将日期加粗
+        st.markdown('1.给部分模块增加了解释性图例')
+        st.markdown('2.复杂分组模块计算结果中将统计值以英文表示') #将日期加粗
+        st.markdown('**2023年5月29日：**') #将日期加粗
+        st.markdown('1.增加ECOG评分计数模块')
+        st.markdown('**2023年5月26日：**') #将日期加粗
+        st.markdown('1.增加哑变量转换模块，用于subject_id不唯一的分组预处理')
+        st.markdown('2.增加每周期用药人数计算模块，用于计算每周期用药人数及占比')     
+
+    def sidebar(self):
+        st.sidebar.title("上传文件")
+        self.file = st.sidebar.file_uploader("选择一个文件", type=["xls", "xlsx"])
+        if self.file is not None: #如果上传了文件
+            self.sheetdict = pd.ExcelFile(self.file).parse(sheet_name=None) #使用pd.ExcelFile和parse方法读取文件中的所有sheet
+
+    
+    
+    
+    
+    
+    
+    def tab1(self):
+        
+        if self.file is not None: #如果上传了文件
+            self.sheet_names = list(self.sheetdict.keys()) #直接从self.sheetdict中读取不同的键
+            sheet_selected = st.selectbox("选择一个sheet", self.sheet_names) #创建一个下拉选择菜单，用于选择不同的sheet
+            if sheet_selected in self.sheetdict.keys(): #如果选择的sheet已经在self.sheetdict中存在
+                st.write(self.sheetdict[sheet_selected]) #直接在页面上呈现对应的dataframe
+                
+        else: #如果没有上传文件
+            st.warning("请先上传文件。")
+
+    def tabchat(self):
+        st.markdown('**注意**')
+        st.markdown('在针对任何一个课题的数据处理中，应当优先使用具有针对性的模块，当现有模块无法解决问题/临时性需求时，才考虑使用AI模块')
+        st.markdown('为了程序的稳定性，AI模块需要点击下方链接跳转')
+        st.markdown('[点击跳转](https://zhounan2020-pythonproject-app-vbvbxd.streamlit.app/)')
+    def tab2(self):
+            
+            st.title("按索引筛选")
+            st.write("请上传索引文件")
+            self.index = st.file_uploader("选择一个文件", type=["xls", "xlsx"],key='tab3')
+            if st.button("开始筛选"):
+                if self.index is not None: #如果上传了索引文件
+                    index_df = pd.read_excel(self.index) #读取索引文件
+                    if "subject_id" in index_df.columns: #如果索引文件中有subject_id列
+                        if self.file is not None: #如果上传了筛选文件
+                            sheet_names = pd.ExcelFile(self.file).sheet_names #获取筛选文件中的sheet名
+                            sheet_dict = {} #创建一个空字典，用于存储筛选后的数据
+                            for sheet in sheet_names: #遍历筛选文件中的每个sheet
+                                df = pd.read_excel(self.file, sheet_name=sheet) #读取当前sheet的数据
+                                if "subject_id" in df.columns: #如果当前sheet中有subject_id列
+                                    df_filtered = df[df["subject_id"].isin(index_df["subject_id"])] #筛选出subject_id列中包含在索引文件中的数据
+                                    sheet_dict[sheet] = df_filtered #将筛选后的数据添加到字典中
+                            if len(sheet_dict) > 0: #如果筛选后的数据字典不为空
+                                #selected_sheet = st.selectbox("选择一个sheet", list(sheet_dict.keys())) #创建一个下拉选择菜单，用于选择字典中不同的key所对应的df
+                                #st.dataframe(sheet_dict[selected_sheet]) #在页面上显示选择的df
+                                with pd.ExcelWriter('filterdata.xlsx') as writer: #将字典写入一个excel，不用的key对应excel中不同的sheet名称，命名为filterdata，供用户下载
+                                    for key in sheet_dict.keys():
+                                        sheet_dict[key].to_excel(writer, sheet_name=key, index=False)
+                                st.download_button( #添加一个下载按钮，用于下载筛选后的数据
+                                    label="下载结果",
+                                    data=open('filterdata.xlsx', 'rb').read(),
+                                    file_name="筛选后数据.xlsx",
+                                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                )
+
+                            else: #如果筛选后的数据列表为空
+                                st.warning("没有找到subject_id列")
+                        else: #如果没有上传筛选文件
+                            st.warning("请先上传文件。")
+                    else: #如果索引文件中没有subject_id列
+                        st.warning("索引文件中没有subject_id列")
+                else: #如果没有上传索引文件
+                    st.warning("请先上传索引文件。")
+    
+    def tab3(self):
+        
+        st.subheader('这个模块用来算下面这个表或类似的表')
+ 
+        st.image('druguse.png',use_column_width=True)
+
+        
+        if self.file is not None: #如果上传了文件
+            st.write('用于用药记录、生命体征等复杂分组')
+            self.sheet_names_tab3 = pd.ExcelFile(self.file).sheet_names #获取文件中的所有sheet名
+            sheet_selected = st.multiselect("选择sheet", self.sheet_names_tab3, key="sheetname") #创建一个多选框，用于选择不同的sheet
+
+            for sheet in sheet_selected: #遍历选择的sheet
+                self.selectedsheet[sheet] = pd.read_excel(self.file, sheet_name=sheet) #将选择的sheet读取到self.sheetdict中
+             #创建一个空列表，用于存储所有的列名
+            self.tab3colnames = []
+            for sheet in self.selectedsheet: #遍历self.sheetdict中的每个sheet
+                for col in self.selectedsheet[sheet].columns: #遍历当前sheet中的每一列
+                    if col not in self.tab3colnames: #如果当前列名不在colnames中
+                        self.tab3colnames.append(col) #将当前列名添加到colnames中
+
+            self.col_selected = st.multiselect("选择列", self.tab3colnames, key="colname")
+            if st.button("开始计算"):
+                self.tab3df_list = []
+                for sheet in self.selectedsheet: #遍历self.sheetdict中的每个sheet
+                    if set(self.col_selected).issubset(set(self.selectedsheet[sheet].columns)): #如果self.col_selected中的所有列名都在self.sheetdict[sheet]的列名中
+                        df = self.selectedsheet[sheet][self.col_selected] #获取当前sheet中self.col_selected列的数据
+                        df = df.replace(['', 'ND'], np.nan) #将df中的空字符串和“ND”替换为nan
+                        df_new = pd.DataFrame() #创建一个空dataframe，用于存储当前sheet的统计结果
+                        for col in df.columns: #遍历df中的每一列
+                            non_null_count = df[col].count() #获取当前列的非空值计数
+                            mean = pd.to_numeric(df[col], errors='coerce').mean(skipna=True) #获取当前列的平均值
+                            std = pd.to_numeric(df[col], errors='coerce').std(skipna=True) #获取当前列的标准差
+                            median = pd.to_numeric(df[col], errors='coerce').median(skipna=True) #获取当前列的中位数
+                            mean_plus_std = f"{mean:.2f}±{std:.2f}" #将平均值和标准差拼接成一个字符串
+                            max_val = pd.to_numeric(df[col], errors='coerce').max(skipna=True) #获取当前列的最大值
+                            min_val = pd.to_numeric(df[col], errors='coerce').min(skipna=True) #获取当前列的最小值
+                            df_new[col] = [non_null_count, mean_plus_std, round(median,2), round(max_val,2), round(min_val,2)] #将当前列的统计结果添加到df_new中
+                        df_new["sheet"] = sheet #添加一个名为“sheet”的列，值为当前sheet的名称
+                        df_new["统计值"] = ["n",  "mean±std", "median", "max", "min"] #添加一个名为“统计值”的列，值为统计结果的名称
+                        df_new = df_new[["统计值"] + list(df_new.columns[:-1])] #调整列的顺序
+                        df_new = df_new.set_index('sheet') #将“sheet”列设置为索引
+                        self.tab3df_list.append(df_new) #将当前sheet的统计结果添加到df_list中
+                    else: #如果self.col_selected中的所有列名不都在self.sheetdict[sheet]的列名中
+                        continue #跳过当前循环，执行下一个循环
+                self.df_final = pd.concat(self.tab3df_list, axis=0) #将df_list中的所有dataframe合并成一个dataframe
+                st.dataframe(self.df_final) #在页面上显示合并后的dataframe
+                st.download_button(
+                    label="下载结果",
+                    data=self.df_final.to_csv(index=True).encode(),
+                    file_name="finaldata.csv",
+                    mime="text/csv"
+                )
+        else:
+            st.warning("请先上传文件。")
+
+        
+        
+    
+    
+
+    def tab4(self):
+        
+        st.write("注意：目前只支持将'subject_id'唯一的列作为分组依据")
         if self.file is not None:
-            self.sheet_names = pd.ExcelFile(self.file).sheet_names
-            self.selected_sheet = st.selectbox("选择一个sheet", self.sheet_names)
-            # 用空白替换掉sheet中的NaN，赋值给exhibition_data
-            exhibition_data = pd.read_excel(self.file, sheet_name=self.selected_sheet, header=0).fillna("")
-            st.dataframe(exhibition_data)
+            st.markdown("**请选择作为分组依据的列**")
+            groupsheet = st.selectbox("选择分组依据列所在的sheet", list(self.sheetdict.keys()), key="groupsheet")
+            groupcol = st.selectbox("选择分组依据列", self.sheetdict[groupsheet].columns, key="groupcol")
+            if st.button("开始分组"):
+                self.sheetdict = pd.ExcelFile(self.file).parse(sheet_name=None)
+                for key in self.sheetdict.keys():
+                    if 'subject_id' in self.sheetdict[key].columns:
+                        self.sheetdict[key] = self.sheetdict[key].dropna(subset=['subject_id'])
+                group_df = self.sheetdict[groupsheet][[groupcol,'subject_id']] #获取分组参考列的数据，并添加subject_id列
+                group_df = group_df.fillna("未知") #将group_df中的nan值替换为字符串“未知”
+                
+                for key in list(self.sheetdict.keys()): #遍历dfdict中的每一个sheet
+                    if key == groupsheet: #如果当前key等于groupsheet，则跳过当前循环，执行下一个循环
+                        continue
+                    elif 'subject_id' in self.sheetdict[key].columns: #如果self.sheetdict的key对应的dataframe中有列名为subject_id的列，则合并，如果没有，则删除这个key以及对应的值
+                        # 将分组参考列的数据与dfdict中的数据进行合并，使用left join方式，以subject_id列为连接键
+                        self.sheetdict[key] = pd.merge(group_df,self.sheetdict[key], on='subject_id', how='left') #将分组参考列的数据与dfdict中的数据进行合并
+                    else:
+                        del self.sheetdict[key]
+                        continue #跳过当前循环，执行下一个循环
+                    # 将分组后的数据转换为字典格式
+                        #continue #如果self.sheetdict的key对应的dataframe中没有列名为subject_id的列，则删除这个key以及对应的值
+                
+                for key in self.sheetdict.keys():
+                    if groupcol in self.sheetdict[key].columns: #如果self.sheetdict的key对应的dataframe中有列名为groupcol的列，则按照groupcol进行分组
+                        self.sheetdict[key] = self.sheetdict[key].groupby(groupcol) #按照groupcol进行分组
+                        # 将分组后的数据转换为字典格式
+                self.sheetdict = {key: dict(list(group)) for key, group in self.sheetdict.items()}
+                    #else:
+                        #continue #如果self.sheetdict的key对应的dataframe中没有列名为groupcol的列，则执行下一个循环
+
+                #self.sheetdict = {key: dict(list(group)) for key, group in self.sheetdict.items()} #将self.sheetdict中的数据转换为字典格式
+                new_dict = {}
+                for key, value in self.sheetdict.items():
+                    for sub_key, sub_value in value.items():
+                        if sub_key not in new_dict:
+                            new_dict[sub_key] = {}
+                        new_dict[sub_key][key] = sub_value
+
+                self.dfdict = new_dict
+                for key in new_dict.keys():
+                    st.write(key)           
+            if self.dfdict is not None:
+                import zipfile
+                with zipfile.ZipFile('excel.zip', 'w') as myzip:
+                    for key in self.dfdict.keys():
+                        writer = pd.ExcelWriter(f"{key}.xlsx")
+                        for subkey in self.dfdict[key].keys():
+                            df = self.dfdict[key][subkey]
+                            df.to_excel(writer, sheet_name=subkey, index=False)
+                        writer.save()
+                        myzip.write(f"{key}.xlsx")
+                st.download_button(
+                    label="下载结果",
+                    data=open('excel.zip', 'rb').read(),
+                    file_name="excel.zip",
+                    mime="application/zip"
+                )
+
+        else:
+            st.warning("请先上传文件。")
+
+            
 
 
-# 实例化并调用
-with tab1:
-    sheet_selector = SheetSelector(file_uploader.file)
-    sheet_selector.run()
+    def tab5(self):
+        
+        st.write("注意：目前只支持将'subject_id'列为唯一值的sheet中的列作为分组依据")
+        if self.file is not None: #如果self.file不为空
+            self.tab5raw_data = pd.ExcelFile(self.file)
+            for i in range(len(self.tab5raw_data.sheet_names)): #遍历excel文件中的每一个sheet
+                sheet = self.tab5raw_data.parse(self.tab5raw_data.sheet_names[i]) #获取当前sheet的数据
+                if 'subject_id' in sheet.columns: #如果当前sheet中有"subject_id"列
+                    sheet.set_index('subject_id', inplace=True) #将"subject_id"列设置为索引列
+                else: #如果当前sheet中没有"subject_id"列
+                    del self.tab5raw_data.sheet_names[i] #删除当前sheet
+            self.combinedata = pd.concat([self.tab5raw_data.parse(sheet_name) for sheet_name in self.tab5raw_data.sheet_names], axis=1, join='outer')
+            self.combinedata = self.combinedata.loc[:,~self.combinedata.columns.duplicated()] 
+            self.combinedata.dropna(subset=['subject_id'], inplace=True)
+            #self.combinedata = self.combinedata.fillna("未知")
+            st.write(self.combinedata)
+            st.markdown("**请选择作为分组依据的列**") #在页面上显示文本
+            self.tab5selectcol = st.selectbox("选择列", self.combinedata.columns, key="tab5selectcol") #提供一个下拉单选框，标签为“请选择作为分组依据的列”备选项是self.combinedata中的所有列，选择结果赋值给self.tab5selectcol
+            st.markdown("**请选择需要进行描述性统计的列**") #在页面上显示文本
+            self.tab5stacol = st.selectbox("选择列", self.combinedata.columns, key="tab5stacol") #提供第二个下拉单选框，标签为“请选择需要进行描述性统计的列”，赋值给self.tab5stacol
+            #self.combinedata[self.tab5selectcol] = self.combinedata[self.tab5selectcol].fillna("未知") #将self.combinedata中的空值填充为“未知”
 
-# tab2
-'''tab2的内容是生成报告，需要精细的处理一些word文档.首先需要定义一个大的类，这个类将用于选择user在这个模块中要做的工作，选项采用st.selectbox,
-不同的选项将调用不同的功能和输入界面.这个类将继承上面的FileUploader类，因为在这个模块中需要上传excel文件.使用@cache缓存函数的返回值，避免st频繁刷新'''
+            ##self.sheetdict = pd.read_excel(self.file, sheet_name=None) #读取excel文件中的所有sheet，存入self.sheetdict中
+            #for key in self.sheetdict.keys(): #遍历self.sheetdict中的每一个sheet
+            #    if 'subject_id' in self.sheetdict[key].columns: #如果当前sheet中有subject_id列
+            #        subject_id_cols = self.sheetdict[key].columns[self.sheetdict[key].columns == 'subject_id'] #获取所有subject_id列
+            #        if len(subject_id_cols) > 1: #如果subject_id列的数量大于1
+            #            self.sheetdict[key] = self.sheetdict[key].drop(subject_id_cols[1:], axis=1) #删除除第一个subject_id列以外的其他subject_id列
+            #    else: #如果当前sheet中没有subject_id列
+            #        continue #跳过当前循环，执行下一个循环
+            #self.combinedata = pd.concat(self.sheetdict.values(), axis=1, join='outer', keys=self.sheetdict.keys()) #将self.sheetdict中的所有sheet横向合并成一个dataframe，on='subject_id'，how='outer'，命名为self.combinedata
+ 
+        # 根据self.combinedata中self.tab5selectcol列值的不同，将self.combinedata分成不同的subdf，将所有的subdf存入一个字典，字典名为self.tab5groupdict
+            self.tab5groupdict = dict(tuple(self.combinedata.groupby(self.tab5selectcol)))
+            self.tab5datatype = st.radio("请选择数据类型", ("连续变量", "分类变量")) #提供一个st.radio，标签为“请选择数据类型”，备选项为“连续变量”，“分类变量”
+            if st.button("开始计算"): #提供一个按钮：开始计算，用户点击后，执行以下操作
+                if self.tab5datatype == "连续变量": #如果radio选择连续变量
+                    sta_dict = {} #定义一个空字典sta_dict
+                    for key in self.tab5groupdict.keys(): #遍历self.tab5groupdict中的每一个key
+                        df = self.tab5groupdict[key] #获取当前key对应的dataframe
+                        sta_df = df[[self.tab5stacol]] #获取需要进行描述性统计的列
+                        sta_df_mean = sta_df.mean(skipna=True) #计算均值，不包括空值
+                        sta_df_std = sta_df.std(skipna=True) #计算标准差，不包括空值
+                        sta_df_median = sta_df.median(skipna=True) #计算中位数，不包括空值
+                        sta_df_max = sta_df.max(skipna=True) #计算最大值，不包括空值
+                        sta_df_min = sta_df.min(skipna=True) #计算最小值，不包括空值
+                        sta_df_mean = sta_df_mean.round(2) #保留2位小数
+                        sta_df_std = sta_df_std.round(2) #保留2位小数
+                        sta_df_median = sta_df_median.round(2) #保留2位小数
+                        sta_df_max = sta_df_max.round(2) #保留2位小数
+                        sta_df_min = sta_df_min.round(2) #保留2位小数
+                        staed_df = pd.DataFrame({'非空值计数': [sta_df.count(numeric_only=True).values[0]],
+                                                 '均值': [sta_df_mean.mean(skipna=True)], #将计算结果存入hw_df中，不包括空值
+                                              '均值±标准差': [f"{sta_df_mean[0]:.2f}±{sta_df_std[0]:.2f}"],
+                                              '中位数': [sta_df_median[0]],
+                                              '最大值': [sta_df_max[0]],
+                                              '最小值': [sta_df_min[0]],
+                                              },
+
+                                             index=[str(self.tab5stacol)])
+                        staed_df = staed_df.T #将sta_df转置
+                        sta_dict[key] = staed_df #将sta_df存入sta_dict中
+                   
+
+                    writer = pd.ExcelWriter(f"{self.tab5stacol}.xlsx") #将sta_dict写入一个excel中，命名为self.tab5stacol.xlsx,sta_dict中不同的key，对应excel中不同的sheet
+                    for key in sta_dict.keys():
+                        key = key.replace('[','').replace(']','').replace(',','和').replace('"','').replace("'","") #将key中的"[]''"全部替换成无（不是空格），把“,”替换成“和”，将单引号和双引号替换成无（不是空格）
+                        sta_dict[key].to_excel(writer, sheet_name=key, index=True) #将sta_dict[key]写入excel中，sheet名为key
+                         #将sta_dict[key]写入excel中，sheet名为key
+                    writer.save()
+
+                    st.download_button( #提供st.download_button,使用户可以下载self.tab5stacol.xlsx到任意位置
+                        label="下载结果",
+                        data=open(f"{self.tab5stacol}.xlsx", 'rb').read(),
+                        file_name=f"{self.tab5stacol}.xlsx",
+                        mime="application/vnd.ms-excel"
+                    )
+                else: #如果radio选择分类变量
+                
+                    cate_dict = {}
+                    for key in self.tab5groupdict.keys(): #遍历self.tab5groupdict中的每一个key
+                        cate_df = self.tab5groupdict[key] #获取当前key对应的dataframe
+                        
+                        cate_df[self.tab5stacol].fillna('未知', inplace=True) #将self.tab5stacol列中的空值填充为“未知”
+                        
+                        cate_df_count = cate_df[self.tab5stacol].value_counts(dropna=True) #计算self.tab5stacol列中每个值的例数，不包括空值
+                        cate_df_percent = cate_df[self.tab5stacol].value_counts(normalize=True, dropna=True) * 100 #计算self.tab5stacol列中每个值的占比，不包括空值
+                        cate_df_percent = cate_df_percent.round(2) #保留2位小数
+                        cate_count_df = pd.concat([cate_df_count, cate_df_percent], axis=1) #将cate_df_count和cate_df_percent合并成一个dataframe
+                        cate_count_df.columns = ['例数', '占比(%)'] #将列名改为“例数”和“占比(%)”
+                        cate_count_df['占比(%)'] = (cate_count_df['例数'] / cate_count_df['例数'].sum() * 100).apply(lambda x: f"{x:.2f}%") #计算占比列的值，占比=当前行在计数列的值/合计行计数列的值，占比列使用字符串百分比形式
+                        cate_count_df.loc['合计'] = cate_count_df.sum() #计算每一列的合计值，并将合计值添加到cate_count_df的最后一行
+                        cate_count_df.loc['合计', '占比(%)'] = '100%' #将合计行占比列的值改为“100%”
+
+                        cate_dict[key] = cate_count_df #将cate_count_df存入cate_dict中
+                    writer = pd.ExcelWriter(f"{self.tab5stacol}.xlsx") #将cate_dict写入一个excel中，命名为self.tab5stacol.xlsx,cate_dict中不同的key，对应excel中不同的sheet
+                    for key in cate_dict.keys():
+                        key = key.replace('[','').replace(']','').replace(',','和').replace('"','').replace("'","") #将key中的"[]''"全部替换成无（不是空格），把“,”替换成“和”，将单引号和双引号替换成无（不是空格）
+                        cate_dict[key].to_excel(writer, sheet_name=key, index=True) #将cate_dict[key]写入excel中，sheet名为key
+                    writer.save()
 
 
-class ReportGenerator(FileUploader):
-    # 在__init__中定义这个类将直接使用FileUploader中被上传的文件，将文件赋值给self.file供后面的函数调用，同时定义一个self函数在不同的功能中调用根目录中不同的word模板
-    def __init__(self):
-        super().__init__()
 
-        self.report_type = None
-        self.template = None
+                    st.download_button( #提供st.download_button,使用户可以下载self.tab5stacol.xlsx到任意位置
+                        label="下载结果",
+                        data=open(f"{self.tab5stacol}.xlsx", 'rb').read(),
+                        file_name=f"{self.tab5stacol}.xlsx",
+                        mime="application/vnd.ms-excel"
+                    )
+            if st.button('额外统计：对年龄进行分层计数（仅用于优替）'):    
+    
+                def age_group(age):
+                    try:
+                        age = int(age)
+                        if age >= 10 and age <= 30:
+                            return '[10, 30]'
+                        elif age > 30 and age <= 60:
+                            return '(30, 60]'
+                        elif age > 60:
+                            return '>60'
+                    except ValueError:
+                        if 'UK' in str(age) or 'uk' in str(age):
+                            return '未知'
+                        else:
+                            return '未知'
 
-    # 定义tab2界面顶端的选择栏，使用st.selectbox，名称是“选择研究类型”，选项是“病例系列研究“，”横断面研究“，”回顾型队列研究“，选项的不同结果赋值给self.report_type
-    def select_report_type(self):
-        self.report_type = st.selectbox("选择研究类型", ["病例系列研究", "横断面研究", "回顾型队列研究"])
-        return self.report_type
+                age_dict = {}
+                for key in self.tab5groupdict.keys():
+                    df = self.tab5groupdict[key]
+                    df['年龄_AGE'] = df['年龄_AGE'].apply(age_group)
+                    age_count = df['年龄_AGE'].value_counts()
+                    age_percent = df['年龄_AGE'].value_counts(normalize=True).apply(lambda x: f"{x*100:.2f}%")
+                    age_df = pd.concat([age_count, age_percent], axis=1)
+                    age_df.columns = ['计数', '占比']
+                    age_dict[key] = age_df
+                writer = pd.ExcelWriter('age.xlsx')
+                for key in age_dict.keys():
+                    key = key.replace('[','').replace(']','').replace(',','和').replace('"','').replace("'","")
+                    age_dict[key].to_excel(writer, sheet_name=key, index=True)
+                writer.save()
 
-    # 使用一个函数读取FileUploader类中所上传excel1的全部sheet中的数据，将其合并成为一个dataframe，index的名称是'subject_id',除index之外，如果有相同的变量名，则只保留一个
-    # 合并完成后，读取这个dataframe的列名，这个值将会在之后的函数中作为备选变量
-    # 赋值给self.data
-    @st.cache
-    def read_data(self):
-        data = pd.ExcelFile(self.file)
-        data = pd.concat(
-            [pd.read_excel(self.file, sheet_name=sheet_name, header=0).fillna("") for sheet_name in data.sheet_names],
-            axis=0, ignore_index=True)
-        data = data.loc[:, ~data.columns.duplicated()]
-        self.data = data
-        self.data_columns = self.data.columns.tolist()
+                st.download_button(
+                    label="下载年龄的分层统计结果",
+                    data=open('age.xlsx', 'rb').read(),
+                    file_name='age.xlsx',
+                    mime="application/vnd.ms-excel"
+                )
+        else:
+            st.write('请先上传文件')
 
-    '''当用户选择病例系列研究时，从根目录中选择 self.template为case_series_study.docx
-    选项一：“选择研究的目标变量及组别”，分为两个selectbox，
-            第1个是“选择研究的目标变量”，选项是self.data_columns中的变量名，结果赋值给research_VAR,
-            第2个是“选择研究的组别”，选项是self.data中research_VAR这一列的不同值，结果赋值给case_series_sub_group.
-    选项二: "选择暴露因素",选项是self.data_columns中的变量名，结果赋值给exposure_factor
-    选项三：“选择结局指标”，选项是self.data_columns中的变量名，结果赋值给outcome
-    全部选择结束之后，self.data将保留research_VAR中的值为case_series_sub_group的行，并根据exposure_factor分为不同的组，
-    根据组的数量，在一个selectbox中使用“第X组”选择查看不同组的st.dataframe,其中X为INT类型的数字，从1开始，最大值为组的数量。
-    用@cache缓存函数的返回值，避免st频繁刷新'''
+                    
+    def tab6(self):
+        
+        st.write('将单个ID属于多个分组的情况转换为哑变量')
+        
+        if self.file is not None:
+            tab6rawdata = pd.ExcelFile(self.file)
+            tab6sheet_selected = st.selectbox("选择需要处理的sheet", tab6rawdata.sheet_names, key="tab6sheetname") #提供tab6rawdata中所有的sheet名称供选择，使用st,selectbox,
+            tab6dummied_sheet = tab6rawdata.parse(tab6sheet_selected)
+            dummycol = st.selectbox("选择需要转换为哑变量的列", tab6dummied_sheet.columns, key="tab6dummycol") #提供dummied_sheet中所有的列名称供选择，使用st,selectbox,
+            if st.button('转换为哑变量'):
+                tab6dummied_sheet = pd.get_dummies(tab6dummied_sheet, columns=[dummycol])
+                tab6dummied_sheet = tab6dummied_sheet.groupby('subject_id').sum().reset_index()
+                dummied_sheet_cols = [col for col in tab6dummied_sheet.columns if col.startswith(dummycol)]
+                dummied_sheet_cols.append('subject_id')
+                tab6dummied_sheet = tab6dummied_sheet[dummied_sheet_cols]
+                tab6combinedata = pd.concat([tab6rawdata.parse(sheet_name) for sheet_name in tab6rawdata.sheet_names], axis=1, join='outer')
+                tab6combinedata = tab6combinedata.loc[:,~tab6combinedata.columns.duplicated()]
+                tab6combinedata = pd.merge(tab6combinedata, tab6dummied_sheet, how='outer', on='subject_id')
+                def classify(df):
+                    df['最终分类'] = ''
 
-    def case_series_study(self):
-        self.template = "case_series_study.docx"
-        research_var = st.selectbox("选择研究的目标变量及组别", self.data_columns)
-        case_series_sub_group = st.selectbox("选择研究的组别", self.data[research_var].unique().tolist())
-        exposure_factor = st.selectbox("选择暴露因素", self.data_columns)
-        outcome = st.selectbox("选择结局指标", self.data_columns)
-        self.data = self.data[self.data[research_var] == case_series_sub_group]
-        self.data = self.data.groupby(exposure_factor).mean()
-        self.data.reset_index(inplace=True)
-        self.data["组别"] = self.data[exposure_factor].apply(
-            lambda x: "第{}组".format(self.data[exposure_factor].tolist().index(x) + 1))
-        self.data = self.data.loc[:, ["组别", outcome]]
-        self.data.rename(columns={outcome: "结局指标"}, inplace=True)
-        group_number = st.selectbox("选择查看的组别", self.data["组别"].tolist())
-        self.data = self.data[self.data["组别"] == group_number]
-        st.dataframe(self.data)
-        return self.data
+                    columns = [col for col in tab6dummied_sheet.columns if col != 'subject_id']
+
+                    for i in range(len(df)):
+                        if all(pd.isna(df.loc[df.index[i], col]) for col in columns):
+                            df.loc[df.index[i], '最终分类'] = '未知'
+                        else:
+                            for col in columns:
+                                if df.loc[df.index[i], col] != 0:
+                                    df.loc[tab6combinedata.index[i], '最终分类'] += col.replace(dummycol, '') + '+'
+                            df.loc[df.index[i], '最终分类'] = df.loc[df.index[i], '最终分类'][:-1]
+
+                    return df
+                tab6combinedata = classify(tab6combinedata)
+                tab6combinedata = tab6combinedata.dropna(subset=['subject_id'])
+    
+                writer = pd.ExcelWriter(f"{dummycol}+哑变量.xlsx")
+                tab6combinedata.to_excel(writer, sheet_name='哑变量', index=False)
+                writer.save()
+
+                st.download_button( #提供st.download_button,使用户可以下载xlsx格式的tab6combinedata，命名为“dummycol+哑变量.xlsx”
+                    label="下载结果",
+                    data=open(f"{dummycol}+哑变量.xlsx", 'rb').read(),
+                    file_name=f"{dummycol}+哑变量.xlsx",
+                    mime="application/vnd.ms-excel"
+                )
+        else:
+            st.write('请先上传文件')
 
 
-# 实例化并调用
-with tab2:
-    report_generator = ReportGenerator()
-    report_generator.select_report_type()
-    report_generator.read_data()
-    if report_generator.report_type == "病例系列研究":
-        report_generator.case_series_study()
 
+
+    def tab7(self):
+        
+        st.subheader('这个模块用来计算下面这个表')
+        st.image('drugcount.png', use_column_width=True)
+
+        
+        if self.file is not None:
+            st.write('每周期用药人数计算')
+            self.sheet_names_tab3 = pd.ExcelFile(self.file).sheet_names #获取文件中的所有sheet名
+            sheet_selected = st.multiselect("选择sheet", self.sheet_names_tab3, key="sheetname") #创建一个多选框，用于选择不同的sheet
+
+            for sheet in sheet_selected: #遍历选择的sheet
+                self.selectedsheet[sheet] = pd.read_excel(self.file, sheet_name=sheet) #将选择的sheet读取到self.sheetdict中
+             #创建一个空列表，用于存储所有的列名
+            self.tab3colnames = []
+            for sheet in self.selectedsheet: #遍历self.sheetdict中的每个sheet
+                for col in self.selectedsheet[sheet].columns: #遍历当前sheet中的每一列
+                    if col not in self.tab3colnames: #如果当前列名不在colnames中
+                        self.tab3colnames.append(col) #将当前列名添加到colnames中
+
+            self.col_selected = st.multiselect("选择列", self.tab3colnames, key="colname")
+            df_count = pd.DataFrame()
+            if st.button("开始计算"):
+                self.tab3df_list = []
+                for sheet in self.selectedsheet: #遍历self.sheetdict中的每个sheet
+                    if set(self.col_selected).issubset(set(self.selectedsheet[sheet].columns)): #如果self.col_selected中的所有列名都在self.sheetdict[sheet]的列名中
+                        df = self.selectedsheet[sheet][self.col_selected] #获取当前sheet中self.col_selected列的数据
+                        df_count = pd.concat([df_count, pd.DataFrame({'计数': [len(df.dropna())]}, index=[sheet])])
+                        
+                denominator = len(self.selectedsheet[sheet_selected[0]][self.col_selected]) #计算分母
+                df_count['占比'] = df_count['计数'] / denominator * 100 #计算占比
+                df_count['占比'] = df_count['占比'].apply(lambda x: '{:.2f}%'.format(x))
+                st.write(df_count)
+
+                if not df_count.empty:
+                    writer = pd.ExcelWriter('用药周期人数计数.xlsx')
+                    df_count.to_excel(writer, sheet_name='用药周期人数计数', index=True)
+                    writer.save()
+                    st.download_button(
+                        label="下载用药周期人数计数",
+                        data=open('用药周期人数计数.xlsx', 'rb').read(),
+                        file_name='用药周期人数计数.xlsx',
+                        mime="application/vnd.ms-excel"
+                    )
+        else:
+            st.write('请先上传文件')
+
+
+
+
+
+
+    def tab8(self):
+        
+ 
+        st.subheader('这个模块用来算下面这个表')
+        st.image('ecog.png', use_column_width=True)
+
+        
+        if self.file is not None: #如果上传了文件
+            if st.button('开始计算'):
+                tab8df = pd.ExcelFile(self.file)
+                tab8dfdict = {}
+                for sheet_name in tab8df.sheet_names:
+                    tab8dfdict[sheet_name] = tab8df.parse(sheet_name)
+                ecog_dict = {}
+                for sheet_name in tab8dfdict.keys():
+                    if 'ECOG评分(若有)' in sheet_name:
+                        ecog_dict[sheet_name] = tab8dfdict[sheet_name]
+ 
+                tab8_count_dict = {}
+                for key in ecog_dict.keys(): #遍历ecog_dict中的每个key
+                    tab8_count_dict[key] = {} #为当前key创建一个空字典
+                    df = ecog_dict[key] #获取当前key对应的DataFrame
+                    count = df['评分结果'].value_counts() #计算评分结果的计数
+                    count_df = pd.DataFrame({'计数': count, '占比': count/len(df)*100}) 
+                    count_df['占比'] = count_df['占比'].apply(lambda x: '{:.2f}%'.format(x))
+                    #占比只保留两位小数，且以百分数形式表示
+                    tab8_count_dict[key]= count_df #将当前key对应的计数结果存储到ecog_count_dict中
+
+                for key in tab8_count_dict.keys(): #遍历tab8_count_dict中的每一个key
+                    df = tab8_count_dict[key] #获取当前key对应的DataFrame
+                    df = df.sort_index() #将df的索引列按照数字从小到大的顺序排列  
+                    tab8_count_dict[key] = df #将排序后的df存储回tab8_count_dict中
+                tab8_combined_df = pd.concat([tab8_count_dict[key] for key in tab8_count_dict.keys()], axis=1, join='outer') #遍历tab8_count_dict中的每一个df，将这些df纵向合并，以列名为参考
+                tab8_combined_df.columns = pd.MultiIndex.from_tuples([(key, col) for key in tab8_count_dict.keys() for col in tab8_count_dict[key].columns]) #将列名中的key和原始列名合并
+                tab8_combined_df.loc['合计'] = tab8_combined_df.sum(numeric_only=True) #增加一行合计行在尾部，不对“占比”列执行sum
+                #tab8_combined_df.loc['合计', ('占比', slice(None))] = tab8_combined_df.loc['合计', ('计数', slice(None))] / tab8_combined_df.loc['合计', ('计数', slice(None))].sum() * 100 #将占比列作为数字求值
+
+                st.write(tab8_combined_df)
+ 
+                st.download_button( #提供st.download_button,使用户可以下载csv格式的tab8_combined_df，命名为“ecog.csv”
+                    label="下载结果",
+                    data=tab8_combined_df.to_csv(index=True),
+                    file_name="ecog.csv",
+                    mime="text/csv"
+                )
+                st.write('下载结果后需要手动计算占比列的合计值')
+        else:
+            st.write('请先上传文件')
+
+            
+ 
+   
+            
+
+
+
+
+            
+            
+
+ 
+
+        
+
+
+        
+
+if __name__ == "__main__":
+    app = MyApp()
+    app.run()
