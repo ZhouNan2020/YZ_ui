@@ -1,5 +1,4 @@
 
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -38,7 +37,7 @@ class MyApp:
 
         self.sidebar()
 
-        tabs = ["关于","数据预览", "Chat with AI", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算','ECOG计数']
+        tabs = ["关于","数据预览", "Chat with AI", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算','ECOG计数',"科睿德不分组计数统计","科睿德分组计数统计"]
         st.sidebar.title("导航")
         selected_tab = st.sidebar.radio("选择一个功能模块", tabs)
 
@@ -63,9 +62,17 @@ class MyApp:
             self.tab7()
         elif selected_tab == 'ECOG计数':
             self.tab8()
+        elif selected_tab == '科睿德不分组计数统计':
+            self.tab9()
+        elif selected_tab == '科睿德分组计数统计':
+            self.tab10()
+
     def tabintro(self):
         
         st.subheader('更新日志')
+        st.markdown('**2023年6月6日：**') #将日期加粗
+        st.markdown('1.增加了科睿德不分组计数统计模块')
+        st.markdown('2.增加了科睿德分组计数统计模块')
         st.markdown('**2023年6月5日：**') #将日期加粗
         st.markdown('1.接入GPT模型，开放chat with AI模块')
         st.markdown('**2023年6月1日：**') #将日期加粗
@@ -581,25 +588,174 @@ class MyApp:
                 st.write('下载结果后需要手动计算占比列的合计值')
         else:
             st.write('请先上传文件')
-
-            
- 
-   
-            
-
-
-
-
-            
-            
-
- 
-
         
+    def tab9(self):
+        if self.file is not None:
+            if st.button('开始计算'):
+                krddata = pd.read_excel(self.file)
+                # 将krddata中的NaN值和"UK"值均替换为“未知”
+                #krddata = krddata.fillna('未知')
+                #krddata = krddata.replace('UK', '未知')
+                # 读取krddata中的“用药剂量”列，统计该列不同值的频次和占比，结果存储到一个df中，命名为useage_count_df，索引列为“用药剂量”中的不同值，列名为“计数”和“占比”
+                useage_count_df = pd.DataFrame({'计数': krddata['用药剂量'].value_counts().round(1), '占比': (krddata['用药剂量'].value_counts()/len(krddata)*100).round(2).apply(lambda x: '{:.2f}%'.format(x))})
+                # 将useage_count_df按照索引列的值从小到大排序
+                useage_count_df = useage_count_df.sort_index()
+                # 读取krddata中的“日用药次数”列，统计该列不同值的频次和占比，结果存储到一个df中，命名为daily_count_df，索引列为“日用药次数”中的不同值，列名为“计数”和“占比”
+                daily_count_df = pd.DataFrame({'计数': krddata['日用药次数'].value_counts().round(1), '占比': (krddata['日用药次数'].value_counts()/len(krddata)*100).round(2).apply(lambda x: '{:.2f}%'.format(x))})
+                # 重置daily_count_df的索引列，如果值为字符串“1”，则更改为字符串“每日一次';如果值为字符串“2”，则更改为字符串“每日两次”;如果值为字符串“3”，则更改为字符串“每日三次”;如果值为字符串“4”，则更改为字符串“每日四次”,依次类推。直到字符串“6”，“其它”仍然为“其它”，空值为”未知“
+                #daily_count_df.index = daily_count_df.index.map({1: '每日一次', 2: '每日两次', 3: '每日三次', 4: '每日四次', 5: '每日五次', 6: '每日六次', '其它': '其它', np.nan: '未知'})
+                # 读取krddata中的“用药量”列，统计该列不同值的频次和占比，结果存储到一个df中，命名为route_count_df，索引列为“用药量”中的不同值，列名为“计数”和“占比”
+                route_count_df = pd.DataFrame({'计数': krddata['用药量'].value_counts().round(1), '占比': (krddata['用药量'].value_counts()/len(krddata)*100).round(2).apply(lambda x: '{:.2f}%'.format(x))})
+                # 将route_count_df按照索引列的值从小到大排序，空值排在最后
+                route_count_df = route_count_df.sort_index(na_position='last')
+                # 处理krddata中“就诊日期”列，每个值只保留字符串中间代表月份的两位（原格式为xxxx-xx-xx）
+                krddata['就诊日期'] = krddata['就诊日期'].str[5:7]
+                krddata['就诊日期'] = krddata['就诊日期'].replace(['-U', 'UK'], '未知')
+                # 将“就诊日期”列中的Nan值和空白值替换为“未知”
+                krddata['就诊日期'] = krddata['就诊日期'].fillna('未知')
+                # 按照月份对date进行分组，统计每个月份“用药量”列的总计和每个月份“用药量”列的总计占总体的比例，结果存储到一个df中，命名为month_count_df，索引列为月份，列名为“计数”和“占比”。
+                month_count_df = pd.DataFrame({'计数': krddata.groupby('就诊日期')['用药量'].sum().round(1), '占比': (krddata.groupby('就诊日期')['用药量'].sum()/krddata['用药量'].sum()*100).round(2).apply(lambda x: '{:.2f}%'.format(x))})
 
 
-        
+
+                #将以上4个df保存到一个excel中，sheet_name分别为“用药剂量”，“给药频次分布”，“用药量情况”，'各月份用药情况“。然后提供st.download_button，使用户可以下载excel到任意本地路径
+                with pd.ExcelWriter('output.xlsx') as writer:  
+                    useage_count_df.to_excel(writer, sheet_name='用药剂量')
+                    daily_count_df.to_excel(writer, sheet_name='给药频次分布')
+                    route_count_df.to_excel(writer, sheet_name='用药量情况')
+                    month_count_df.to_excel(writer, sheet_name='各月份用药情况')
+                st.download_button( #提供st.download_button,使用户可以下载excel到任意本地路径
+                    label="下载结果",
+                    data=open('output.xlsx', 'rb').read(),
+                    file_name="科睿德用药统计.xlsx",
+                    mime="application/vnd.ms-excel"
+                            )
+        else:
+            st.error("请上传科睿德的数据集")
+
+    def tab10(self):
+        if self.file is not None:
+            krddata = pd.read_excel(self.file)
+            # 将krddata中的NaN值和"UK"值均替换为“未知”
+            krddata = krddata.fillna('未知')
+            krddata = krddata.replace('UK', '未知')
+            
+            st.markdown("**请选择作为分组依据的列**")
+            # 读取krddata的列名，存储到一个列表中，命名为col_list
+            col_list = list(krddata.columns)
+            # 使用st.selectbox()函数，备选项为col_list，命名为groupby_col
+            groupby_col = st.selectbox('请选择作为分组依据的列', col_list)
+        else:
+            st.write('请先上传文件')
+        if st.button("开始计算"):
+                # 按照groupby_col的值不同，统计groupby_col中每个值对应的krddata的行数，并计算每个值对应的行数占krddata总行数的比例，结果存储到一个df中，命名为groupby_df，索引列为groupby_col，列名为“计数”和“占比”
+                groupby_df = pd.DataFrame({'计数': krddata.groupby(groupby_col)[groupby_col].count(), '占比': (krddata.groupby(groupby_col)[groupby_col].count()/len(krddata)*100).round(2).apply(lambda x: '{:.2f}%'.format(x))})
+                # 将索引列中的”UK“替换为”未知“，其它索引不变
+                st.write(groupby_df)
+                # 提取出krddata中“用药剂量”列，分别统计groupby_col中不同值对应的“用药剂量”列的值的计数和该值计数占krddata总行数的占比，以cross_table的形式呈现，行为”用药剂量“列的不同值，列为groupby_col的不同值的计数和占比
+
+                cross_table = pd.crosstab(krddata['用药剂量'], krddata[groupby_col], margins=True, margins_name='总计')
+                # 遍历cross_table的每个列，在每个列后面添加一个新列，命名为“占比”，值为该列的值除以该列的总计，结果保留两位小数，并转换为百分数
+                useage_col_per = cross_table.apply(lambda x: x / len(krddata), axis=0)
+
+                # 重新命名df_percent的列名，将列名后面添加“_占比”
+                new_columns = [col + '_占比' for col in useage_col_per.columns]
+                useage_col_per.columns = new_columns
+                useage_with_percent = pd.concat([cross_table, useage_col_per], axis=1)
+                # 重新排列df_with_percent的列顺序，将每个计数列与对应的占比列排在一起
+                new_columns = []
+                for col in useage_with_percent.columns:
+                    if '占比' in col:
+                        new_columns.append(col[:-3])
+                        new_columns.append(col)
+                useage_with_percent = useage_with_percent.reindex(columns=new_columns)
+                # df_with_percent中所有”占比”列的值保留两位小数，以百分数表示
+                for col in useage_with_percent.columns:
+                    if '占比' in col:
+                        useage_with_percent[col] = useage_with_percent[col].apply(lambda x: '{:.2f}%'.format(x*100))
+                st.write(useage_with_percent)
+                # 提取出krddata中的“日用药次数”列，分别统计groupby_col中不同值对应的“日用药次数”列的值的计数和该值计数占krddata总行数的占比，以cross_table的形式呈现，行为“日用药次数”列的不同值，列为groupby_col的不同值的计数和占比
+                count_cross_table = pd.crosstab(krddata['日用药次数'], krddata[groupby_col], margins=True, margins_name='总计')
+                count_col_per = count_cross_table.apply(lambda x: x / len(krddata), axis=0)
+                new_columns = [col + '_占比' for col in count_col_per.columns]
+                count_col_per.columns = new_columns
+                count_with_percent = pd.concat([count_cross_table, count_col_per], axis=1)
+                new_columns = []
+                for col in count_with_percent.columns:
+                    if '占比' in col:
+                        new_columns.append(col[:-3])
+                        new_columns.append(col)
+                count_with_percent = count_with_percent.reindex(columns=new_columns)
+                for col in count_with_percent.columns:
+                    if '占比' in col:
+                        count_with_percent[col] = count_with_percent[col].apply(lambda x: '{:.2f}%'.format(x*100))
+                st.write(count_with_percent)
+                # 提取krddata中的“用药量”列，分别统计groupby_col中不同值对应的“用药量”列的值的计数和该值计数占krddata总行数的占比，以cross_table的形式呈现，行为“用药量”列的不同值，列为groupby_col的不同值的计数和占比
+                dose_cross_table = pd.crosstab(krddata['用药量'], krddata[groupby_col], margins=True, margins_name='总计')
+                dose_col_per = dose_cross_table.apply(lambda x: x / len(krddata), axis=0)
+                new_columns = [col + '_占比' for col in dose_col_per.columns]
+                dose_col_per.columns = new_columns
+                dose_with_percent = pd.concat([dose_cross_table, dose_col_per], axis=1)
+                new_columns = []
+                for col in dose_with_percent.columns:
+                    if '占比' in col:
+                        new_columns.append(col[:-3])
+                        new_columns.append(col)
+                dose_with_percent = dose_with_percent.reindex(columns=new_columns)
+                for col in dose_with_percent.columns:
+                    if '占比' in col:
+                        dose_with_percent[col] = dose_with_percent[col].apply(lambda x: '{:.2f}%'.format(x*100))
+                st.write(dose_with_percent)
+                # 处理krddata中“就诊日期”列，每个值只保留字符串中间代表月份的两位（原格式为xxxx-xx-xx）
+                krddata['就诊日期'] = krddata['就诊日期'].str[5:7]
+                # 将“就诊日期”列中的“-U”和“UK”替换为“未知”
+                krddata['就诊日期'] = krddata['就诊日期'].replace(['-U', 'UK'], '未知')
+                # 将“就诊日期”列中的Nan值和空白值替换为“未知”
+                krddata['就诊日期'] = krddata['就诊日期'].fillna('未知')
+
+                # 提取出krddata中的“就诊日期”列，分别统计groupby_col中不同值对应的“就诊日期”列的值的计数和该值计数占krddata总行数的占比，以cross_table的形式呈现，行为“就诊日期”列的不同值，列为groupby_col的不同值的计数和占比
+                date_cross_table = pd.crosstab(krddata['就诊日期'], krddata[groupby_col], margins=True, margins_name='总计')
+                date_col_per = date_cross_table.apply(lambda x: x / len(krddata), axis=0)
+                new_columns = [col + '_占比' for col in date_col_per.columns]
+                date_col_per.columns = new_columns
+                date_with_percent = pd.concat([date_cross_table, date_col_per], axis=1)
+                new_columns = []
+                for col in date_with_percent.columns:
+                    if '占比' in col:
+                        new_columns.append(col[:-3])
+                        new_columns.append(col)
+                date_with_percent = date_with_percent.reindex(columns=new_columns)
+                for col in date_with_percent.columns:
+                    if '占比' in col:
+                        date_with_percent[col] = date_with_percent[col].apply(lambda x: '{:.2f}%'.format(x*100))
+                st.write(date_with_percent)
+                groupby_df
+                useage_with_percent
+                count_with_percent
+                dose_with_percent
+                date_with_percent
+                # 将以上所有df写入excel文件中，每个df写入一个sheet
+                with pd.ExcelWriter('output.xlsx') as writer:
+                    groupby_df.to_excel(writer, sheet_name='分组')
+                    useage_with_percent.to_excel(writer, sheet_name='剂量')
+                    count_with_percent.to_excel(writer, sheet_name='频率')
+                    dose_with_percent.to_excel(writer, sheet_name='用药量')
+                    date_with_percent.to_excel(writer, sheet_name='月份')
+                st.download_button( #提供st.download_button,使用户可以下载excel到任意本地路径
+                    label="点击下载",
+                    data=open('output.xlsx', 'rb').read(),
+                    file_name='科睿德分组统计.xlsx',
+                    mime='application/octet-stream'
+                )
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     app = MyApp()
     app.run()
+
