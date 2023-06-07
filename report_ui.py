@@ -853,8 +853,8 @@ class MyApp:
                 date_with_percent.to_excel(writer, sheet_name='就诊日期')
             st.download_button(
                 label="点击下载",
-                data=writer,
-                file_name='output.xlsx',
+                data=open('output.xlsx', 'rb').read(),
+                file_name='科睿德年龄分层统计.xlsx',
                 mime='application/octet-stream'
                 ) 
 
