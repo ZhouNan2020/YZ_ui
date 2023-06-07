@@ -819,8 +819,9 @@ class MyApp:
             st.write(amount_with_percent)
             # 处理krddata中“就诊日期”列，每个值只保留字符串中间代表月份的两位（原格式为xxxx-xx-xx）
             krddata['就诊日期'] = krddata['就诊日期'].apply(lambda x: x[5:7])
-            st.write(krddata['就诊日期'].unique())
+            
             krddata['就诊日期'] = krddata['就诊日期'].apply(lambda x: int(x) if x.isdigit() else '未知')
+            st.write(krddata['就诊日期'].unique())
             # 提取出krddata中的“就诊日期”列，分别统计“年龄分层”列中不同值对应的“就诊日期”列的值的计数和该值计数占krddata总行数的占比，以cross_table的形式呈现，行为“就诊日期”列的不同值，列为“年龄分层”的不同值的计数和占比
             date_cross_table = pd.crosstab(krddata['就诊日期'], krddata['年龄分层'], margins=True, margins_name='总计')
             date_col_per = date_cross_table.apply(lambda x: x / len(krddata), axis=0)
