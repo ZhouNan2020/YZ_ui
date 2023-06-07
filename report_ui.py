@@ -819,6 +819,7 @@ class MyApp:
             st.write(amount_with_percent)
             # 处理krddata中“就诊日期”列，每个值只保留字符串中间代表月份的两位（原格式为xxxx-xx-xx）
             krddata['就诊日期'] = krddata['就诊日期'].apply(lambda x: x[5:7])
+            st.write(krddata['就诊日期'])
             # 将“就诊日期”列中的“-U”和“UK”替换为“未知”
             krddata['就诊日期'] = krddata['就诊日期'].replace(['-U', 'UK'], '未知')
             # 将“就诊日期”列中的Nan值和空白值替换为“未知”
