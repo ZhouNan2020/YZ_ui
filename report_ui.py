@@ -600,14 +600,17 @@ class MyApp:
                 useage_count_df = pd.DataFrame({'计数': krddata['用药剂量'].value_counts().round(1), '占比': (krddata['用药剂量'].value_counts()/len(krddata)*100).round(2).apply(lambda x: '{:.2f}%'.format(x))})
                 # 将useage_count_df按照索引列的值从小到大排序
                 useage_count_df = useage_count_df.sort_index()
+                st.write(useage_count_df)
                 # 读取krddata中的“日用药次数”列，统计该列不同值的频次和占比，结果存储到一个df中，命名为daily_count_df，索引列为“日用药次数”中的不同值，列名为“计数”和“占比”
                 daily_count_df = pd.DataFrame({'计数': krddata['日用药次数'].value_counts().round(1), '占比': (krddata['日用药次数'].value_counts()/len(krddata)*100).round(2).apply(lambda x: '{:.2f}%'.format(x))})
+                st.write(daily_count_df)
                 # 重置daily_count_df的索引列，如果值为字符串“1”，则更改为字符串“每日一次';如果值为字符串“2”，则更改为字符串“每日两次”;如果值为字符串“3”，则更改为字符串“每日三次”;如果值为字符串“4”，则更改为字符串“每日四次”,依次类推。直到字符串“6”，“其它”仍然为“其它”，空值为”未知“
                 #daily_count_df.index = daily_count_df.index.map({1: '每日一次', 2: '每日两次', 3: '每日三次', 4: '每日四次', 5: '每日五次', 6: '每日六次', '其它': '其它', np.nan: '未知'})
                 # 读取krddata中的“用药量”列，统计该列不同值的频次和占比，结果存储到一个df中，命名为route_count_df，索引列为“用药量”中的不同值，列名为“计数”和“占比”
                 route_count_df = pd.DataFrame({'计数': krddata['用药量'].value_counts().round(1), '占比': (krddata['用药量'].value_counts()/len(krddata)*100).round(2).apply(lambda x: '{:.2f}%'.format(x))})
                 # 将route_count_df按照索引列的值从小到大排序，空值排在最后
                 route_count_df = route_count_df.sort_index(na_position='last')
+                st.write(route_count_df)
                 # 处理krddata中“就诊日期”列，每个值只保留字符串中间代表月份的两位（原格式为xxxx-xx-xx）
                 krddata['就诊日期'] = krddata['就诊日期'].str[5:7]
                 krddata['就诊日期'] = krddata['就诊日期'].replace(['-U', 'UK'], '未知')
@@ -615,7 +618,7 @@ class MyApp:
                 krddata['就诊日期'] = krddata['就诊日期'].fillna('未知')
                 # 按照月份对date进行分组，统计每个月份“用药量”列的总计和每个月份“用药量”列的总计占总体的比例，结果存储到一个df中，命名为month_count_df，索引列为月份，列名为“计数”和“占比”。
                 month_count_df = pd.DataFrame({'计数': krddata.groupby('就诊日期')['用药量'].sum().round(1), '占比': (krddata.groupby('就诊日期')['用药量'].sum()/krddata['用药量'].sum()*100).round(2).apply(lambda x: '{:.2f}%'.format(x))})
-
+                st.write(month_count_df)
 
 
                 #将以上4个df保存到一个excel中，sheet_name分别为“用药剂量”，“给药频次分布”，“用药量情况”，'各月份用药情况“。然后提供st.download_button，使用户可以下载excel到任意本地路径
