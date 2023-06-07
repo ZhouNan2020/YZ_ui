@@ -748,10 +748,10 @@ class MyApp:
                     mime='application/octet-stream'
                 )
         if st.button('科睿德项目的年龄分层统计'):
+            # 将“年龄”列中的空值和”UK”值都设为Nan值
+            krddata['年龄'] = krddata['年龄'].replace(['', 'UK'], np.nan)
             # 处理krddata的“年龄”列，将其转换为int类型
             krddata['年龄'] = krddata['年龄'].astype(int)
-            # 将“年龄”列中的Nan值替换为“未知”
-            krddata['年龄'] = krddata['年龄'].fillna('未知')
             # 遍历年龄列的值，将其分为4个层：10-30岁，30-60岁，60岁以上，未知
             age_list = []
             for age in krddata['年龄']:
