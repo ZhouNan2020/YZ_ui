@@ -708,10 +708,7 @@ class MyApp:
                 st.write(dose_with_percent)
                 # 处理krddata中“就诊日期”列，每个值只保留字符串中间代表月份的两位（原格式为xxxx-xx-xx）
                 krddata['就诊日期'] = krddata['就诊日期'].str[5:7]
-                # 将“就诊日期”列中的“-U”和“UK”替换为“未知”
-                krddata['就诊日期'] = krddata['就诊日期'].replace(['-U', 'UK'], '未知')
-                # 将“就诊日期”列中的Nan值和空白值替换为“未知”
-                krddata['就诊日期'] = krddata['就诊日期'].fillna('未知')
+                krddata['就诊日期'] = krddata['就诊日期'].apply(lambda x: int(x) if x.isdigit() else '未知')
 
                 # 提取出krddata中的“就诊日期”列，分别统计groupby_col中不同值对应的“就诊日期”列的值的计数和该值计数占krddata总行数的占比，以cross_table的形式呈现，行为“就诊日期”列的不同值，列为groupby_col的不同值的计数和占比
                 date_cross_table = pd.crosstab(krddata['就诊日期'], krddata[groupby_col], margins=True, margins_name='总计')
@@ -821,7 +818,7 @@ class MyApp:
             krddata['就诊日期'] = krddata['就诊日期'].apply(lambda x: x[5:7])
             
             krddata['就诊日期'] = krddata['就诊日期'].apply(lambda x: int(x) if x.isdigit() else '未知')
-            st.write(krddata['就诊日期'].unique())
+            
             # 提取出krddata中的“就诊日期”列，分别统计“年龄分层”列中不同值对应的“就诊日期”列的值的计数和该值计数占krddata总行数的占比，以cross_table的形式呈现，行为“就诊日期”列的不同值，列为“年龄分层”的不同值的计数和占比
             date_cross_table = pd.crosstab(krddata['就诊日期'], krddata['年龄分层'], margins=True, margins_name='总计')
             date_col_per = date_cross_table.apply(lambda x: x / len(krddata), axis=0)
@@ -838,11 +835,7 @@ class MyApp:
                 if '占比' in col:
                     date_with_percent[col] = date_with_percent[col].apply(lambda x: '{:.2f}%'.format(x*100))
             st.write(date_with_percent)
-            age_groupby_df
-            dose_with_percent
-            count_with_percent
-            amount_with_percent
-            date_with_percent
+           
             # 将以上所有df写入excel文件中，每个df写入一个sheet
             with pd.ExcelWriter('output.xlsx') as writer:
                 age_groupby_df.to_excel(writer, sheet_name='年龄分层')
