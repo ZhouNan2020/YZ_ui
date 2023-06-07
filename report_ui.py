@@ -747,6 +747,117 @@ class MyApp:
                     file_name='科睿德分组统计.xlsx',
                     mime='application/octet-stream'
                 )
+        if st.button('科睿德项目的年龄分层统计'):
+            # 处理krddata的“年龄”列，将其转换为int类型
+            krddata['年龄'] = krddata['年龄'].astype(int)
+            # 将“年龄”列中的Nan值替换为“未知”
+            krddata['年龄'] = krddata['年龄'].fillna('未知')
+            # 遍历年龄列的值，将其分为4个层：10-30岁，30-60岁，60岁以上，未知
+            age_list = []
+            for age in krddata['年龄']:
+                if age == '未知':
+                    age_list.append('未知')
+                elif age < 30:
+                    age_list.append('10-30岁')
+                elif age < 60:
+                    age_list.append('30-60岁')
+                else:
+                    age_list.append('60岁以上')
+            # 将分层后的年龄列表加入krddata中
+            krddata['年龄分层'] = age_list
+            # 按照“年龄分层”列的值不同，统计年龄分层中每个值对应的krddata的行数，并计算每个值对应的行数占krddata总行数的比例，结果存储到一个df中，命名为age_groupby_df
+            age_groupby_df = pd.DataFrame(krddata.groupby('年龄分层').size(), columns=['数量'])
+            age_groupby_df['占比'] = age_groupby_df['数量'] / len(krddata)
+            age_groupby_df['占比'] = age_groupby_df['占比'].apply(lambda x: '{:.2f}%'.format(x*100))
+            st.write(age_groupby_df)
+            # 提取出krddata中的“用药剂量”列，分别统计“年龄分层”列中不同值对应的“用药剂量”列的值的计数和该值计数占krddata总行数的占比，以cross_table的形式呈现，行为“用药剂量”列的不同值，列为“年龄分层”的不同值的计数和占比
+            dose_cross_table = pd.crosstab(krddata['用药剂量'], krddata['年龄分层'], margins=True, margins_name='总计')
+            dose_col_per = dose_cross_table.apply(lambda x: x / len(krddata), axis=0)
+            new_columns = [col + '_占比' for col in dose_col_per.columns]
+            dose_col_per.columns = new_columns
+            dose_with_percent = pd.concat([dose_cross_table, dose_col_per], axis=1)
+            new_columns = []
+            for col in dose_with_percent.columns:
+                if '占比' in col:
+                    new_columns.append(col[:-3])
+                    new_columns.append(col)
+            dose_with_percent = dose_with_percent.reindex(columns=new_columns)
+            for col in dose_with_percent.columns:
+                if '占比' in col:
+                    dose_with_percent[col] = dose_with_percent[col].apply(lambda x: '{:.2f}%'.format(x*100))
+            st.write(dose_with_percent)
+            # 提取出krddata中的“日用药次数”列，分别统计“年龄分层”列中不同值对应的“日用药次数”列的值的计数和该值计数占krddata总行数的占比，以cross_table的形式呈现，行为“日用药次数”列的不同值，列为“年龄分层”的不同值的计数和占比
+            count_cross_table = pd.crosstab(krddata['日用药次数'], krddata['年龄分层'], margins=True, margins_name='总计')
+            count_col_per = count_cross_table.apply(lambda x: x / len(krddata), axis=0)
+            new_columns = [col + '_占比' for col in count_col_per.columns]
+            count_col_per.columns = new_columns
+            count_with_percent = pd.concat([count_cross_table, count_col_per], axis=1)
+            new_columns = []
+            for col in count_with_percent.columns:
+                if '占比' in col:
+                    new_columns.append(col[:-3])
+                    new_columns.append(col)
+            count_with_percent = count_with_percent.reindex(columns=new_columns)
+            for col in count_with_percent.columns:
+                if '占比' in col:
+                    count_with_percent[col] = count_with_percent[col].apply(lambda x: '{:.2f}%'.format(x*100))
+            st.write(count_with_percent)
+            # 提取出krddata中的“用药量”列，分别统计“年龄分层”列中不同值对应的“用药量”列的值的计数和该值计数占krddata总行数的占比，以cross_table的形式呈现，行为“用药量”列的不同值，列为“年龄分层”的不同值的计数和占比
+            amount_cross_table = pd.crosstab(krddata['用药量'], krddata['年龄分层'], margins=True, margins_name='总计')
+            amount_col_per = amount_cross_table.apply(lambda x: x / len(krddata), axis=0)
+            new_columns = [col + '_占比' for col in amount_col_per.columns]
+            amount_col_per.columns = new_columns
+            amount_with_percent = pd.concat([amount_cross_table, amount_col_per], axis=1)
+            new_columns = []
+            for col in amount_with_percent.columns:
+                if '占比' in col:
+                    new_columns.append(col[:-3])
+                    new_columns.append(col)
+            amount_with_percent = amount_with_percent.reindex(columns=new_columns)
+            for col in amount_with_percent.columns:
+                if '占比' in col:
+                    amount_with_percent[col] = amount_with_percent[col].apply(lambda x: '{:.2f}%'.format(x*100))
+            st.write(amount_with_percent)
+            # 处理krddata中“就诊日期”列，每个值只保留字符串中间代表月份的两位（原格式为xxxx-xx-xx）
+            krddata['就诊日期'] = krddata['就诊日期'].apply(lambda x: x[5:7])
+            # 将“就诊日期”列中的“-U”和“UK”替换为“未知”
+            krddata['就诊日期'] = krddata['就诊日期'].replace(['-U', 'UK'], '未知')
+            # 将“就诊日期”列中的Nan值和空白值替换为“未知”
+            krddata['就诊日期'] = krddata['就诊日期'].fillna('未知')
+            # 提取出krddata中的“就诊日期”列，分别统计“年龄分层”列中不同值对应的“就诊日期”列的值的计数和该值计数占krddata总行数的占比，以cross_table的形式呈现，行为“就诊日期”列的不同值，列为“年龄分层”的不同值的计数和占比
+            date_cross_table = pd.crosstab(krddata['就诊日期'], krddata['年龄分层'], margins=True, margins_name='总计')
+            date_col_per = date_cross_table.apply(lambda x: x / len(krddata), axis=0)
+            new_columns = [col + '_占比' for col in date_col_per.columns]
+            date_col_per.columns = new_columns
+            date_with_percent = pd.concat([date_cross_table, date_col_per], axis=1)
+            new_columns = []
+            for col in date_with_percent.columns:
+                if '占比' in col:
+                    new_columns.append(col[:-3])
+                    new_columns.append(col)
+            date_with_percent = date_with_percent.reindex(columns=new_columns)
+            for col in date_with_percent.columns:
+                if '占比' in col:
+                    date_with_percent[col] = date_with_percent[col].apply(lambda x: '{:.2f}%'.format(x*100))
+            st.write(date_with_percent)
+            age_groupby_df
+            dose_with_percent
+            count_with_percent
+            amount_with_percent
+            date_with_percent
+            # 将以上所有df写入excel文件中，每个df写入一个sheet
+            with pd.ExcelWriter('output.xlsx') as writer:
+                age_groupby_df.to_excel(writer, sheet_name='年龄分层')
+                dose_with_percent.to_excel(writer, sheet_name='日用药次数')
+                count_with_percent.to_excel(writer, sheet_name='用药量')
+                amount_with_percent.to_excel(writer, sheet_name='就诊日期')
+                date_with_percent.to_excel(writer, sheet_name='就诊日期')
+            st.download_button(
+                label="点击下载",
+                data=writer,
+                file_name='output.xlsx',
+                mime='application/octet-stream'
+                ) 
 
 
 
