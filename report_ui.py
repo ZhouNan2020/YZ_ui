@@ -756,9 +756,9 @@ class MyApp:
             for age in krddata['年龄']:
                 if np.isnan(age):
                     age_list.append('未知')
-                elif 10=<age < 30:
+                elif 10<=age < 30:
                     age_list.append('10-30岁')
-                elif 30=<age < 60:
+                elif 30<=age < 60:
                     age_list.append('30-60岁')
                 else:
                     age_list.append('60岁以上')
