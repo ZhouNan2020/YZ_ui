@@ -840,7 +840,7 @@ class MyApp:
             st.write(date_with_percent)
            
             # 将以上所有df写入excel文件中，每个df写入一个sheet
-            with pd.ExcelWriter('output.xlsx') as writer:
+            with pd.ExcelWriter('output_2.xlsx') as writer:
                 age_groupby_df.to_excel(writer, sheet_name='年龄分层')
                 dose_with_percent.to_excel(writer, sheet_name='日用药次数')
                 count_with_percent.to_excel(writer, sheet_name='用药量')
@@ -848,7 +848,7 @@ class MyApp:
                 date_with_percent.to_excel(writer, sheet_name='就诊日期')
             st.download_button(
                 label="点击下载",
-                data=open('output.xlsx', 'rb').read(),
+                data=open('output_2.xlsx', 'rb').read(),
                 file_name='科睿德年龄分层统计.xlsx',
                 mime='application/octet-stream'
                 ) 
