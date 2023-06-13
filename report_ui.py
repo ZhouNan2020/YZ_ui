@@ -754,7 +754,7 @@ class MyApp:
             # 遍历年龄列的值，将其分为4个层：10-30岁，30-60岁，60岁以上，未知
             age_list = []
             for age in krddata['年龄']:
-                if age == '未知':
+                if age == np.nan:
                     age_list.append('未知')
                 elif age < 30:
                     age_list.append('10-30岁')
