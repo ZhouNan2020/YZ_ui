@@ -72,6 +72,8 @@ class MyApp:
     def tabintro(self):
         
         st.subheader('更新日志')
+        st.markdown('**2023年6月26日：**') #将日期加粗
+        st.markdown('1.增加了湖南省肿瘤基线统计模块')
         st.markdown('**2023年6月6日：**') #将日期加粗
         st.markdown('1.增加了科睿德不分组计数统计模块')
         st.markdown('2.增加了科睿德分组计数统计模块')
