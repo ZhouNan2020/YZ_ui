@@ -756,11 +756,11 @@ class MyApp:
             # 遍历年龄列的值，将其分为4个层：10-30岁，30-60岁，60岁以上，未知
             age_list = []
             for age in krddata['年龄']:
-                if age == '未知':
+                if np.isnan(age):
                     age_list.append('未知')
-                elif age < 30:
+                elif 10<=age < 30:
                     age_list.append('10-30岁')
-                elif age < 60:
+                elif 30<=age < 60:
                     age_list.append('30-60岁')
                 else:
                     age_list.append('60岁以上')
@@ -842,15 +842,15 @@ class MyApp:
             st.write(date_with_percent)
            
             # 将以上所有df写入excel文件中，每个df写入一个sheet
-            with pd.ExcelWriter('output.xlsx') as writer:
+            with pd.ExcelWriter('output_2.xlsx') as writer:
                 age_groupby_df.to_excel(writer, sheet_name='年龄分层')
-                dose_with_percent.to_excel(writer, sheet_name='日用药次数')
-                count_with_percent.to_excel(writer, sheet_name='用药量')
-                amount_with_percent.to_excel(writer, sheet_name='就诊日期')
+                dose_with_percent.to_excel(writer, sheet_name='用药剂量')
+                count_with_percent.to_excel(writer, sheet_name='日用药次数')
+                amount_with_percent.to_excel(writer, sheet_name='总用药量')
                 date_with_percent.to_excel(writer, sheet_name='就诊日期')
             st.download_button(
                 label="点击下载",
-                data=open('output.xlsx', 'rb').read(),
+                data=open('output_2.xlsx', 'rb').read(),
                 file_name='科睿德年龄分层统计.xlsx',
                 mime='application/octet-stream'
                 ) 
