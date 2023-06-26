@@ -37,7 +37,7 @@ class MyApp:
 
         self.sidebar()
 
-        tabs = ["关于","数据预览", "Chat with AI", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算','ECOG计数',"科睿德不分组计数统计","科睿德分组计数统计"]
+        tabs = ["关于","数据预览", "Chat with AI", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算','ECOG计数',"科睿德不分组计数统计","科睿德分组计数统计","湖南省肿瘤基线统计"]
         st.sidebar.title("导航")
         selected_tab = st.sidebar.radio("选择一个功能模块", tabs)
 
@@ -66,6 +66,8 @@ class MyApp:
             self.tab9()
         elif selected_tab == '科睿德分组计数统计':
             self.tab10()
+        elif selected_tab == '湖南省肿瘤基线统计':
+            self.tab11()
 
     def tabintro(self):
         
@@ -852,11 +854,127 @@ class MyApp:
                 file_name='科睿德年龄分层统计.xlsx',
                 mime='application/octet-stream'
                 ) 
+    def tab11(self):
+        if self.file is not None:
+            # 使用pd.excelfile读取self.file
+            tab11 = pd.ExcelFile(self.file)
+            # 遍历tab11中的sheet，将其存入一个字典中，key对应sheet名称，value对应sheet中的df
+            tab11_dict = {}
+            for sheet in tab11.sheet_names:
+                tab11_dict[sheet] = tab11.parse(sheet)
+            # 从tab11_dict中提取出key名称中包含字符串“基本情况”的sheet，将其存入一个df名为tab11_basic中
+            tab11_basic = tab11_dict[[sheet for sheet in tab11_dict.keys() if '基本情况' in sheet][0]]
+            # 获取tab11_basic中名为“年龄”的列，将其转换为int类型，赋值给一个df名为age_df
+            age_df = tab11_basic['年龄'].astype(int)
+            # 计算age_df的非空值计数、均值、标准差，中位数，最大值，最小值，并且将这些统计量放入一个df中名为age_sta_df
+            notnull_count = age_df.notnull().sum()
+            mean = age_df.mean()
+            std = age_df.std()
+            mean_std = f"{mean:.2f}±{std:.2f}"
+            age_sta_df = pd.DataFrame({'非空值计数': notnull_count, '均值±标准差': mean_std, '中位数': age_df.median(), '最大值': age_df.max(), '最小值': age_df.min()}, index=[0])
+            age_sta_df = age_sta_df.round(2)
+            # 转置这个表格
+            age_sta_df = age_sta_df.T
+            age_sta_df.columns = ['统计量']
+            # 列名改为“统计量”
+            st.write("年龄统计量:")
+            st.write(age_sta_df)
+            # 获取tab11_basic中名为“性别”的列，赋值给一个df名为sex_df
+            sex_df = tab11_basic['性别']
+            sex_df = sex_df.apply(lambda x: '男性' if x == '男' else ('女性' if x == '女' else x))
+            # 计算sex_df中不同值的计数和占比，占比=当前值的计数/sex_df中所有值的总计数。结果放入一个df名为sex_sta_df中
+            sex_count = sex_df.value_counts()
+            sex_per = sex_count / len(sex_df)
+            sex_sta_df = pd.DataFrame({'计数': sex_count, '占比': sex_per})
+            sex_sta_df.loc['合计'] = sex_sta_df.sum()
+            sex_sta_df['占比'] = sex_sta_df['占比'].apply(lambda x: '{:.2f}%'.format(x*100))
+            st.write("性别统计量:")
+            st.write(sex_sta_df)
+            # 获取tab11_basic中名为“民族”的列，赋值给一个df名为nation_df
+            nation_df = tab11_basic['民族']
+            # 计算nation_df中不同值的计数和占比，占比=当前值的计数/nation_df中所有值的总计数。结果放入一个df名为nation_sta_df中
+            nation_count = nation_df.value_counts()
+            nation_per = nation_count / len(nation_df)
+            nation_sta_df = pd.DataFrame({'计数': nation_count, '占比': nation_per})
+            nation_sta_df.loc['合计'] = nation_sta_df.sum()
+            nation_sta_df['占比'] = nation_sta_df['占比'].apply(lambda x: '{:.2f}%'.format(x*100))
+            st.write("民族统计量:")
+            st.write(nation_sta_df)
+            # 获取tab11_basic中名为“身高”的列，赋值给一个df名为height_df
+            height_df = tab11_basic['身高']
+            # 计算height_df的非空值计数、均值、标准差，中位数，最大值，最小值，并且将这些统计量放入一个df中名为height_sta_df
+            henotnull_count = height_df.notnull().sum()
+            mean = height_df.mean()
+            std = height_df.std()
+            mean_std = f"{mean:.2f}±{std:.2f}"
+            height_sta_df = pd.DataFrame({'非空值计数': henotnull_count, '均值±标准差': mean_std, '中位数': height_df.median(), '最大值': height_df.max(), '最小值': height_df.min()}, index=[0])
+            # 转置这个表格
+            height_sta_df = height_sta_df.T
+            # 列名改为“统计量”
+            height_sta_df.columns = ['统计量']
+            height_sta_df = height_sta_df.round(2)
+            st.write("身高统计量:")
+            st.write(height_sta_df)
+            # 获取tab11_basic中名为“体重”的列，赋值给一个df名为weight_df
+            weight_df = tab11_basic['体重']
+            # 计算weight_df的非空值计数、均值、标准差，中位数，最大值，最小值，并且将这些统计量放入一个df中名为weight_sta_df
+            wenotnull_count = weight_df.notnull().sum()
+            mean = weight_df.mean()
+            std = weight_df.std()
+            mean_std = f"{mean:.2f}±{std:.2f}"
+            weight_sta_df = pd.DataFrame({'非空值计数': wenotnull_count, '均值±标准差': mean_std, '中位数': weight_df.median(), '最大值': weight_df.max(), '最小值': weight_df.min()}, index=[0])
+            weight_sta_df = weight_sta_df.round(2)
+            # 转置这个表格
+            weight_sta_df = weight_sta_df.T
+            # 列名改为“统计量”
+            weight_sta_df.columns = ['统计量']
+            st.write("体重统计量:")
+            st.write(weight_sta_df)
+            # 获取tab11_basic中名为“体表面积”的列，赋值给一个df名为bsa_df
+            bsa_df = tab11_basic['体表面积']
+            # 如果bsa_df中的值有”UK"，则将其替换为np.nan
+            bsa_df = bsa_df.replace('UK', np.nan)
+            # 计算bsa_df的非空值计数、均值、标准差，中位数，最大值，最小值，并且将这些统计量放入一个df中名为bsa_sta_df
+            bsa_notnull_count = bsa_df.notnull().sum()
+            bsa_df = bsa_df.astype(float)
+            mean = bsa_df.mean()
+            std = bsa_df.std()
+            mean_std = f"{mean:.2f}±{std:.2f}"
+            bsa_sta_df = pd.DataFrame({'非空值计数': bsa_notnull_count, '均值±标准差': mean_std, '中位数': bsa_df.median(), '最大值': bsa_df.max(), '最小值': bsa_df.min()}, index=[0])
+            bsa_sta_df = bsa_sta_df.round(2)
+            # 转置这个表格
+            bsa_sta_df = bsa_sta_df.T
+            # 列名改为“统计量”
+            bsa_sta_df.columns = ['统计量']
+            st.write("体表面积统计量:")
+            st.write(bsa_sta_df)
+            with pd.ExcelWriter('HN_basic.xlsx') as writer:
+                    age_sta_df.to_excel(writer, sheet_name='年龄统计量')
+                    sex_sta_df.to_excel(writer, sheet_name='性别统计量')
+                    nation_sta_df.to_excel(writer, sheet_name='民族统计量')
+                    height_sta_df.to_excel(writer, sheet_name='身高统计量')
+                    weight_sta_df.to_excel(writer, sheet_name='体重统计量')
+                    bsa_sta_df.to_excel(writer, sheet_name='体表面积统计量')
+            st.download_button( #提供st.download_button,使用户可以下载excel到任意本地路径
+                    label="点击下载",
+                    data=open('HN_basic.xlsx', 'rb').read(),
+                    file_name='湖南省肿瘤基线统计.xlsx',
+                    mime='application/octet-stream'
+                )
+            
+
+
+        
+        
+
+        
 
 
 
 
 
+
+        
 
 
 
