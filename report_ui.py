@@ -961,6 +961,8 @@ class MyApp:
                     file_name='湖南省肿瘤基线统计.xlsx',
                     mime='application/octet-stream'
                 )
+        else:
+            st.error("请先上传文件")
             
 
 
