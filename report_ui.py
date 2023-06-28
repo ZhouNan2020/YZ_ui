@@ -4,10 +4,16 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from matplotlib import font_manager
 #%%
 # 设置plt中文显示和负号显示
-plt.rcParams['font.sans-serif'] = ['SimHei']
-plt.rcParams['axes.unicode_minus'] = False
+font = font_manager.FontProperties(fname='simhei.ttf')
+
+parameters = {'xtick.labelsize': 20,
+              'ytick.labelsize': 20,
+              'font.family':'SimHei',
+              'axes.unicode_minus':False}
+plt.rcParams.update(parameters)
 
 
 
@@ -1110,8 +1116,7 @@ class MyApp:
             ax.set_xticklabels(wbc_df.columns, rotation=45, ha='right')
             ax.set_title('白细胞箱型图')
             # 使中文正常显示
-            plt.rcParams['font.sans-serif'] = ['SimHei']
-            plt.rcParams['axes.unicode_minus'] = False
+            
             
             st.pyplot(fig)
 
