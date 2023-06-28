@@ -1050,7 +1050,7 @@ class MyApp:
             diagno_per = diagno_per.T
             diagno_count = diagno_count.T
             # 重新排列diagno_per和diagno_count的列的顺序，按照“0期”，“Ⅰ期”，“Ⅱ期”，“Ⅲ期”，“Ⅳ期”的顺序，将”不详“放在最后
-            diagno_per = diagno_per[['0期', 'Ⅰ期', 'Ⅱ期', 'Ⅲ期', 'Ⅳ期', '不详']]
+            diagno_per = diagno_per[['0期', 'I期', 'II期', 'III期', 'IV期', '不详']]
             # 将计数和占比的结果交替放置到一个df中，命名为diagno_sta_df
             diagno_sta_df = pd.DataFrame()
             for col in diagno_count.columns:
