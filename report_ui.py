@@ -12,7 +12,7 @@ font = font_manager.FontProperties(fname='simhei.ttf')
 
 parameters = {'xtick.labelsize': 20,
               'ytick.labelsize': 20,
-              'font.family':'SimHei',
+              
               'axes.unicode_minus':False}
 plt.rcParams.update(parameters)
 
@@ -1118,7 +1118,7 @@ class MyApp:
             # 添加箱型图中中位数的趋势线
             for i, col in enumerate(wbc_df.columns):
                 ax.plot([i-0.2, i+0.2], [wbc_df[col].median(), wbc_df[col].median()], color='r', linewidth=2)
-                
+
             
             ax.set_title('访视期间白细胞计数变化情况',fontproperties=font)
             st.pyplot(fig1)
