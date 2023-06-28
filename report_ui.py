@@ -2,6 +2,12 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+#%%
+# 设置plt中文显示和负号显示
+plt.rcParams['font.sans-serif'] = ['SimHei']
+plt.rcParams['axes.unicode_minus'] = False
 
 
 
@@ -75,7 +81,7 @@ class MyApp:
             self.tab13()
         elif selected_tab == '湖南省肿瘤肝癌项目血常规统计':
             self.tab14()
-            
+
             
 
     def tabintro(self):
@@ -1098,9 +1104,14 @@ class MyApp:
             # 将wbc_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为wbc_df
             wbc_df = pd.concat(wbc_dict.values(), axis=1)
             wbc_df.columns = [f'访视{i+1}_{col}' for i, col in enumerate(wbc_df.columns)]
-            # 使用箱型图表示wbc_df中的每一列数据
-            st.write("白细胞箱型图:")
-            st.write(wbc_df.boxplot())
+            # 使用箱型图表示wbc_df中每一列数据，将所有箱放入同一个坐标轴，x轴为wbc_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=wbc_df, ax=ax)
+            ax.set_xticklabels(wbc_df.columns, rotation=45, ha='right')
+            ax.set_title('白细胞箱型图')
+            st.pyplot(fig)
+
+                        
 
 
             
