@@ -1214,30 +1214,225 @@ class MyApp:
             ax.set_xticklabels(monoabs_df.columns, rotation=45, ha='right',fontproperties=font)
             ax.set_title('访视期间单核细胞绝对值变化情况',fontproperties=font)
             st.pyplot(fig9)
-            
 
+            # 获取blood_dict中"嗜酸性粒细胞绝对值"列，赋值给一个新的dict名为eosabs_dict
+            eosabs_dict = {k: v[['嗜酸性粒细胞绝对值']] for k, v in blood_dict.items()}
+            # 将eosabs_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为eosabs_df
+            eosabs_df = pd.concat(eosabs_dict.values(), axis=1)
+            eosabs_df.columns = [f'访视{i+1}' for i, col in enumerate(eosabs_df.columns)]
+            # 使用箱型图表示eosabs_df中每一列数据，将所有箱放入同一个坐标轴，x轴为eosabs_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig10, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=eosabs_df, ax=ax)
+            ax.set_xticklabels(eosabs_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间嗜酸性粒细胞绝对值变化情况',fontproperties=font)
+            st.pyplot(fig10)
 
+            # 获取blood_dict中"嗜碱性粒细胞绝对值"列，赋值给一个新的dict名为basabs_dict
+            basabs_dict = {k: v[['嗜碱性粒细胞绝对值']] for k, v in blood_dict.items()}
+            # 将basabs_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为basabs_df
+            basabs_df = pd.concat(basabs_dict.values(), axis=1)
+            basabs_df.columns = [f'访视{i+1}' for i, col in enumerate(basabs_df.columns)]
+            # 使用箱型图表示basabs_df中每一列数据，将所有箱放入同一个坐标轴，x轴为basabs_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig11, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=basabs_df, ax=ax)
+            ax.set_xticklabels(basabs_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间嗜碱性粒细胞绝对值变化情况',fontproperties=font)
+            st.pyplot(fig11)
 
+            # 获取blood_dict中"红细胞"列，赋值给一个新的dict名为neuabs_dict
+            neuabs_dict = {k: v[['红细胞']] for k, v in blood_dict.items()}
+            # 将neuabs_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为neuabs_df
+            neuabs_df = pd.concat(neuabs_dict.values(), axis=1)
+            neuabs_df.columns = [f'访视{i+1}' for i, col in enumerate(neuabs_df.columns)]
+            # 使用箱型图表示neuabs_df中每一列数据，将所有箱放入同一个坐标轴，x轴为neuabs_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig12, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=neuabs_df, ax=ax)
+            ax.set_xticklabels(neuabs_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间红细胞绝对值变化情况',fontproperties=font)
+            st.pyplot(fig12)
 
+            # 获取blood_dict中"血红蛋白"列，赋值给一个新的dict名为hgb_dict
+            hgb_dict = {k: v[['血红蛋白']] for k, v in blood_dict.items()}
+            # 将hgb_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为hgb_df
+            hgb_df = pd.concat(hgb_dict.values(), axis=1)
+            hgb_df.columns = [f'访视{i+1}' for i, col in enumerate(hgb_df.columns)]
+            # 使用箱型图表示hgb_df中每一列数据，将所有箱放入同一个坐标轴，x轴为hgb_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig13, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=hgb_df, ax=ax)
+            ax.set_xticklabels(hgb_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间血红蛋白变化情况',fontproperties=font)
+            st.pyplot(fig13)
 
+            # 获取blood_dict中"红细胞压积"列，赋值给一个新的dict名为plt_dict
+            plt_dict = {k: v[['红细胞压积']] for k, v in blood_dict.items()}
+            # 将plt_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为plt_df
+            plt_df = pd.concat(plt_dict.values(), axis=1)
+            plt_df.columns = [f'访视{i+1}' for i, col in enumerate(plt_df.columns)]
+            # 使用箱型图表示plt_df中每一列数据，将所有箱放入同一个坐标轴，x轴为plt_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig14, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=plt_df, ax=ax)
+            ax.set_xticklabels(plt_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间红细胞压积变化情况',fontproperties=font)
+            st.pyplot(fig14)
 
+            # 获取blood_dict中"平均红细胞体积"列，赋值给一个新的dict名为mcv_dict
+            mcv_dict = {k: v[['平均红细胞体积']] for k, v in blood_dict.items()}
+            # 将mcv_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为mcv_df
+            mcv_df = pd.concat(mcv_dict.values(), axis=1)
+            mcv_df.columns = [f'访视{i+1}' for i, col in enumerate(mcv_df.columns)]
+            # 使用箱型图表示mcv_df中每一列数据，将所有箱放入同一个坐标轴，x轴为mcv_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig15, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=mcv_df, ax=ax)
+            ax.set_xticklabels(mcv_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间平均红细胞体积变化情况',fontproperties=font)
+            st.pyplot(fig15)
 
+            # 获取blood_dict中"平均RBC血红蛋白含量"列，赋值给一个新的dict名为mch_dict
+            mch_dict = {k: v[['平均RBC血红蛋白含量']] for k, v in blood_dict.items()}
+            # 将mch_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为mch_df
+            mch_df = pd.concat(mch_dict.values(), axis=1)
+            mch_df.columns = [f'访视{i+1}' for i, col in enumerate(mch_df.columns)]
+            # 使用箱型图表示mch_df中每一列数据，将所有箱放入同一个坐标轴，x轴为mch_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig16, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=mch_df, ax=ax)
+            ax.set_xticklabels(mch_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间平均RBC血红蛋白含量变化情况',fontproperties=font)
+            st.pyplot(fig16)
 
+            # 获取blood_dict中"平均RBC血红蛋白浓度"列，赋值给一个新的dict名为mchc_dict
+            mchc_dict = {k: v[['平均RBC血红蛋白浓度']] for k, v in blood_dict.items()}
+            # 将mchc_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为mchc_df
+            mchc_df = pd.concat(mchc_dict.values(), axis=1)
+            mchc_df.columns = [f'访视{i+1}' for i, col in enumerate(mchc_df.columns)]
+            # 使用箱型图表示mchc_df中每一列数据，将所有箱放入同一个坐标轴，x轴为mchc_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig17, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=mchc_df, ax=ax)
+            ax.set_xticklabels(mchc_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间平均RBC血红蛋白浓度变化情况',fontproperties=font)
+            st.pyplot(fig17)
 
+            # 获取blood_dict中"红细胞分布密度CV值"列，赋值给一个新的dict名为rdw_dict
+            rdw_dict = {k: v[['红细胞分布密度CV值']] for k, v in blood_dict.items()}
+            # 将rdw_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为rdw_df
+            rdw_df = pd.concat(rdw_dict.values(), axis=1)
+            rdw_df.columns = [f'访视{i+1}' for i, col in enumerate(rdw_df.columns)]
+            # 使用箱型图表示rdw_df中每一列数据，将所有箱放入同一个坐标轴，x轴为rdw_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig18, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=rdw_df, ax=ax)
+            ax.set_xticklabels(rdw_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间红细胞分布密度CV值变化情况',fontproperties=font)
+            st.pyplot(fig18)
 
-            
+            # 获取blood_dict中"红细胞分布密度SD值"列，赋值给一个新的dict名为mpv_dict
+            mpv_dict = {k: v[['红细胞分布密度SD值']] for k, v in blood_dict.items()}
+            # 将mpv_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为mpv_df
+            mpv_df = pd.concat(mpv_dict.values(), axis=1)
+            mpv_df.columns = [f'访视{i+1}' for i, col in enumerate(mpv_df.columns)]
+            # 使用箱型图表示mpv_df中每一列数据，将所有箱放入同一个坐标轴，x轴为mpv_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig19, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=mpv_df, ax=ax)
+            ax.set_xticklabels(mpv_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间红细胞分布密度SD值变化情况',fontproperties=font)
+            st.pyplot(fig19)
+
+            # 获取blood_dict中"血小板计数"列，赋值给一个新的dict名为plt_dict
+            plt_dict = {k: v[['血小板计数']] for k, v in blood_dict.items()}
+            # 将plt_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为plt_df
+            plt_df = pd.concat(plt_dict.values(), axis=1)
+            plt_df.columns = [f'访视{i+1}' for i, col in enumerate(plt_df.columns)]
+            # 使用箱型图表示plt_df中每一列数据，将所有箱放入同一个坐标轴，x轴为plt_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig20, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=plt_df, ax=ax)
+            ax.set_xticklabels(plt_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间血小板计数变化情况',fontproperties=font)
+            st.pyplot(fig20)
+
+            # 获取blood_dict中"血小板比积"列，赋值给一个新的dict名为mpv_dict
+            mpv_dict = {k: v[['血小板比积']] for k, v in blood_dict.items()}
+            # 将mpv_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为mpv_df
+            mpv_df = pd.concat(mpv_dict.values(), axis=1)
+            mpv_df.columns = [f'访视{i+1}' for i, col in enumerate(mpv_df.columns)]
+            # 使用箱型图表示mpv_df中每一列数据，将所有箱放入同一个坐标轴，x轴为mpv_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig21, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=mpv_df, ax=ax)
+            ax.set_xticklabels(mpv_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间血小板比积变化情况',fontproperties=font)
+            st.pyplot(fig21)
+
+            # 获取blood_dict中"血小板平均体积"列，赋值给一个新的dict名为mpv_dict
+            mpv_dict = {k: v[['血小板平均体积']] for k, v in blood_dict.items()}
+            # 将mpv_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为mpv_df
+            mpv_df = pd.concat(mpv_dict.values(), axis=1)
+            mpv_df.columns = [f'访视{i+1}' for i, col in enumerate(mpv_df.columns)]
+            # 使用箱型图表示mpv_df中每一列数据，将所有箱放入同一个坐标轴，x轴为mpv_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig22, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=mpv_df, ax=ax)
+            ax.set_xticklabels(mpv_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间血小板平均体积变化情况',fontproperties=font)  
+            st.pyplot(fig22)
+
+            # 获取blood_dict中"血小板分布宽度"列，赋值给一个新的dict名为mpvkd_dict
+            mpvkd_dict = {k: v[['血小板分布宽度']] for k, v in blood_dict.items()}
+            # 将mpvkd_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为mpvkd_df
+            mpvkd_df = pd.concat(mpvkd_dict.values(), axis=1)
+            mpvkd_df.columns = [f'访视{i+1}' for i, col in enumerate(mpvkd_df.columns)]
+            # 使用箱型图表示mpvkd_df中每一列数据，将所有箱放入同一个坐标轴，x轴为mpvkd_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig23, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=mpvkd_df, ax=ax)
+            ax.set_xticklabels(mpvkd_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间血小板分布宽度变化情况',fontproperties=font)
+            st.pyplot(fig23)
+
             # 将fig1，fig2，fig3，fig4保存为图片文件
             fig1.savefig('fig1.png')
             fig2.savefig('fig2.png')
             fig3.savefig('fig3.png')
             fig4.savefig('fig4.png')
+            fig5.savefig('fig5.png')
+            fig6.savefig('fig6.png')
+            fig7.savefig('fig7.png')
+            fig8.savefig('fig8.png')
+            fig9.savefig('fig9.png')
+            fig10.savefig('fig10.png')
+            fig11.savefig('fig11.png')
+            fig12.savefig('fig12.png')
+            fig13.savefig('fig13.png')
+            fig14.savefig('fig14.png')
+            fig15.savefig('fig15.png')
+            fig16.savefig('fig16.png')
+            fig17.savefig('fig17.png')
+            fig18.savefig('fig18.png')
+            fig19.savefig('fig19.png')
+            fig20.savefig('fig20.png')
+            fig21.savefig('fig21.png')
+            fig22.savefig('fig22.png')
+            fig23.savefig('fig23.png')
 
             # 将这些图片文件写入一个压缩文件
             with zipfile.ZipFile('figures.zip', 'w') as zipf:
-                zipf.write('fig1.png')
-                zipf.write('fig2.png')
-                zipf.write('fig3.png')
-                zipf.write('fig4.png')
+                zipf.write('白细胞计数.png')
+                zipf.write('中性粒细胞百分比.png')
+                zipf.write('淋巴细胞百分比.png')
+                zipf.write('单核细胞百分比.png')
+                zipf.write('嗜酸性粒细胞百分比.png')
+                zipf.write('嗜碱性粒细胞百分比.png')
+                zipf.write('中性粒细胞绝对值.png')
+                zipf.write('淋巴细胞绝对值.png')
+                zipf.write('单核细胞绝对值.png')
+                zipf.write('嗜酸性粒细胞绝对值.png')
+                zipf.write('嗜碱性粒细胞绝对值.png')
+                zipf.write('红细胞.png')
+                zipf.write('血红蛋白.png')
+                zipf.write('红细胞压积.png')
+                zipf.write('平均红细胞体积.png')
+                zipf.write('平均RBC血红蛋白含量.png')
+                zipf.write('平均RBC血红蛋白浓度.png')
+                zipf.write('红细胞分布密度CV值.png')
+                zipf.write('红细胞分布密度SD值.png')
+                zipf.write('血小板.png')
+                zipf.write('血小板比积.png')
+                zipf.write('血小板平均体积.png')
+                zipf.write('血小板分布宽度.png')
 
             # 使用st.download_button下载这个压缩文件
             st.download_button(
