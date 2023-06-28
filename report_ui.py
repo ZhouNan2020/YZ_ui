@@ -37,7 +37,8 @@ class MyApp:
 
         self.sidebar()
 
-        tabs = ["关于","数据预览", "Chat with AI", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算','ECOG计数',"科瑞德不分组计数统计","科瑞德分组计数统计","湖南省肿瘤肝癌项目基线统计","湖南省肿瘤肝癌项目疗效评价计数"]
+        tabs = ["关于","数据预览", "Chat with AI", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算','ECOG计数',"科瑞德不分组计数统计","科瑞德分组计数统计","湖南省肿瘤肝癌项目基线统计"
+                ,"湖南省肿瘤肝癌项目疗效评价计数","湖南省肿瘤肝癌项目肿瘤诊断计数"]
         st.sidebar.title("导航")
         selected_tab = st.sidebar.radio("选择一个功能模块", tabs)
 
@@ -70,6 +71,9 @@ class MyApp:
             self.tab11()
         elif selected_tab == '湖南省肿瘤肝癌项目疗效评价计数':
             self.tab12()
+        elif selected_tab == '湖南省肿瘤肝癌项目肿瘤诊断计数':
+            self.tab13()
+            
 
     def tabintro(self):
         
@@ -860,6 +864,10 @@ class MyApp:
                 file_name='科睿德年龄分层统计.xlsx',
                 mime='application/octet-stream'
                 ) 
+   
+   
+   
+   
     def tab11(self):
         if self.file is not None:
             # 使用pd.excelfile读取self.file
@@ -990,7 +998,6 @@ class MyApp:
             eva_df.columns = [f'访视{i+1}_{col}' for i, col in enumerate(eva_df.columns)]
             # 计算eva_df中每一列中不同值的计数（忽略空值）
             eva_count = eva_df.apply(lambda x: x.value_counts(dropna=True))
-
             # 计算eva_df中每一列中不同值的占比，占比=本列中某个值的计数/eva_df的行数
             eva_per = eva_count.apply(lambda x: x / len(eva_df))
             #转置eva_per和eva_count
@@ -1005,7 +1012,7 @@ class MyApp:
             eva_sta_df = eva_sta_df.fillna(0)
             # 将eva_sta_df中的列名中包含字符串”占比“的列的值转换为百分数，如果值为0，则不处理
             eva_sta_df[[col for col in eva_sta_df.columns if '占比' in col]] = eva_sta_df[[col for col in eva_sta_df.columns if '占比' in col]].applymap(lambda x: f'{x:.2%}' if x != 0 else x)
-            st.write("疗效评价统计量:")
+            st.write("疗效评价统计:")
             st.write(eva_sta_df)
             # 将eva_sta_df保存为excel，并使用st.download_button()提供下载
             with pd.ExcelWriter('HN_eva.xlsx') as writer:
@@ -1020,7 +1027,51 @@ class MyApp:
             st.error("请先上传文件")
 
 
-            
+    def tab13(self):
+        if self.file is not None:
+            # 使用pd.ExeclFile()读取self.file
+            tab13data = pd.ExcelFile(self.file)
+            # 遍历tab13data中的sheet，将其存入一个字典中，key对应sheet名称，value对应sheet中的df
+            tab13_dict = {}
+            for sheet in tab13data.sheet_names:
+                tab13_dict[sheet] = tab13data.parse(sheet)
+            # 获取tab13_dict中key名称包含字符串”肿瘤诊断“的sheet，赋值给一个新的dict名为diagno_dict
+            diagno_dict = {k: v for k, v in tab13_dict.items() if '肿瘤诊断' in k}
+            for k, v in diagno_dict.items():
+                diagno_dict[k] = v[['肿瘤诊断']]
+            # 将diagno_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为diagno_df
+            diagno_df = pd.concat(diagno_dict.values(), axis=1)
+            diagno_df.columns = [f'访视{i+1}_{col}' for i, col in enumerate(diagno_df.columns)]
+            # 计算diagno_df中每一列中不同值的计数（忽略空值）
+            diagno_count = diagno_df.apply(lambda x: x.value_counts(dropna=True))
+            # 计算diagno_df中每一列中不同值的占比，占比=本列中某个值的计数/diagno_df的行数
+            diagno_per = diagno_count.apply(lambda x: x / len(diagno_df))
+            #转置diagno_per和diagno_count
+            diagno_per = diagno_per.T
+            diagno_count = diagno_count.T
+            # 将计数和占比的结果交替放置到一个df中，命名为diagno_sta_df
+            diagno_sta_df = pd.DataFrame()
+            for col in diagno_count.columns:
+                diagno_sta_df[col+'_计数'] = diagno_count[col]
+                diagno_sta_df[col+'_占比'] = diagno_per[col]
+            # 将diagno_sta_df中的nan值替换为0
+            diagno_sta_df = diagno_sta_df.fillna(0)
+            # 将diagno_sta_df中的列名中包含字符串”占比“的列的值转换为百分数，如果值为0，则不处理
+            diagno_sta_df[[col for col in diagno_sta_df.columns if '占比' in col]] = diagno_sta_df[[col for col in diagno_sta_df.columns if '占比' in col]].applymap(lambda x: f'{x:.2%}' if x != 0 else x)
+            st.write("肿瘤诊断统计:")
+            st.write(diagno_sta_df)
+            # 将diagno_sta_df保存为excel，并使用st.download_button()提供下载
+            with pd.ExcelWriter('HN_diagno.xlsx') as writer:
+                diagno_sta_df.to_excel(writer, sheet_name='肿瘤诊断')
+            st.download_button(
+                    label="点击下载",
+                    data=open('HN_diagno.xlsx', 'rb').read(),
+                    file_name='湖南省肿瘤诊断.xlsx',
+                    mime='application/octet-stream'
+                )
+
+
+
             
 
         
