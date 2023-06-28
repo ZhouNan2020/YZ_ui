@@ -37,7 +37,7 @@ class MyApp:
 
         self.sidebar()
 
-        tabs = ["关于","数据预览", "Chat with AI", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算','ECOG计数',"科睿德不分组计数统计","科睿德分组计数统计","湖南省肿瘤基线统计"]
+        tabs = ["关于","数据预览", "Chat with AI", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算','ECOG计数',"科瑞德不分组计数统计","科瑞德分组计数统计","湖南省肿瘤肝癌项目基线统计","湖南省肿瘤肝癌项目疗效评价计数"]
         st.sidebar.title("导航")
         selected_tab = st.sidebar.radio("选择一个功能模块", tabs)
 
@@ -66,8 +66,10 @@ class MyApp:
             self.tab9()
         elif selected_tab == '科睿德分组计数统计':
             self.tab10()
-        elif selected_tab == '湖南省肿瘤基线统计':
+        elif selected_tab == '湖南省肿瘤肝癌项目基线统计':
             self.tab11()
+        elif selected_tab == '湖南省肿瘤肝癌项目疗效评价计数':
+            self.tab12()
 
     def tabintro(self):
         
@@ -966,7 +968,54 @@ class MyApp:
         else:
             st.error("请先上传文件")
             
+    def tab12(self):
+        if self.file is not None:
+            # 使用pd.ExeclFile()读取self.file
+            tab12data = pd.ExcelFile(self.file)
+            # 遍历tab12data中的sheet，将其存入一个字典中，key对应sheet名称，value对应sheet中的df
+            tab12_dict = {}
+            for sheet in tab12data.sheet_names:
+                tab12_dict[sheet] = tab12data.parse(sheet)
+            # 获取tab12_dict中key名称包含字符串”疗效评价“的sheet，赋值给一个新的dict名为eva_dict
+            eva_dict = {k: v for k, v in tab12_dict.items() if '疗效评价' in k}
+            for k, v in eva_dict.items():
+                eva_dict[k] = v[['最佳疗效评价']]
+            # 将eva_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为eva_df
+            eva_df = pd.concat(eva_dict.values(), axis=1)
+            eva_df.columns = [f'访视{i+1}_{col}' for i, col in enumerate(eva_df.columns)]
+            # 计算eva_df中每一列中不同值的计数（忽略空值）
+            eva_count = eva_df.apply(lambda x: x.value_counts(dropna=True))
 
+            # 计算eva_df中每一列中不同值的占比，占比=本列中某个值的计数/eva_df的行数
+            eva_per = eva_count.apply(lambda x: x / len(eva_df))
+            #转置eva_per和eva_count
+            eva_per = eva_per.T
+            eva_count = eva_count.T
+            # 将计数和占比的结果交替放置到一个df中，命名为eva_sta_df
+            eva_sta_df = pd.DataFrame()
+            for col in eva_count.columns:
+                eva_sta_df[col+'_计数'] = eva_count[col]
+                eva_sta_df[col+'_占比'] = eva_per[col]
+            # 将eva_sta_df中的nan值替换为0
+            eva_sta_df = eva_sta_df.fillna(0)
+            # 将eva_sta_df中的列名中包含字符串”占比“的列的值转换为百分数，如果值为0，则不处理
+            eva_sta_df[[col for col in eva_sta_df.columns if '占比' in col]] = eva_sta_df[[col for col in eva_sta_df.columns if '占比' in col]].applymap(lambda x: f'{x:.2%}' if x != 0 else x)
+            st.write("疗效评价统计量:")
+            st.write(eva_sta_df)
+            # 将eva_sta_df保存为excel，并使用st.download_button()提供下载
+            with pd.ExcelWriter('HN_eva.xlsx') as writer:
+                eva_sta_df.to_excel(writer, sheet_name='疗效评价')
+            st.download_button(
+                    label="点击下载",
+                    data=open('HN_eva.xlsx', 'rb').read(),
+                    file_name='湖南省肿瘤疗效评价.xlsx',
+                    mime='application/octet-stream'
+                )
+            
+
+
+            
+            
 
         
         
