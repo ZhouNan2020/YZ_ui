@@ -96,6 +96,8 @@ class MyApp:
         st.subheader('更新日志')
         st.markdown('**2023年6月28日：**') #将日期加粗
         st.markdown('1.增加了湖南省肿瘤肝癌项目疗效评价计数模块')
+        st.markdown('2.增加了湖南省肿瘤肝癌项目肿瘤诊断计数模块')
+        st.markdown('3.增加了湖南省肿瘤肝癌项目血常规统计模块')
         st.markdown('**2023年6月26日：**') #将日期加粗
         st.markdown('1.增加了湖南省肿瘤基线统计模块')
         st.markdown('**2023年6月6日：**') #将日期加粗
