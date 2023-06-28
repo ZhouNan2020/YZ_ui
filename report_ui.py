@@ -1138,6 +1138,30 @@ class MyApp:
             ax.set_xticklabels(lymph_df.columns, rotation=45, ha='right',fontproperties=font)
             ax.set_title('访视期间淋巴细胞百分比变化情况',fontproperties=font)
             st.pyplot(fig)
+            # 获取blood_dict中的df中的“单核细胞百分比”列，赋值给一个新的dict名为mono_dict
+            mono_dict = {k: v[['单核细胞百分比']] for k, v in blood_dict.items()}
+            # 将mono_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为mono_df
+            mono_df = pd.concat(mono_dict.values(), axis=1)
+            mono_df.columns = [f'访视{i+1}' for i, col in enumerate(mono_df.columns)]
+            # 使用箱型图表示mono_df中每一列数据，将所有箱放入同一个坐标轴，x轴为mono_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=mono_df, ax=ax)
+            ax.set_xticklabels(mono_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间单核细胞百分比变化情况',fontproperties=font)
+ 
+            # 使用st.download_button下载该fig
+            st.download_button(
+                label="点击下载",
+                data=fig,
+                file_name='访视期间血常规变化情况.png',
+                mime='image/png'
+            )
+
+            # 
+
+            st.pyplot(fig)
+            # 
+            
             
 
                         
