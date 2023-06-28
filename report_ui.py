@@ -1115,8 +1115,11 @@ class MyApp:
             fig1, ax = plt.subplots(figsize=(10, 6))
             sns.boxplot(data=wbc_df, ax=ax)
             ax.set_xticklabels(wbc_df.columns, rotation=45, ha='right',fontproperties=font)
-            # 趋势线
-            sns.lineplot(data=wbc_df, ax=ax, dashes=False, markers=True)
+            # 添加箱型图中中位数的趋势线
+            for i, col in enumerate(wbc_df.columns):
+                ax.plot([i-0.2, i+0.2], [wbc_df[col].median(), wbc_df[col].median()], color='r', linewidth=2)
+                
+            
             ax.set_title('访视期间白细胞计数变化情况',fontproperties=font)
             st.pyplot(fig1)
 
