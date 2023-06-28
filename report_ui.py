@@ -1113,7 +1113,7 @@ class MyApp:
             # 使用箱型图表示wbc_df中每一列数据，将所有箱放入同一个坐标轴，x轴为wbc_df的列名，y轴为数值，最后使用st.pyplot展示该图
             fig, ax = plt.subplots(figsize=(10, 6))
             sns.boxplot(data=wbc_df, ax=ax)
-            ax.set_xticklabels(wbc_df.columns, rotation=45, ha='right')
+            ax.set_xticklabels(wbc_df.columns, rotation=45, ha='right',fontproperties=font)
             ax.set_title('白细胞箱型图')
             # 使中文正常显示
             
