@@ -1151,20 +1151,29 @@ class MyApp:
             ax.set_title('访视期间单核细胞百分比变化情况',fontproperties=font)
             st.pyplot(fig4)
             
-            # 将fig1，fig2，fig3，fig4写入zip压缩文件，然后使用st.download_button下载这个zip文件
-            
-            with zipfile.ZipFile('HN_blood.zip', 'w') as myzip:
-                
-                myzip.write('fig1.png')
-                myzip.write('fig2.png')
-                myzip.write('fig3.png')
-                myzip.write('fig4.png')
+            # 将fig1，fig2，fig3，fig4保存为图片文件
+            fig1.savefig('fig1.png')
+            fig2.savefig('fig2.png')
+            fig3.savefig('fig3.png')
+            fig4.savefig('fig4.png')
+
+            # 将这些图片文件写入一个压缩文件
+            with zipfile.ZipFile('figures.zip', 'w') as zipf:
+                zipf.write('fig1.png')
+                zipf.write('fig2.png')
+                zipf.write('fig3.png')
+                zipf.write('fig4.png')
+
+            # 使用st.download_button下载这个压缩文件
             st.download_button(
-                    label="点击下载",
-                    data=open('HN_blood.zip', 'rb').read(),
-                    file_name='湖南省肿瘤血常规数据.zip',
-                    mime='application/octet-stream'
-                )
+                label="点击下载",
+                data=open('figures.zip', 'rb').read(),
+                file_name='figures.zip',
+                mime='application/zip'
+            )
+            # 
+            
+            
 
             
             
