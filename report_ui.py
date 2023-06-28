@@ -1115,8 +1115,11 @@ class MyApp:
             fig1, ax = plt.subplots(figsize=(10, 6))
             sns.boxplot(data=wbc_df, ax=ax)
             ax.set_xticklabels(wbc_df.columns, rotation=45, ha='right',fontproperties=font)
-            ax.set_title('访视期间白细胞变化情况',fontproperties=font)
+            # 趋势线
+            sns.lineplot(data=wbc_df, ax=ax, dashes=False, markers=True)
+            ax.set_title('访视期间白细胞计数变化情况',fontproperties=font)
             st.pyplot(fig1)
+
             # 获取blood_dict中的df中的“中性粒细胞百分比”列，赋值给一个新的dict名为neut_dict
             neut_dict = {k: v[['中性粒细胞百分比']] for k, v in blood_dict.items()}
             # 将neut_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为neut_df
@@ -1128,6 +1131,7 @@ class MyApp:
             ax.set_xticklabels(neut_df.columns, rotation=45, ha='right',fontproperties=font)
             ax.set_title('访视期间中性粒细胞百分比变化情况',fontproperties=font)
             st.pyplot(fig2)
+
             # 获取blood_dict中的df中的“淋巴细胞百分比”列，赋值给一个新的dict名为lymph_dict
             lymph_dict = {k: v[['淋巴细胞百分比']] for k, v in blood_dict.items()}
             # 将lymph_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为lymph_df
@@ -1139,6 +1143,7 @@ class MyApp:
             ax.set_xticklabels(lymph_df.columns, rotation=45, ha='right',fontproperties=font)
             ax.set_title('访视期间淋巴细胞百分比变化情况',fontproperties=font)
             st.pyplot(fig3)
+
             # 获取blood_dict中的df中的“单核细胞百分比”列，赋值给一个新的dict名为mono_dict
             mono_dict = {k: v[['单核细胞百分比']] for k, v in blood_dict.items()}
             # 将mono_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为mono_df
@@ -1150,6 +1155,39 @@ class MyApp:
             ax.set_xticklabels(mono_df.columns, rotation=45, ha='right',fontproperties=font)
             ax.set_title('访视期间单核细胞百分比变化情况',fontproperties=font)
             st.pyplot(fig4)
+
+            # 获取blood_dict中"嗜酸性粒细胞百分比"列，赋值给一个新的dict名为eos_dict
+            eos_dict = {k: v[['嗜酸性粒细胞百分比']] for k, v in blood_dict.items()}
+            # 将eos_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为eos_df
+            eos_df = pd.concat(eos_dict.values(), axis=1)
+            eos_df.columns = [f'访视{i+1}' for i, col in enumerate(eos_df.columns)]
+            # 使用箱型图表示eos_df中每一列数据，将所有箱放入同一个坐标轴，x轴为eos_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig5, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=eos_df, ax=ax)
+            ax.set_xticklabels(eos_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间嗜酸性粒细胞百分比变化情况',fontproperties=font)
+            st.pyplot(fig5)
+
+            # 获取blood_dict中"嗜碱性粒细胞百分比"列，赋值给一个新的dict名为baso_dict
+            baso_dict = {k: v[['嗜碱性粒细胞百分比']] for k, v in blood_dict.items()}
+            # 将baso_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为baso_df
+            baso_df = pd.concat(baso_dict.values(), axis=1)
+            baso_df.columns = [f'访视{i+1}' for i, col in enumerate(baso_df.columns)]
+            # 使用箱型图表示baso_df中每一列数据，将所有箱放入同一个坐标轴，x轴为baso_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig6, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=baso_df, ax=ax)
+            ax.set_xticklabels(baso_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间嗜碱性粒细胞百分比变化情况',fontproperties=font)
+            st.pyplot(fig6)
+
+
+
+
+
+
+
+
+
             
             # 将fig1，fig2，fig3，fig4保存为图片文件
             fig1.savefig('fig1.png')
