@@ -1101,6 +1101,7 @@ class MyApp:
         st.markdown("**使用这个模块注意以下两点：**")
         st.write("1. 上传的文件是湖南省肿瘤肝癌项目的数据")
         st.write("2. 上传的文件中包含血常规的sheet")
+        st.warning('出图后大概看一下没问题就麻溜拖到最后先把图下载到本地，这个模块很容易内存溢出导致自动刷新，一刷新就啥都没了。待我跟雪梅老师沟通一下服务器的事情。')
         if self.file is not None:
             tab14data = pd.ExcelFile(self.file)
             tab14_dict = {}
