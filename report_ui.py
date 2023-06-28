@@ -38,7 +38,7 @@ class MyApp:
         self.sidebar()
 
         tabs = ["关于","数据预览", "Chat with AI", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算','ECOG计数',"科瑞德不分组计数统计","科瑞德分组计数统计","湖南省肿瘤肝癌项目基线统计"
-                ,"湖南省肿瘤肝癌项目疗效评价计数","湖南省肿瘤肝癌项目肿瘤诊断计数"]
+                ,"湖南省肿瘤肝癌项目疗效评价计数","湖南省肿瘤肝癌项目肿瘤诊断计数","湖南省肿瘤肝癌项目血常规统计"]
         st.sidebar.title("导航")
         selected_tab = st.sidebar.radio("选择一个功能模块", tabs)
 
@@ -73,6 +73,9 @@ class MyApp:
             self.tab12()
         elif selected_tab == '湖南省肿瘤肝癌项目肿瘤诊断计数':
             self.tab13()
+        elif selected_tab == '湖南省肿瘤肝癌项目血常规统计':
+            self.tab14()
+            
             
 
     def tabintro(self):
@@ -1028,6 +1031,9 @@ class MyApp:
 
 
     def tab13(self):
+        st.markdown("**使用这个模块注意以下两点：**")
+        st.write("1. 上传的文件是湖南省肿瘤肝癌项目的数据")
+        st.write("2. 上传的文件中包含肿瘤诊断的sheet")
         if self.file is not None:
             # 使用pd.ExeclFile()读取self.file
             tab13data = pd.ExcelFile(self.file)
@@ -1073,7 +1079,28 @@ class MyApp:
                     file_name='湖南省肿瘤诊断.xlsx',
                     mime='application/octet-stream'
                 )
+        else:
+            st.error("请先上传文件")
 
+    def tab14(self):
+        st.markdown("**使用这个模块注意以下两点：**")
+        st.write("1. 上传的文件是湖南省肿瘤肝癌项目的数据")
+        st.write("2. 上传的文件中包含血常规的sheet")
+        if self.file is not None:
+            tab14data = pd.ExcelFile(self.file)
+            tab14_dict = {}
+            for sheet in tab14data.sheet_names:
+                tab14_dict[sheet] = tab14data.parse(sheet)
+            # 获取tab14_dict中key名称包含字符串”血常规“的sheet，赋值给一个新的dict名为blood_dict
+            blood_dict = {k: v for k, v in tab14_dict.items() if '血常规' in k}
+            # 获取blood_dict中的df中的“白细胞”列，赋值给一个新的dict名为wbc_dict
+            wbc_dict = {k: v[['白细胞']] for k, v in blood_dict.items()}
+            # 将wbc_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为wbc_df
+            wbc_df = pd.concat(wbc_dict.values(), axis=1)
+            wbc_df.columns = [f'访视{i+1}_{col}' for i, col in enumerate(wbc_df.columns)]
+            # 使用箱型图表示wbc_df中的每一列数据
+            st.write("白细胞箱型图:")
+            st.write(wbc_df.boxplot())
 
 
             
