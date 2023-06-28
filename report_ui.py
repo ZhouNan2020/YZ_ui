@@ -969,6 +969,9 @@ class MyApp:
             st.error("请先上传文件")
             
     def tab12(self):
+        st.markdown("**使用这个模块注意以下两点：**")
+        st.write("1. 上传的文件是湖南省肿瘤肝癌项目的数据")
+        st.write("2. 上传的文件中包含疗效评价的sheet")
         if self.file is not None:
             # 使用pd.ExeclFile()读取self.file
             tab12data = pd.ExcelFile(self.file)
@@ -1011,7 +1014,8 @@ class MyApp:
                     file_name='湖南省肿瘤疗效评价.xlsx',
                     mime='application/octet-stream'
                 )
-            
+        else:
+            st.error("请先上传文件")
 
 
             
