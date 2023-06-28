@@ -1115,10 +1115,6 @@ class MyApp:
             fig1, ax = plt.subplots(figsize=(10, 6))
             sns.boxplot(data=wbc_df, ax=ax)
             ax.set_xticklabels(wbc_df.columns, rotation=45, ha='right',fontproperties=font)
-            # 添加箱型图中中位数的趋势线
-            for i, col in enumerate(wbc_df.columns):
-                ax.plot([i-0.2, i+0.2], [wbc_df[col].median(), wbc_df[col].median()], color='r', linewidth=2)
-
             
             ax.set_title('访视期间白细胞计数变化情况',fontproperties=font)
             st.pyplot(fig1)
@@ -1182,6 +1178,44 @@ class MyApp:
             ax.set_xticklabels(baso_df.columns, rotation=45, ha='right',fontproperties=font)
             ax.set_title('访视期间嗜碱性粒细胞百分比变化情况',fontproperties=font)
             st.pyplot(fig6)
+
+            # 获取blood_dict中"中性粒细胞绝对值"列，赋值给一个新的dict名为neutabs_dict
+            neutabs_dict = {k: v[['中性粒细胞绝对值']] for k, v in blood_dict.items()}
+            # 将neut_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为neut_df
+            neutabs_df = pd.concat(neutabs_dict.values(), axis=1)
+            neutabs_df.columns = [f'访视{i+1}' for i, col in enumerate(neutabs_df.columns)]
+            # 使用箱型图表示neut_df中每一列数据，将所有箱放入同一个坐标轴，x轴为neut_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig7, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=neutabs_df, ax=ax)
+            ax.set_xticklabels(neutabs_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间中性粒细胞绝对值变化情况',fontproperties=font)
+            st.pyplot(fig7)
+
+            # 获取blood_dict中"淋巴细胞绝对值"列，赋值给一个新的dict名为lymphabs_dict
+            lymphabs_dict = {k: v[['淋巴细胞绝对值']] for k, v in blood_dict.items()}
+            # 将lymphabs_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为lymphabs_df
+            lymphabs_df = pd.concat(lymphabs_dict.values(), axis=1)
+            lymphabs_df.columns = [f'访视{i+1}' for i, col in enumerate(lymphabs_df.columns)]
+            # 使用箱型图表示lymphabs_df中每一列数据，将所有箱放入同一个坐标轴，x轴为lymphabs_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig8, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=lymphabs_df, ax=ax)
+            ax.set_xticklabels(lymphabs_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间淋巴细胞绝对值变化情况',fontproperties=font)
+            st.pyplot(fig8)
+
+            # 获取blood_dict中"单核细胞绝对值"列，赋值给一个新的dict名为monoabs_dict
+            monoabs_dict = {k: v[['单核细胞绝对值']] for k, v in blood_dict.items()}
+            # 将monoabs_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为monoabs_df
+            monoabs_df = pd.concat(monoabs_dict.values(), axis=1)
+            monoabs_df.columns = [f'访视{i+1}' for i, col in enumerate(monoabs_df.columns)]
+            # 使用箱型图表示monoabs_df中每一列数据，将所有箱放入同一个坐标轴，x轴为monoabs_df的列名，y轴为数值，最后使用st.pyplot展示该图
+            fig9, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(data=monoabs_df, ax=ax)
+            ax.set_xticklabels(monoabs_df.columns, rotation=45, ha='right',fontproperties=font)
+            ax.set_title('访视期间单核细胞绝对值变化情况',fontproperties=font)
+            st.pyplot(fig9)
+            
+
 
 
 
