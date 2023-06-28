@@ -1336,7 +1336,7 @@ class MyApp:
             st.pyplot(fig19)
 
             # 获取blood_dict中"血小板计数"列，赋值给一个新的dict名为plt_dict
-            plt_dict = {k: v[['血小板计数']] for k, v in blood_dict.items()}
+            plt_dict = {k: v[['血小板']] for k, v in blood_dict.items()}
             # 将plt_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为plt_df
             plt_df = pd.concat(plt_dict.values(), axis=1)
             plt_df.columns = [f'访视{i+1}' for i, col in enumerate(plt_df.columns)]
