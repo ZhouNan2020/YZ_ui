@@ -1444,7 +1444,8 @@ class MyApp:
                 file_name='figures.zip',
                 mime='application/zip'
             )
-            # 
+        else:
+            st.error('请上传文件')
             
             
 
