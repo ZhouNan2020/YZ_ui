@@ -3,3 +3,4 @@ openpyxl==3.0.9
 xlrd==2.0.1
 pandas==1.4.2
 matplotlib==3.7.1
+seaborn==0.12.2
