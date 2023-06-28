@@ -1109,6 +1109,10 @@ class MyApp:
             sns.boxplot(data=wbc_df, ax=ax)
             ax.set_xticklabels(wbc_df.columns, rotation=45, ha='right')
             ax.set_title('白细胞箱型图')
+            # 使中文正常显示
+            plt.rcParams['font.sans-serif'] = ['SimHei']
+            plt.rcParams['axes.unicode_minus'] = False
+            
             st.pyplot(fig)
 
                         
