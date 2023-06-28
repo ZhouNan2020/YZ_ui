@@ -1038,7 +1038,7 @@ class MyApp:
             # 获取tab13_dict中key名称包含字符串”肿瘤诊断“的sheet，赋值给一个新的dict名为diagno_dict
             diagno_dict = {k: v for k, v in tab13_dict.items() if '肿瘤诊断' in k}
             for k, v in diagno_dict.items():
-                diagno_dict[k] = v[['肿瘤诊断']]
+                diagno_dict[k] = v[['临床诊断分期']]
             # 将diagno_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为diagno_df
             diagno_df = pd.concat(diagno_dict.values(), axis=1)
             diagno_df.columns = [f'访视{i+1}_{col}' for i, col in enumerate(diagno_df.columns)]
