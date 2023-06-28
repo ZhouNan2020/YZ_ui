@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib import font_manager
+import zipfile
 #%%
 # 设置plt中文显示和负号显示
 font = font_manager.FontProperties(fname='simhei.ttf')
@@ -1111,56 +1112,61 @@ class MyApp:
             wbc_df = pd.concat(wbc_dict.values(), axis=1)
             wbc_df.columns = [f'访视{i+1}' for i, col in enumerate(wbc_df.columns)]
             # 使用箱型图表示wbc_df中每一列数据，将所有箱放入同一个坐标轴，x轴为wbc_df的列名，y轴为数值，最后使用st.pyplot展示该图
-            fig, ax = plt.subplots(figsize=(10, 6))
+            fig1, ax = plt.subplots(figsize=(10, 6))
             sns.boxplot(data=wbc_df, ax=ax)
             ax.set_xticklabels(wbc_df.columns, rotation=45, ha='right',fontproperties=font)
             ax.set_title('访视期间白细胞变化情况',fontproperties=font)
-            st.pyplot(fig)
+            st.pyplot(fig1)
             # 获取blood_dict中的df中的“中性粒细胞百分比”列，赋值给一个新的dict名为neut_dict
             neut_dict = {k: v[['中性粒细胞百分比']] for k, v in blood_dict.items()}
             # 将neut_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为neut_df
             neut_df = pd.concat(neut_dict.values(), axis=1)
             neut_df.columns = [f'访视{i+1}' for i, col in enumerate(neut_df.columns)]
             # 使用箱型图表示neut_df中每一列数据，将所有箱放入同一个坐标轴，x轴为neut_df的列名，y轴为数值，最后使用st.pyplot展示该图
-            fig, ax = plt.subplots(figsize=(10, 6))
+            fig2, ax = plt.subplots(figsize=(10, 6))
             sns.boxplot(data=neut_df, ax=ax)
             ax.set_xticklabels(neut_df.columns, rotation=45, ha='right',fontproperties=font)
             ax.set_title('访视期间中性粒细胞百分比变化情况',fontproperties=font)
-            st.pyplot(fig)
+            st.pyplot(fig2)
             # 获取blood_dict中的df中的“淋巴细胞百分比”列，赋值给一个新的dict名为lymph_dict
             lymph_dict = {k: v[['淋巴细胞百分比']] for k, v in blood_dict.items()}
             # 将lymph_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为lymph_df
             lymph_df = pd.concat(lymph_dict.values(), axis=1)
             lymph_df.columns = [f'访视{i+1}' for i, col in enumerate(lymph_df.columns)]
             # 使用箱型图表示lymph_df中每一列数据，将所有箱放入同一个坐标轴，x轴为lymph_df的列名，y轴为数值，最后使用st.pyplot展示该图
-            fig, ax = plt.subplots(figsize=(10, 6))
+            fig3, ax = plt.subplots(figsize=(10, 6))
             sns.boxplot(data=lymph_df, ax=ax)
             ax.set_xticklabels(lymph_df.columns, rotation=45, ha='right',fontproperties=font)
             ax.set_title('访视期间淋巴细胞百分比变化情况',fontproperties=font)
-            st.pyplot(fig)
+            st.pyplot(fig3)
             # 获取blood_dict中的df中的“单核细胞百分比”列，赋值给一个新的dict名为mono_dict
             mono_dict = {k: v[['单核细胞百分比']] for k, v in blood_dict.items()}
             # 将mono_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为mono_df
             mono_df = pd.concat(mono_dict.values(), axis=1)
             mono_df.columns = [f'访视{i+1}' for i, col in enumerate(mono_df.columns)]
             # 使用箱型图表示mono_df中每一列数据，将所有箱放入同一个坐标轴，x轴为mono_df的列名，y轴为数值，最后使用st.pyplot展示该图
-            fig, ax = plt.subplots(figsize=(10, 6))
+            fig4, ax = plt.subplots(figsize=(10, 6))
             sns.boxplot(data=mono_df, ax=ax)
             ax.set_xticklabels(mono_df.columns, rotation=45, ha='right',fontproperties=font)
             ax.set_title('访视期间单核细胞百分比变化情况',fontproperties=font)
- 
-            # 使用st.download_button下载该fig
+            st.pyplot(fig4)
+            
+            # 将fig1，fig2，fig3，fig4写入zip压缩文件，然后使用st.download_button下载这个zip文件
+            
+            with zipfile.ZipFile('HN_blood.zip', 'w') as myzip:
+                
+                myzip.write('fig1.png')
+                myzip.write('fig2.png')
+                myzip.write('fig3.png')
+                myzip.write('fig4.png')
             st.download_button(
-                label="点击下载",
-                data=fig,
-                file_name='访视期间血常规变化情况.png',
-                mime='image/png'
-            )
+                    label="点击下载",
+                    data=open('HN_blood.zip', 'rb').read(),
+                    file_name='湖南省肿瘤血常规数据.zip',
+                    mime='application/octet-stream'
+                )
 
-            # 
-
-            st.pyplot(fig)
-            # 
+            
             
             
 
