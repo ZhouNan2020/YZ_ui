@@ -1031,7 +1031,7 @@ class MyApp:
             # 将eva_sta_df中的列名中包含字符串”占比“的列的值转换为百分数，如果值为0，则不处理
             eva_sta_df[[col for col in eva_sta_df.columns if '占比' in col]] = eva_sta_df[[col for col in eva_sta_df.columns if '占比' in col]].applymap(lambda x: f'{x:.2%}' if x != 0 else x)
             fig, ax = plt.subplots(figsize=(10, 6))
-            eva_per.plot(kind='area', stacked=True, ax=ax,fontproperties=font)
+            eva_per.plot(kind='area', stacked=True, ax=ax)
             ax.set_title('疗效评价占比面积图',fontproperties=font)
             st.pyplot(fig)
             
