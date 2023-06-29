@@ -1097,11 +1097,13 @@ class MyApp:
             diagno_sta_df = diagno_sta_df.fillna(0)
             # 将diagno_sta_df中的列名中包含字符串”占比“的列的值转换为百分数，如果值为0，则不处理
             diagno_sta_df[[col for col in diagno_sta_df.columns if '占比' in col]] = diagno_sta_df[[col for col in diagno_sta_df.columns if '占比' in col]].applymap(lambda x: f'{x:.2%}' if x != 0 else x)
+
             fig, ax = plt.subplots(figsize=(10, 6))
             diagno_per.plot(kind='area', stacked=True, ax=ax)
             ax.set_xticks(range(len(diagno_per.index)))
             ax.set_xticklabels(diagno_per.index, rotation=90, fontproperties=font)
             ax.set_title('疗效评价占比面积图',fontproperties=font)
+            ax.legend(prop=font)
             st.pyplot(fig)
 
             fig2, ax2 = plt.subplots(figsize=(10, 6))
@@ -1109,7 +1111,9 @@ class MyApp:
             ax2.set_xticks(range(len(diagno_count.index)))
             ax2.set_xticklabels(diagno_count.index, rotation=90, fontproperties=font)
             ax2.set_title('疗效评价计数柱状图',fontproperties=font)
+            ax2.legend(prop=font)
             st.pyplot(fig2)
+
             
             
             
