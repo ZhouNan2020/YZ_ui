@@ -1032,6 +1032,8 @@ class MyApp:
             eva_sta_df[[col for col in eva_sta_df.columns if '占比' in col]] = eva_sta_df[[col for col in eva_sta_df.columns if '占比' in col]].applymap(lambda x: f'{x:.2%}' if x != 0 else x)
             fig, ax = plt.subplots(figsize=(10, 6))
             eva_per.plot(kind='area', stacked=True, ax=ax)
+            ax.set_xticks(range(len(eva_per.index)))
+            ax.set_xticklabels(eva_per.index, rotation=45, fontproperties=font)
             ax.set_title('疗效评价占比面积图',fontproperties=font)
             st.pyplot(fig)
             
