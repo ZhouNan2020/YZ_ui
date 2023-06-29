@@ -1030,11 +1030,12 @@ class MyApp:
             eva_sta_df = eva_sta_df.fillna(0)
             # 将eva_sta_df中的列名中包含字符串”占比“的列的值转换为百分数，如果值为0，则不处理
             eva_sta_df[[col for col in eva_sta_df.columns if '占比' in col]] = eva_sta_df[[col for col in eva_sta_df.columns if '占比' in col]].applymap(lambda x: f'{x:.2%}' if x != 0 else x)
-            # Plot eva_per as an area plot and display it using st.pyplot()
-            eva_per.plot(kind='area', stacked=True)
-            st.pyplot()
+            fig, ax = plt.subplots(figsize=(10, 6))
+            eva_per.plot(kind='area', stacked=True, ax=ax,fontproperties=font)
+            ax.set_title('疗效评价占比面积图',fontproperties=font)
+            st.pyplot(fig)
             
-            
+        
             st.write("疗效评价统计:")
             st.write(eva_sta_df)
             # 将eva_sta_df保存为excel，并使用st.download_button()提供下载
