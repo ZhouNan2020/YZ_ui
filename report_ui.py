@@ -17,8 +17,6 @@ parameters = {'xtick.labelsize': 20,
 plt.rcParams.update(parameters)
 
 
-
-
 class MyApp:
     def __init__(self):
         self.file = None
