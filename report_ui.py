@@ -932,6 +932,8 @@ class MyApp:
             st.write(nation_sta_df)
             # 获取tab11_basic中名为“身高”的列，赋值给一个df名为height_df
             height_df = tab11_basic['身高']
+            # 设置height_df中的"uk","UK"为np.nan
+            height_df = height_df.apply(lambda x: np.nan if x in ['uk', 'UK'] else x)
             # 计算height_df的非空值计数、均值、标准差，中位数，最大值，最小值，并且将这些统计量放入一个df中名为height_sta_df
             henotnull_count = height_df.notnull().sum()
             mean = height_df.mean()
@@ -947,6 +949,8 @@ class MyApp:
             st.write(height_sta_df)
             # 获取tab11_basic中名为“体重”的列，赋值给一个df名为weight_df
             weight_df = tab11_basic['体重']
+            # 设置weight_df中的"uk","UK"为np.nan
+            weight_df = weight_df.apply(lambda x: np.nan if x in ['uk', 'UK'] else x)
             # 计算weight_df的非空值计数、均值、标准差，中位数，最大值，最小值，并且将这些统计量放入一个df中名为weight_sta_df
             wenotnull_count = weight_df.notnull().sum()
             mean = weight_df.mean()
