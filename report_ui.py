@@ -1108,7 +1108,7 @@ class MyApp:
             diagno_per.plot(kind='area', stacked=True, ax=ax)
             ax.set_xticks(range(len(diagno_per.index)))
             ax.set_xticklabels(diagno_per.index, rotation=90, fontproperties=font)
-            ax.set_title('疗效评价占比面积图',fontproperties=font)
+            ax.set_title('肿瘤诊断占比面积图',fontproperties=font)
             ax.legend(prop=font)
             st.pyplot(fig)
 
@@ -1116,7 +1116,7 @@ class MyApp:
             diagno_count.plot(kind='bar', stacked=True, ax=ax2)
             ax2.set_xticks(range(len(diagno_count.index)))
             ax2.set_xticklabels(diagno_count.index, rotation=90, fontproperties=font)
-            ax2.set_title('疗效评价计数柱状图',fontproperties=font)
+            ax2.set_title('肿瘤诊断计数柱状图',fontproperties=font)
             ax2.legend(prop=font)
             st.pyplot(fig2)
 
