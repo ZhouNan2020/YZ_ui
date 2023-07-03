@@ -1033,12 +1033,14 @@ class MyApp:
             ax.set_xticks(range(len(eva_per.index)))
             ax.set_xticklabels(eva_per.index, rotation=90, fontproperties=font)
             ax.set_title('疗效评价占比面积图',fontproperties=font)
+            ax.legend(prop=font)
             st.pyplot(fig)
             fig2, ax2 = plt.subplots(figsize=(10, 6))
             eva_count.plot(kind='bar', stacked=True, ax=ax2)
             ax2.set_xticks(range(len(eva_count.index)))
             ax2.set_xticklabels(eva_count.index, rotation=90, fontproperties=font)
             ax2.set_title('疗效评价计数柱状图',fontproperties=font)
+            ax2.legend(prop=font)
             st.pyplot(fig2)
             
         
