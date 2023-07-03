@@ -936,7 +936,7 @@ class MyApp:
             height_df = height_df.apply(lambda x: np.nan if x in ['uk', 'UK'] else x)
             # 计算height_df的非空值计数、均值、标准差，中位数，最大值，最小值，并且将这些统计量放入一个df中名为height_sta_df
             henotnull_count = height_df.notnull().sum()
-            mean = height_df.mean()
+            mean = height_df.mean(skipna=True)
             std = height_df.std()
             mean_std = f"{mean:.2f}±{std:.2f}"
             height_sta_df = pd.DataFrame({'非空值计数': henotnull_count, '均值±标准差': mean_std, '中位数': height_df.median(), '最大值': height_df.max(), '最小值': height_df.min()}, index=[0])
@@ -953,7 +953,7 @@ class MyApp:
             weight_df = weight_df.apply(lambda x: np.nan if x in ['uk', 'UK'] else x)
             # 计算weight_df的非空值计数、均值、标准差，中位数，最大值，最小值，并且将这些统计量放入一个df中名为weight_sta_df
             wenotnull_count = weight_df.notnull().sum()
-            mean = weight_df.mean()
+            mean = weight_df.mean(skipna=True)
             std = weight_df.std()
             mean_std = f"{mean:.2f}±{std:.2f}"
             weight_sta_df = pd.DataFrame({'非空值计数': wenotnull_count, '均值±标准差': mean_std, '中位数': weight_df.median(), '最大值': weight_df.max(), '最小值': weight_df.min()}, index=[0])
