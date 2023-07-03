@@ -953,6 +953,7 @@ class MyApp:
             weight_df = tab11_basic['体重']
             # 设置weight_df中的"uk","UK"为np.nan
             weight_df = weight_df.apply(lambda x: np.nan if x in ['uk', 'UK'] else x)
+            weight_df = pd.to_numeric(tab11_basic['体重'], errors='coerce')
             # 计算weight_df的非空值计数、均值、标准差，中位数，最大值，最小值，并且将这些统计量放入一个df中名为weight_sta_df
             wenotnull_count = weight_df.notnull().sum()
             mean = weight_df.mean(skipna=True)
