@@ -1011,7 +1011,7 @@ class MyApp:
                 eva_dict[k] = v[['最佳疗效评价']]
             # 将eva_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为eva_df
             eva_df = pd.concat(eva_dict.values(), axis=1)
-            eva_df.columns = [f'访视{i+1}_{col}' for i, col in enumerate(eva_df.columns)]
+            eva_df.columns = [f'访视{i+1}' for i, col in enumerate(eva_df.columns)]
             # 计算eva_df中每一列中不同值的计数（忽略空值）
             eva_count = eva_df.apply(lambda x: x.value_counts(dropna=True))
             # 计算eva_df中每一列中不同值的占比，占比=本列中某个值的计数/eva_df的行数
@@ -1076,7 +1076,7 @@ class MyApp:
                 diagno_dict[k] = v[['临床诊断分期']]
             # 将diagno_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为diagno_df
             diagno_df = pd.concat(diagno_dict.values(), axis=1)
-            diagno_df.columns = [f'访视{i+1}_{col}' for i, col in enumerate(diagno_df.columns)]
+            diagno_df.columns = [f'访视{i+1}' for i, col in enumerate(diagno_df.columns)]
             # 计算diagno_df中每一列中不同值的计数（忽略空值）
             diagno_count = diagno_df.apply(lambda x: x.value_counts(dropna=True))
             # 计算diagno_df中每一列中不同值的占比，占比=本列中某个值的计数/diagno_df的行数
