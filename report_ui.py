@@ -895,7 +895,7 @@ class MyApp:
             # 从tab11_dict中提取出key名称中包含字符串“基本情况”的sheet，将其存入一个df名为tab11_basic中
             tab11_basic = tab11_dict[[sheet for sheet in tab11_dict.keys() if '基本情况' in sheet][0]]
             # 获取tab11_basic中名为“年龄”的列，将其转换为int类型，赋值给一个df名为age_df
-            age_df = tab11_basic['年龄'].astype(int)
+            age_df = tab11_basic['年龄']#.astype(int)#
             # 计算age_df的非空值计数、均值、标准差，中位数，最大值，最小值，并且将这些统计量放入一个df中名为age_sta_df
             notnull_count = age_df.notnull().sum()
             mean = age_df.mean()
