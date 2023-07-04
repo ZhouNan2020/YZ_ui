@@ -1523,6 +1523,7 @@ class MyApp:
         # 给出一个上传文件的按钮，label是”上传用于中介/调节效应分析的数据“，type是"csv"或"xlsx"，key是”mediation“
         medfile = st.file_uploader(label='上传用于中介/调节效应分析的数据', type=['csv', 'xlsx'], key='mediation')
         if medfile is not None:
+            medfile = pd.dataframe(medfile)
             # 放置一个st.radio, label是”选择中介/调节效应分析的方法“，options是一个列表，内容为”中介效应“和”调节效应“，key是”mediation_method“
             med_method = st.radio(label='选择中介/调节效应分析的方法', options=['中介效应', '调节效应'], key='mediation_method')
             # 放置一个st.multiselect, label是”选择自变量“，options是一个列表，内容为medfile中所有的列名，key是”mediation_independent“
