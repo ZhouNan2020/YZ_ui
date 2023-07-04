@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib import font_manager
 import zipfile
+
 #%%
 # 设置plt中文显示和负号显示
 font = font_manager.FontProperties(fname='simhei.ttf')
@@ -1518,56 +1519,57 @@ class MyApp:
             
     def tab15(self):
         import statsmodels.api as sm
-        st.title('没想好，先空着')
+        st.title('中介效应与调节效应计算')
         # 给出一个上传文件的按钮，label是”上传用于中介/调节效应分析的数据“，type是"csv"或"xlsx"，key是”mediation“
         medfile = st.file_uploader(label='上传用于中介/调节效应分析的数据', type=['csv', 'xlsx'], key='mediation')
-        # 放置一个st.radio, label是”选择中介/调节效应分析的方法“，options是一个列表，内容为”中介效应“和”调节效应“，key是”mediation_method“
-        med_method = st.radio(label='选择中介/调节效应分析的方法', options=['中介效应', '调节效应'], key='mediation_method')
-        # 放置一个st.multiselect, label是”选择自变量“，options是一个列表，内容为medfile中所有的列名，key是”mediation_independent“
-        med_independent = st.multiselect(label='选择自变量', options=medfile.columns, key='mediation_independent')
-        # 放置一个st.selectbox, label是”选择因变量“，options是一个列表，内容为medfile中所有的列名，key是”mediation_dependent“
-        med_dependent = st.selectbox(label='选择因变量', options=medfile.columns, key='mediation_dependent')
-        # 放置一个st.selectbox, label是”选择中介变量“，options是一个列表，内容为medfile中所有的列名，key是”mediation_mediator“
-        med_mediator = st.selectbox(label='选择中介变量', options=medfile.columns, key='mediation_mediator')
-        # 放置一个radio，label是“选择中介变量类型”，options是一个列表，内容为“连续变量”和“分类变量”，key是“mediation_mediator_type”
-        med_mediator_type = st.radio(label='选择中介变量类型', options=['连续变量', '分类变量'], key='mediation_mediator_type')
-        # 放置一个st.button, label是”开始分析“，key是”mediation_analysis“
-        if st.button(label='开始分析', key='mediation_analysis'):
-            if med_method == '中介效应':
-                if med_mediator_type == '连续变量':
-                    # X是medfile中的med_independent列，输出的结果是一个DataFrame
-                    X = medfile[med_independent]
-                    # M是medfile中的med_mediator列，输出的结果是一个DataFrame
-                    M = medfile[med_mediator]
-                    # Y是medfile中的med_dependent列，输出的结果是一个DataFrame
-                    Y = medfile[med_dependent]
-                    # 拟合中介回归模型,M是中介变量，Y是因变量，X是自变量，M是连续变量
-                    model_mediator = sm.Mediation(Y, X, M)
-                    # 输出中介回归模型的结果
-                    st.dataframe(model_mediator.summary())
-                    # 计算中介效应和总效应
-                    indirect_effect, total_effect = model_mediator.fit(n_rep=1000).summary.iloc[0, 0:2]
-                    # 输出中介效应和总效应
-                    st.dataframe(pd.DataFrame({'中介效应': indirect_effect, '总效应': total_effect}, index=['']))
-                    # 画regplot图，使用st.pyplot
-                    st.pyplot(model_mediator.plot())
-                else:
-                    # X是medfile中的med_independent列，输出的结果是一个DataFrame
-                    X = medfile[med_independent]
-                    # M是medfile中的med_mediator列，输出的结果是一个DataFrame
-                    M = medfile[med_mediator]
-                    # Y是medfile中的med_dependent列，输出的结果是一个DataFrame
-                    Y = medfile[med_dependent]
-                    # 拟合中介回归模型,M是中介变量，Y是因变量，X是自变量，M是分类变量
-                    model_mediator = sm.Mediation(Y, X, M)
-                    # 输出中介回归模型的结果
-                    st.dataframe(model_mediator.summary())
-                    # 计算中介效应和总效应
-                    indirect_effect, total_effect = model_mediator.fit(n_rep=1000).summary.iloc[0, 0:2]
-                    # 输出中介效应和总效应
-                    st.dataframe(pd.DataFrame({'中介效应': indirect_effect, '总效应': total_effect}, index=['']))
-                    # 画regplot图，使用st.pyplot
-                    st.pyplot(model_mediator.plot())
+        if medfile is not None:
+            # 放置一个st.radio, label是”选择中介/调节效应分析的方法“，options是一个列表，内容为”中介效应“和”调节效应“，key是”mediation_method“
+            med_method = st.radio(label='选择中介/调节效应分析的方法', options=['中介效应', '调节效应'], key='mediation_method')
+            # 放置一个st.multiselect, label是”选择自变量“，options是一个列表，内容为medfile中所有的列名，key是”mediation_independent“
+            med_independent = st.multiselect(label='选择自变量', options=medfile.columns, key='mediation_independent')
+            # 放置一个st.selectbox, label是”选择因变量“，options是一个列表，内容为medfile中所有的列名，key是”mediation_dependent“
+            med_dependent = st.selectbox(label='选择因变量', options=medfile.columns, key='mediation_dependent')
+            # 放置一个st.selectbox, label是”选择中介变量“，options是一个列表，内容为medfile中所有的列名，key是”mediation_mediator“
+            med_mediator = st.selectbox(label='选择中介变量', options=medfile.columns, key='mediation_mediator')
+            # 放置一个radio，label是“选择中介变量类型”，options是一个列表，内容为“连续变量”和“分类变量”，key是“mediation_mediator_type”
+            med_mediator_type = st.radio(label='选择中介变量类型', options=['连续变量', '分类变量'], key='mediation_mediator_type')
+            # 放置一个st.button, label是”开始分析“，key是”mediation_analysis“
+            if st.button(label='开始分析', key='mediation_analysis'):
+                if med_method == '中介效应':
+                    if med_mediator_type == '连续变量':
+                        # X是medfile中的med_independent列，输出的结果是一个DataFrame
+                        X = medfile[med_independent]
+                        # M是medfile中的med_mediator列，输出的结果是一个DataFrame
+                        M = medfile[med_mediator]
+                        # Y是medfile中的med_dependent列，输出的结果是一个DataFrame
+                        Y = medfile[med_dependent]
+                        # 拟合中介回归模型,M是中介变量，Y是因变量，X是自变量，M是连续变量
+                        model_mediator = sm.Mediation(Y, X, M)
+                        # 输出中介回归模型的结果
+                        st.dataframe(model_mediator.summary())
+                        # 计算中介效应和总效应
+                        indirect_effect, total_effect = model_mediator.fit(n_rep=1000).summary.iloc[0, 0:2]
+                        # 输出中介效应和总效应
+                        st.dataframe(pd.DataFrame({'中介效应': indirect_effect, '总效应': total_effect}, index=['']))
+                        # 画regplot图，使用st.pyplot
+                        st.pyplot(model_mediator.plot())
+                    else:
+                        # X是medfile中的med_independent列，输出的结果是一个DataFrame
+                        X = medfile[med_independent]
+                        # M是medfile中的med_mediator列，输出的结果是一个DataFrame
+                        M = medfile[med_mediator]
+                        # Y是medfile中的med_dependent列，输出的结果是一个DataFrame
+                        Y = medfile[med_dependent]
+                        # 拟合中介回归模型,M是中介变量，Y是因变量，X是自变量，M是分类变量
+                        model_mediator = sm.Mediation(Y, X, M)
+                        # 输出中介回归模型的结果
+                        st.dataframe(model_mediator.summary())
+                        # 计算中介效应和总效应
+                        indirect_effect, total_effect = model_mediator.fit(n_rep=1000).summary.iloc[0, 0:2]
+                        # 输出中介效应和总效应
+                        st.dataframe(pd.DataFrame({'中介效应': indirect_effect, '总效应': total_effect}, index=['']))
+                        # 画regplot图，使用st.pyplot
+                        st.pyplot(model_mediator.plot())
                     
 
             
