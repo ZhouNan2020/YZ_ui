@@ -1575,7 +1575,7 @@ class MyApp:
                         # Y是medfile中的med_dependent列，输出的结果是一个DataFrame
                         Y = medfile[med_dependent]
                         # 构建logistic回归模型，中介变量为分类变量
-                        logit_model = sm.MNLogit(M, sm.add_constant(X)).fit()
+                        logit_model = sm.ols(formula='M ~ X', data=medfile).fit()
                         # 构建中介效应模型
                         model_formula = 'Y ~ X + M'
                         mediation_model = Mediation.from_formula(model_formula, data=medfile)
