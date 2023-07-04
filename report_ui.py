@@ -1552,13 +1552,26 @@ class MyApp:
                         total_effect = model_mediator.params[1] * M.mean() + model_mediator.params[2]
                         # 输出中介效应和总效应，使用st.dataframe
                         st.dataframe(pd.DataFrame({'中介效应': [indirect_effect], '总效应': [total_effect]}))
-                        # 画图
+                        # 画图，使用st.pyplot
+                        fig1, ax = plt.subplots()
                         sns.regplot(x=M, y=Y, x_ci=None, scatter_kws={"color": "black"}, line_kws={"color": "red"})
-                        plt.xlabel("M")
-                        plt.ylabel("Y")
-                        # 图例
-                        plt.legend(["Regression Line"])
-                        plt.show()
+                        # 画出中介效应的直线
+                        ax.plot([M.min(), M.max()], [model_mediator.params[1] * M.min() + model_mediator.params[2],
+                                                        model_mediator.params[1] * M.max() + model_mediator.params[2]],
+                                    color='red')
+                        # 画出总效应的直线
+                        ax.plot([M.min(), M.max()], [model_mediator.params[1] * M.min() + model_mediator.params[2] + model_mediator.params[3],
+                                                        model_mediator.params[1] * M.max() + model_mediator.params[2] + model_mediator.params[3]],
+                                    color='green')
+                        # 设置x轴标签
+                        ax.set_xlabel('中介变量')
+                        # 设置y轴标签
+                        ax.set_ylabel('因变量')
+                        # 设置图例
+                        ax.legend(['中介效应', '总效应'])
+                        # 显示图像
+                        st.pyplot(fig1)
+
                         # 
                     else:
                         # X是medfile中的med_independent列，输出的结果是一个DataFrame
