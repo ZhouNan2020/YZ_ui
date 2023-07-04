@@ -7,6 +7,7 @@ import seaborn as sns
 from matplotlib import font_manager
 import zipfile
 import statsmodels.api as sm
+from statsmodels.stats.mediation import Mediation
 #%%
 # 设置plt中文显示和负号显示
 font = font_manager.FontProperties(fname='simhei.ttf')
@@ -1574,17 +1575,17 @@ class MyApp:
                         # Y是medfile中的med_dependent列，输出的结果是一个DataFrame
                         Y = medfile[med_dependent]
                         # 
-                        # 拟合中介效应模型，中介变量为分类变量，使用逻辑回归评价中介效应的大小和显著性，再求出中介效应
-                        # 对分类变量进行编码
-                        M = pd.get_dummies(M, drop_first=True)
-                        # 拟合逻辑回归模型
-                        model_mediator = sm.Logit(Y, sm.add_constant(X)).fit()
-                        # 计算中介效应
-                        indirect_effect = model_mediator.params[1] * M.mode()[0]
-                        # 计算总效应
-                        total_effect = model_mediator.params[1] * M.mode()[0] + model_mediator.params[2]
-                        # 输出中介效应和总效应，使用st.dataframe
-                        st.dataframe(pd.DataFrame({'中介效应': [indirect_effect], '总效应': [total_effect]}))
+                        # 构建logistic回归模型，中介变量为分类变量
+                        logit_model = sm.MNLogit(M, sm.add_constant(X)).fit()
+                        # 提取logistic回归模型的系数
+                        logit_coefs = logit_model.params
+                        # 构建中介效应模型
+                        mediation_model = Mediation(X, Y, M)
+                        mediation_results = mediation_model.fit(method='multinomial_mediation', mediator_fit_kwargs={'method': 'mnlogit'})
+                        # 输出中介效应结果
+                        st.dataframe(pd.DataFrame({'中介效应': [mediation_results.ia_results['ab']]}, index=['中介效应']))
+                        # 输出总效应结果
+                        st.dataframe(pd.DataFrame({'总效应': [mediation_results.ia_results['total']]}, index=['总效应']))
                         # 画图，使用st.pyplot
                         fig2, ax = plt.subplots()
                         sns.regplot(x=M, y=Y, x_ci=None, scatter_kws={"color": "black"}, line_kws={"color": "red"})
