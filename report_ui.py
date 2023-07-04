@@ -1575,29 +1575,18 @@ class MyApp:
                         # Y是medfile中的med_dependent列，输出的结果是一个DataFrame
                         Y = medfile[med_dependent]
                         # 
-                        # 构建logistic回归模型，中介变量为分类变量
+                        # Build logistic regression model, mediator variable is a categorical variable
                         logit_model = sm.MNLogit(M, sm.add_constant(X)).fit()
-                        # 提取logistic回归模型的系数
+                        # Extract coefficients from logistic regression model
                         logit_coefs = logit_model.params
-                        # 构建中介效应模型
-                        mediation_model = Mediation(X, Y, M)
+                        # Build mediation effect model
+                        mediation_model = Mediation(logit_model, Y, M)
                         mediation_results = mediation_model.fit(method='multinomial_mediation', mediator_fit_kwargs={'method': 'mnlogit'})
-                        # 输出中介效应结果
-                        st.dataframe(pd.DataFrame({'中介效应': [mediation_results.ia_results['ab']]}, index=['中介效应']))
-                        # 输出总效应结果
-                        st.dataframe(pd.DataFrame({'总效应': [mediation_results.ia_results['total']]}, index=['总效应']))
-                        # 画图，使用st.pyplot
-                        fig2, ax = plt.subplots()
-                        sns.regplot(x=M, y=Y, x_ci=None, scatter_kws={"color": "black"}, line_kws={"color": "red"})
-                        # 设置x轴标签(中文，fontproperties=font)
-                        plt.xlabel('中介变量', fontproperties=font)
-                        # 设置y轴标签(中文，fontproperties=font)
-                        plt.ylabel('因变量', fontproperties=font)
-                        # 设置图标题(中文，fontproperties=font)
-                        plt.title('中介效应', fontproperties=font)
-                        # 显示图像
-                        st.pyplot(fig2)
-
+                        # Output mediation effect results
+                        st.dataframe(pd.DataFrame({'Mediation effect': [mediation_results.ia_results['ab']]}, index=['Mediation effect']))
+                        # Output total effect results
+                        st.dataframe(pd.DataFrame({'Total effect': [mediation_results.ia_results['total']]}, index=['Total effect']))
+                
 
 
 
