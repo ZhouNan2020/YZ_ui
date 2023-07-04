@@ -922,6 +922,8 @@ class MyApp:
             st.write(sex_sta_df)
             # 获取tab11_basic中名为“民族”的列，赋值给一个df名为nation_df
             nation_df = tab11_basic['民族']
+            # 使用字符串“未知”替换nation_df中的空值
+            nation_df = nation_df.fillna('未知')
             # 计算nation_df中不同值的计数和占比，占比=当前值的计数/nation_df中所有值的总计数。结果放入一个df名为nation_sta_df中
             nation_count = nation_df.value_counts()
             nation_per = nation_count / len(nation_df)
@@ -1018,7 +1020,7 @@ class MyApp:
             # 将所有的nan值替换为“不详”
             for k, v in eva_dict.items():
                 eva_dict[k] = v.fillna('不详')
-                
+
             # 将eva_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为eva_df
             eva_df = pd.concat(eva_dict.values(), axis=1)
             eva_df.columns = [f'访视{i+1}' for i, col in enumerate(eva_df.columns)]
