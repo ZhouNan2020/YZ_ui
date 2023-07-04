@@ -1554,11 +1554,15 @@ class MyApp:
                         # 输出中介效应和总效应，使用st.dataframe
                         st.dataframe(pd.DataFrame({'indirect_effect': indirect_effect, 'total_effect': total_effect}, index=[0]))
                         # 画regplot图，使用st.pyplot
-                        sns.regplot(x=X, y=Y, scatter_kws={"color": "black"}, line_kws={"color": "red"})
-                        sns.regplot(x=pd.concat([X, M], axis=1), y=Y, scatter_kws={"color": "black"}, line_kws={"color": "blue"})
-                        plt.xlabel("X")
-                        plt.ylabel("Y")
-                        plt.legend(["Total Effect", "Direct Effect"])
+                        if med_mediator_type == '连续变量':
+                            sns.regplot(x=X, y=Y, scatter_kws={"color": "black"}, line_kws={"color": "red"})
+                            sns.regplot(x=pd.concat([X, M], axis=1), y=Y, scatter_kws={"color": "black"}, line_kws={"color": "blue"})
+                            plt.xlabel("X")
+                            plt.ylabel("Y")
+                            plt.legend(["Total Effect", "Direct Effect"])
+                        else:
+                            st.error('中介变量类型错误')
+
                     else:
                         # X是medfile中的med_independent列，输出的结果是一个DataFrame
                         X = medfile[med_independent]
