@@ -1544,8 +1544,8 @@ class MyApp:
                         M = medfile[med_mediator]
                         # Y是medfile中的med_dependent列，输出的结果是一个DataFrame
                         Y = medfile[med_dependent]
-                        # 拟合中介回归模型,M是中介变量，Y是因变量，X是自变量，M是连续变量
-                        model_mediator = sm.Mediation(Y, X, M)
+                        # 拟合中介回归模型,使用sm.OLS
+                        model_mediator = sm.OLS.from_formula(f'{Y.name} ~ {X.name} + {M.name} + {X.name}:{M.name}', data=medfile)
                         # 输出中介回归模型的结果
                         st.dataframe(model_mediator.summary())
                         # 计算中介效应和总效应
