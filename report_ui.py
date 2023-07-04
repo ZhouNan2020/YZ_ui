@@ -1555,12 +1555,13 @@ class MyApp:
                         # 画图，使用st.pyplot
                         fig1, ax = plt.subplots()
                         sns.regplot(x=M, y=Y, x_ci=None, scatter_kws={"color": "black"}, line_kws={"color": "red"})
-                        # 设置x轴标签
-                        ax.set_xlabel('中介变量')
-                        # 设置y轴标签
-                        ax.set_ylabel('因变量')
-                        # 设置图例
-                        ax.legend(['中介效应', '总效应'])
+                        # 设置x轴标签(中文，fontproperties=font)
+                        plt.xlabel('中介变量', fontproperties=font)
+                        # 设置y轴标签(中文，fontproperties=font)
+                        plt.ylabel('因变量', fontproperties=font)
+                        # 设置图标题(中文，fontproperties=font)
+                        plt.title('中介效应', fontproperties=font)
+                        
                         # 显示图像
                         st.pyplot(fig1)
 
