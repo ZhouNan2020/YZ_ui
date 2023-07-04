@@ -49,7 +49,7 @@ class MyApp:
         self.sidebar()
 
         tabs = ["关于","数据预览", "Chat with AI", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算','ECOG计数',"科瑞德不分组计数统计","科瑞德分组计数统计","湖南省肿瘤肝癌项目基线统计"
-                ,"湖南省肿瘤肝癌项目疗效评价计数","湖南省肿瘤肝癌项目肿瘤诊断计数","湖南省肿瘤肝癌项目血常规统计"]
+                ,"湖南省肿瘤肝癌项目疗效评价计数","湖南省肿瘤肝癌项目肿瘤诊断计数","湖南省肿瘤肝癌项目血常规统计","肝癌数据临床分期列清洗模块"]
         st.sidebar.title("导航")
         selected_tab = st.sidebar.radio("选择一个功能模块", tabs)
 
@@ -86,7 +86,8 @@ class MyApp:
             self.tab13()
         elif selected_tab == '湖南省肿瘤肝癌项目血常规统计':
             self.tab14()
-
+        elif selected_tab == '肝癌数据临床分期列清洗模块':
+            self.tab15()
             
 
     def tabintro(self):
@@ -1091,6 +1092,19 @@ class MyApp:
             # 将所有的nan值替换为“不详”
             for k, v in diagno_dict.items():
                 diagno_dict[k] = v.fillna('不详')
+            # 将值中所有的"期"字都去掉（只删除“期”字符串，不删除整个值）
+            for k, v in diagno_dict.items():
+                diagno_dict[k] = v.replace({"期": ""}, regex=True)
+            
+            # 将所有的"I","II","III","IV"替换为"Ⅰ","Ⅱ","Ⅲ","Ⅳ"
+            for k, v in diagno_dict.items():
+                diagno_dict[k] = v.replace({"I": "Ⅰ", "II": "Ⅱ", "III": "Ⅲ", "IV": "Ⅳ"})
+            # 将所有的“一”，“二”，“三”，“四”替换为“Ⅰ”，“Ⅱ”，“Ⅲ”，“Ⅳ”
+            for k, v in diagno_dict.items():
+                diagno_dict[k] = v.replace({"一": "Ⅰ", "二": "Ⅱ", "三": "Ⅲ", "四": "Ⅳ"})
+            # 将所有的“A”，“B”，“C”，“D”替换为“Ⅰ”，“Ⅱ”，“Ⅲ”，“Ⅳ”
+            for k, v in diagno_dict.items():
+                diagno_dict[k] = v.replace({"A": "Ⅰ", "B": "Ⅱ", "C": "Ⅲ", "D": "Ⅳ"})
             # 将diagno_dict中的df合并为一个df，并且按照顺序在合并后的列名前加上“访视[i]”，名为diagno_df
             diagno_df = pd.concat(diagno_dict.values(), axis=1)
             diagno_df.columns = [f'访视{i+1}' for i, col in enumerate(diagno_df.columns)]
@@ -1499,7 +1513,9 @@ class MyApp:
             st.error('请上传文件')
             
             
-
+    def tab15(self):
+        st.title('没想好，先空着')
+        # 
             
             
             
