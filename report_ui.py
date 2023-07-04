@@ -911,6 +911,8 @@ class MyApp:
             st.write(age_sta_df)
             # 获取tab11_basic中名为“性别”的列，赋值给一个df名为sex_df
             sex_df = tab11_basic['性别']
+            # 使用“未知”替换sex_df中的空值
+            sex_df = sex_df.fillna('未知')
             sex_df = sex_df.apply(lambda x: '男性' if x == '男' else ('女性' if x == '女' else x))
             # 计算sex_df中不同值的计数和占比，占比=当前值的计数/sex_df中所有值的总计数。结果放入一个df名为sex_sta_df中
             sex_count = sex_df.value_counts()
