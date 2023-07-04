@@ -1558,7 +1558,7 @@ class MyApp:
                         # 画出中介效应的直线
                         ax.plot([M.min(), M.max()], [model_mediator.params[1] * M.min() + model_mediator.params[2],
                                                         model_mediator.params[1] * M.max() + model_mediator.params[2]],
-                                    color='red')
+                                    color='blue')
                         # 画出总效应的直线
                         ax.plot([M.min(), M.max()], [model_mediator.params[1] * M.min() + model_mediator.params[2] + model_mediator.params[3],
                                                         model_mediator.params[1] * M.max() + model_mediator.params[2] + model_mediator.params[3]],
