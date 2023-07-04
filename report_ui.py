@@ -1521,6 +1521,7 @@ class MyApp:
     def tab15(self):
         
         st.title('中介效应与调节效应计算')
+        st.subheader('目前中介变量是分类变量的类型还不支持')
         # 给出一个上传文件的按钮，label是”上传用于中介/调节效应分析的数据“，type是"csv"或"xlsx"，key是”mediation“
         medfile = st.file_uploader(label='上传用于中介/调节效应分析的数据', type=['xlsx'], key='mediation')
         if medfile is not None:
