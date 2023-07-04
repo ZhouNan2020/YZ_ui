@@ -1555,14 +1555,6 @@ class MyApp:
                         # 画图，使用st.pyplot
                         fig1, ax = plt.subplots()
                         sns.regplot(x=M, y=Y, x_ci=None, scatter_kws={"color": "black"}, line_kws={"color": "red"})
-                        # 画出中介效应的直线
-                        ax.plot([M.min(), M.max()], [model_mediator.params[1] * M.min() + model_mediator.params[2],
-                                                        model_mediator.params[1] * M.max() + model_mediator.params[2]],
-                                    color='blue')
-                        # 画出总效应的直线
-                        ax.plot([M.min(), M.max()], [model_mediator.params[1] * M.min() + model_mediator.params[2] + model_mediator.params[3],
-                                                        model_mediator.params[1] * M.max() + model_mediator.params[2] + model_mediator.params[3]],
-                                    color='green')
                         # 设置x轴标签
                         ax.set_xlabel('中介变量')
                         # 设置y轴标签
