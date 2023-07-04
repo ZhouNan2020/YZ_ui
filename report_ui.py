@@ -1545,15 +1545,20 @@ class MyApp:
                         # Y是medfile中的med_dependent列，输出的结果是一个DataFrame
                         Y = medfile[med_dependent]
                         # 拟合中介回归模型,使用sm.OLS
-                        model_mediator = sm.OLS.from_formula(f'{Y.name} ~ {X.name} + {M.name} + {X.name}:{M.name}', data=medfile)
-                        # 输出中介回归模型的结果
-                        st.dataframe(model_mediator.summary())
+                        model_total = model_mediator = sm.OLS(Y, sm.add_constant(X)).fit()
+                        model_direct = sm.OLS(Y, sm.add_constant(pd.concat([X, M], axis=1))).fit()
                         # 计算中介效应和总效应
-                        indirect_effect, total_effect = model_mediator.fit(n_rep=1000).summary.iloc[0, 0:2]
-                        # 输出中介效应和总效应
-                        st.dataframe(pd.DataFrame({'中介效应': indirect_effect, '总效应': total_effect}, index=['']))
+                        indirect_effect = model_direct.params[2]
+                        direct_effect = model_total.params[1]
+                        total_effect = model_total.params[2]
+                        # 输出中介效应和总效应，使用st.dataframe
+                        st.dataframe(pd.DataFrame({'indirect_effect': indirect_effect, 'total_effect': total_effect}, index=[0]))
                         # 画regplot图，使用st.pyplot
-                        st.pyplot(model_mediator.plot())
+                        sns.regplot(x=X, y=Y, scatter_kws={"color": "black"}, line_kws={"color": "red"})
+                        sns.regplot(x=pd.concat([X, M], axis=1), y=Y, scatter_kws={"color": "black"}, line_kws={"color": "blue"})
+                        plt.xlabel("X")
+                        plt.ylabel("Y")
+                        plt.legend(["Total Effect", "Direct Effect"])
                     else:
                         # X是medfile中的med_independent列，输出的结果是一个DataFrame
                         X = medfile[med_independent]
