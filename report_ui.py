@@ -1574,14 +1574,13 @@ class MyApp:
                         M = medfile[med_mediator]
                         # Y是medfile中的med_dependent列，输出的结果是一个DataFrame
                         Y = medfile[med_dependent]
-                        # 
-                        # Build logistic regression model, mediator variable is a categorical variable
+                        # 构建logistic回归模型，中介变量为分类变量
                         logit_model = sm.MNLogit(M, sm.add_constant(X)).fit()
-                        # Extract coefficients from logistic regression model
-                        logit_coefs = logit_model.params
-                        # Build mediation effect model
-                        mediation_model = Mediation(logit_model, Y, M)
-                        mediation_results = mediation_model.fit(method='multinomial_mediation', mediator_fit_kwargs={'method': 'mnlogit'})
+                        # 构建中介效应模型
+                        model_formula = 'Y ~ X + M'
+                        mediation_model = Mediation.from_formula(model_formula, data=medfile)
+                        # 进行中介效应分析
+                        mediation_results = mediation_model.fit()
                         # Output mediation effect results
                         st.dataframe(pd.DataFrame({'Mediation effect': [mediation_results.ia_results['ab']]}, index=['Mediation effect']))
                         # Output total effect results
