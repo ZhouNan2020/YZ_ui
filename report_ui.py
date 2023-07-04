@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib import font_manager
 import zipfile
-
+import statsmodels.api as sm
 #%%
 # 设置plt中文显示和负号显示
 font = font_manager.FontProperties(fname='simhei.ttf')
@@ -1518,7 +1518,7 @@ class MyApp:
             
             
     def tab15(self):
-        import statsmodels.api as sm
+        
         st.title('中介效应与调节效应计算')
         # 给出一个上传文件的按钮，label是”上传用于中介/调节效应分析的数据“，type是"csv"或"xlsx"，key是”mediation“
         medfile = st.file_uploader(label='上传用于中介/调节效应分析的数据', type=['xlsx'], key='mediation')
