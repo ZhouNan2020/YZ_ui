@@ -1545,16 +1545,20 @@ class MyApp:
                         # Y是medfile中的med_dependent列，输出的结果是一个DataFrame
                         Y = medfile[med_dependent]
                         # 拟合中介回归模型,使用sm.OLS
-                        model_total = model_mediator = sm.OLS(Y, sm.add_constant(X)).fit()
-                        model_direct = sm.OLS(Y, sm.add_constant(pd.concat([X, M], axis=1))).fit()
-                        # 计算中介效应和总效应
-                        indirect_effect = model_direct.params[2]
-                        direct_effect = model_total.params[1]
-                        total_effect = model_total.params[2]
+                        model_mediator = sm.OLS(Y, sm.add_constant(X)).fit()
+                        # 计算中介效应
+                        indirect_effect = model_mediator.params[1] * M.mean()
+                        # 计算总效应
+                        total_effect = model_mediator.params[1] * M.mean() + model_mediator.params[2]
                         # 输出中介效应和总效应，使用st.dataframe
-                        st.dataframe(pd.DataFrame({'indirect_effect': indirect_effect, 'total_effect': total_effect}, index=[0]))
-                        # 画regplot图，使用st.pyplot
-                        sns.regplot(x=X, y=Y, ci=None)
+                        st.dataframe(pd.DataFrame({'中介效应': [indirect_effect], '总效应': [total_effect]}))
+                        # 画图
+                        sns.regplot(x=M, y=Y, x_ci=None, scatter_kws={"color": "black"}, line_kws={"color": "red"})
+                        plt.xlabel("M")
+                        plt.ylabel("Y")
+                        # 图例
+                        plt.legend(["Regression Line"])
+                        plt.show()
                         # 
                     else:
                         # X是medfile中的med_independent列，输出的结果是一个DataFrame
