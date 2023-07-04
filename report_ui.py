@@ -1573,16 +1573,35 @@ class MyApp:
                         M = medfile[med_mediator]
                         # Y是medfile中的med_dependent列，输出的结果是一个DataFrame
                         Y = medfile[med_dependent]
-                        # 拟合中介回归模型,M是中介变量，Y是因变量，X是自变量，M是分类变量
-                        model_mediator = sm.Mediation(Y, X, M)
-                        # 输出中介回归模型的结果
-                        st.dataframe(model_mediator.summary())
-                        # 计算中介效应和总效应
-                        indirect_effect, total_effect = model_mediator.fit(n_rep=1000).summary.iloc[0, 0:2]
-                        # 输出中介效应和总效应
-                        st.dataframe(pd.DataFrame({'中介效应': indirect_effect, '总效应': total_effect}, index=['']))
-                        # 画regplot图，使用st.pyplot
-                        st.pyplot(model_mediator.plot())
+                        # 
+                        # 拟合中介效应模型，中介变量为分类变量，使用逻辑回归评价中介效应的大小和显著性，再求出中介效应
+                        # 对分类变量进行编码
+                        M = pd.get_dummies(M, drop_first=True)
+                        # 拟合逻辑回归模型
+                        model_mediator = sm.Logit(Y, sm.add_constant(X)).fit()
+                        # 计算中介效应
+                        indirect_effect = model_mediator.params[1] * M.mode()[0]
+                        # 计算总效应
+                        total_effect = model_mediator.params[1] * M.mode()[0] + model_mediator.params[2]
+                        # 输出中介效应和总效应，使用st.dataframe
+                        st.dataframe(pd.DataFrame({'中介效应': [indirect_effect], '总效应': [total_effect]}))
+                        # 画图，使用st.pyplot
+                        fig2, ax = plt.subplots()
+                        sns.regplot(x=M, y=Y, x_ci=None, scatter_kws={"color": "black"}, line_kws={"color": "red"})
+                        # 设置x轴标签(中文，fontproperties=font)
+                        plt.xlabel('中介变量', fontproperties=font)
+                        # 设置y轴标签(中文，fontproperties=font)
+                        plt.ylabel('因变量', fontproperties=font)
+                        # 设置图标题(中文，fontproperties=font)
+                        plt.title('中介效应', fontproperties=font)
+                        # 显示图像
+                        st.pyplot(fig2)
+
+
+
+
+                        
+
                     
 
             
