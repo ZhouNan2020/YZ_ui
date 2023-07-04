@@ -1092,6 +1092,9 @@ class MyApp:
             # 将所有的nan值替换为“不详”
             for k, v in diagno_dict.items():
                 diagno_dict[k] = v.fillna('不详')
+            # 将所有的“-”替换为“不详”
+            for k, v in diagno_dict.items():
+                diagno_dict[k] = v.replace('-', '不详')
             # 将值中所有的"期"字都去掉（只删除“期”字符串，不删除整个值）
             for k, v in diagno_dict.items():
                 diagno_dict[k] = v.replace({"期": ""}, regex=True)
