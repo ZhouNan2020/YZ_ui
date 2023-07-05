@@ -1585,8 +1585,12 @@ class MyApp:
                         coeff_predicted_M = mediation_model.params['PreM']                                        
                         # 输出所有结果和参数，使用st.write
                         logit_summary = logit_model.summary()
+                        logit_summary_str = str(logit_summary)
                         for i in range(len(med_independent)):
-                            logit_summary = logit_summary.replace(f'X[{i+1}]', med_independent[i])
+                            logit_summary_str = logit_summary_str.replace(f'X[{i+1}]', med_independent[i])
+                        logit_summary = smf.summary.Summary()
+                        logit_summary.add_text(logit_summary_str)
+
                         st.write(logit_summary)
                         st.write(mediation_model.summary())
                         st.write(mediation_model.params)
