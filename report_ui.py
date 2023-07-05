@@ -7,7 +7,7 @@ import seaborn as sns
 from matplotlib import font_manager
 import zipfile
 import statsmodels.api as sm
-from statsmodels.stats.mediation import Mediation
+import statsmodels.formula.api as smf
 #%%
 # 设置plt中文显示和负号显示
 font = font_manager.FontProperties(fname='simhei.ttf')
@@ -1576,16 +1576,42 @@ class MyApp:
                         # Y是medfile中的med_dependent列，输出的结果是一个DataFrame
                         Y = medfile[med_dependent]
                         # 构建logistic回归模型，中介变量为分类变量
-                        logit_model = sm.ols(formula='M ~ X', data=medfile).fit()
-                        # 构建中介效应模型
-                        model_formula = 'Y ~ X + M'
-                        mediation_model = Mediation.from_formula(model_formula, data=medfile)
-                        # 进行中介效应分析
-                        mediation_results = mediation_model.fit()
-                        # Output mediation effect results
-                        st.dataframe(pd.DataFrame({'Mediation effect': [mediation_results.ia_results['ab']]}, index=['Mediation effect']))
-                        # Output total effect results
-                        st.dataframe(pd.DataFrame({'Total effect': [mediation_results.ia_results['total']]}, index=['Total effect']))
+                        # Step 1: 预测中介变量 M。由于M是二分类变量，我们使用逻辑回归
+                        logit_model = smf.logit('M ~ X', data=medfile).fit()
+                        medfile['predicted_M'] = logit_model.predict(medfile)
+                         # Step 2: 使用预测得到的 M 和 X 预测 Y，这里我们使用线性回归
+                        mediation_model = smf.ols('Y ~ predicted_M + X', data=medfile).fit()                                        
+                        # 呈现结果
+                        st.dataframe(mediation_model.summary())
+                        # 画图，使用st.pyplot
+                        fig1, ax = plt.subplots()
+                        sns.regplot(x=M, y=Y, x_ci=None, scatter_kws={"color": "black"}, line_kws={"color": "red"})
+                        # 绘制路径图
+                        coeff_X = mediation_model.params['X']
+                        coeff_predicted_M = mediation_model.params['predicted_M']
+
+                        # 创建路径图
+                        fig, ax = plt.subplots()
+
+                        # 绘制变量
+                        ax.text(0.2, 0.6, 'X', fontsize=12)
+                        ax.text(0.4, 0.6, 'predicted_M', fontsize=12)
+                        ax.text(0.7, 0.6, 'Y', fontsize=12)
+
+                        # 绘制路径
+                        ax.annotate('', xy=(0.35, 0.6), xytext=(0.25, 0.6), arrowprops=dict(arrowstyle='->'))
+                        ax.annotate('', xy=(0.65, 0.6), xytext=(0.45, 0.6), arrowprops=dict(arrowstyle='->'))
+                        ax.annotate('', xy=(0.65, 0.6), xytext=(0.25, 0.6), xycoords='data', textcoords='data', 
+                            arrowprops=dict(arrowstyle='->', linestyle='dashed'))
+
+                        # 添加系数
+                        ax.text(0.3, 0.65, f'{coeff_X:.2f}', fontsize=10)
+                        ax.text(0.5, 0.65, f'{coeff_predicted_M:.2f}', fontsize=10)
+
+                        # 删除坐标轴
+                        ax.axis('off')
+
+                        plt.show()
                 
 
 
