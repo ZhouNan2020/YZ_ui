@@ -1587,7 +1587,8 @@ class MyApp:
                         fig1, ax = plt.subplots()
                         sns.regplot(x=M, y=Y, x_ci=None, scatter_kws={"color": "black"}, line_kws={"color": "red"})
                         # 绘制路径图
-                        coeff_X = mediation_model.params['X']
+                        coeff_X = mediation_model.params[med_independent]
+
                         coeff_predicted_M = mediation_model.params['predicted_M']
 
                         # 创建路径图
@@ -1595,17 +1596,24 @@ class MyApp:
 
                         # 绘制变量
                         ax.text(0.2, 0.6, 'X', fontsize=12)
+                        for i in range(len(med_independent)):
+                            ax.text(0.2+(i+1)*0.2, 0.6, f'X{i+1}', fontsize=12)
                         ax.text(0.4, 0.6, 'predicted_M', fontsize=12)
                         ax.text(0.7, 0.6, 'Y', fontsize=12)
 
                         # 绘制路径
                         ax.annotate('', xy=(0.35, 0.6), xytext=(0.25, 0.6), arrowprops=dict(arrowstyle='->'))
+                        for i in range(len(med_independent)):
+                            ax.annotate('', xy=(0.2+(i+1)*0.2, 0.6), xytext=(0.25, 0.6), xycoords='data', textcoords='data', 
+                                arrowprops=dict(arrowstyle='->', linestyle='dashed'))
                         ax.annotate('', xy=(0.65, 0.6), xytext=(0.45, 0.6), arrowprops=dict(arrowstyle='->'))
                         ax.annotate('', xy=(0.65, 0.6), xytext=(0.25, 0.6), xycoords='data', textcoords='data', 
                             arrowprops=dict(arrowstyle='->', linestyle='dashed'))
 
                         # 添加系数
                         ax.text(0.3, 0.65, f'{coeff_X:.2f}', fontsize=10)
+                        for i in range(len(med_independent)):
+                            ax.text(0.2+(i+1)*0.2, 0.65, f'{coeff_X:.2f}', fontsize=10)
                         ax.text(0.5, 0.65, f'{coeff_predicted_M:.2f}', fontsize=10)
 
                         # 删除坐标轴
