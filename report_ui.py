@@ -1584,21 +1584,19 @@ class MyApp:
                         coeff_X = mediation_model.params[med_independent]
                         coeff_predicted_M = mediation_model.params['PreM']                                        
                         # 输出所有结果和参数，使用st.write
-                        st.write(logit_model.summary())
+                        logit_summary = logit_model.summary()
+                        for i in range(len(med_independent)):
+                            logit_summary = logit_summary.replace(f'X[{i+1}]', med_independent[i])
+                        st.write(logit_summary)
                         st.write(mediation_model.summary())
                         st.write(mediation_model.params)
+
 
                         # 输出中介效应和总效应，使用st.dataframe
                         
                         result_df1 = pd.DataFrame({'中介效应': [coeff_X * coeff_predicted_M], '总效应': [coeff_X * coeff_predicted_M + mediation_model.params["PreM"]]})
                         st.dataframe(result_df1)
-                        result_df = pd.DataFrame()
-                        for col in med_independent:
-                            result_df[f'{col}系数'] = mediation_model.params[col]
-                        result_df['中介变量系数'] = mediation_model.params['PreM']
-                        st.dataframe(result_df)
-                        indirect_effect = coeff_X * coeff_predicted_M
-                        total_effect = coeff_X * coeff_predicted_M + mediation_model.params["PreM"]
+                        
 
                         # 创建路径图
                         fig, ax = plt.subplots(figsize=(10, 5))
