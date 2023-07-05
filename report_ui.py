@@ -1613,6 +1613,18 @@ class MyApp:
                         # 删除坐标轴
                         ax.axis('off')
                         st.pyplot(fig)
+                        # 绘制散点图
+                        fig1, ax1 = plt.subplots()
+                        sns.regplot(x=medfile[med_mediator], y=medfile[med_dependent], x_ci=None, scatter_kws={"color": "black"}, line_kws={"color": "red"})
+                        # 设置x轴标签(中文，fontproperties=font)
+                        plt.xlabel('中介变量', fontproperties=font)
+                        # 设置y轴标签(中文，fontproperties=font)
+                        plt.ylabel('因变量', fontproperties=font)
+                        # 设置图标题(中文，fontproperties=font)
+                        plt.title('中介效应', fontproperties=font)
+                        # 显示图像
+                        st.pyplot(fig1)
+
 
                 
 
