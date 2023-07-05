@@ -1583,6 +1583,8 @@ class MyApp:
                         mediation_model = smf.ols(f'Y ~ PreM + {" + ".join(med_independent)}', data=medfile).fit()                                        
                         # 呈现结果
                         st.write(mediation_model.summary())
+                        # 输出中介效应和总效应，使用st.dataframe
+                        st.dataframe(pd.DataFrame({'中介效应': [indirect_effect], '总效应': [total_effect]}))
                         # 画图，使用st.pyplot
                         
                         # 绘制路径图
