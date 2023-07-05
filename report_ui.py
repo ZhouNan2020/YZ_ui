@@ -1580,17 +1580,13 @@ class MyApp:
                         logit_model = smf.logit('M ~ X', data=medfile).fit()
                         medfile['PreM'] = logit_model.predict(medfile)
                         # Step 2: 使用预测得到的 M 和 X 预测 Y，这里我们使用线性回归
-                        mediation_model = smf.ols(f'Y ~ PreM + {" + ".join(med_independent)}', data=medfile).fit()                                        
-                        # 呈现结果
+                        mediation_model = smf.ols(f'Y ~ PreM + {" + ".join(med_independent)}', data=medfile).fit()
+                        coeff_X = mediation_model.params[med_independent]
+                        coeff_predicted_M = mediation_model.params['PreM']                                        
+                        # 输出所有结果和参数，使用st.write
                         st.write(mediation_model.summary())
                         # 输出中介效应和总效应，使用st.dataframe
-                        st.dataframe(pd.DataFrame({'中介效应': [indirect_effect], '总效应': [total_effect]}))
-                        # 画图，使用st.pyplot
-                        
-                        # 绘制路径图
-                        coeff_X = mediation_model.params[med_independent]
-                        coeff_predicted_M = mediation_model.params['PreM']
-
+                        st.dataframe(pd.DataFrame({'中介效应': [coeff_X * coeff_predicted_M], '总效应': [coeff_X * coeff_predicted_M + mediation_model.params["PreM"]]}))
 
                         # 创建路径图
                         fig, ax = plt.subplots(figsize=(10, 5))
