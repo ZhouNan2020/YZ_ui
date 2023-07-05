@@ -1611,11 +1611,13 @@ class MyApp:
                         ax.annotate('', xy=(0.65, 0.6), xytext=(0.25, 0.6), xycoords='data', textcoords='data', 
                             arrowprops=dict(arrowstyle='->', linestyle='dashed'))
 
+
                         # 添加系数
-                        ax.text(0.3, 0.65, f'{coeff_X:.2f}', fontsize=10)
+                        ax.text(0.3, 0.65, f'{coeff_X[0]:.2f}', fontsize=10)
                         for i in range(len(med_independent)):
-                            ax.text(0.2+(i+1)*0.2, 0.65, f'{coeff_X:.2f}', fontsize=10)
+                            ax.text(0.2+(i+1)*0.2, 0.65, f'{coeff_X[i+1]:.2f}', fontsize=10)
                         ax.text(0.5, 0.65, f'{coeff_predicted_M:.2f}', fontsize=10)
+
 
                         # 删除坐标轴
                         ax.axis('off')
