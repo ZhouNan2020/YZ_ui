@@ -1590,7 +1590,7 @@ class MyApp:
                         coeff_predicted_M = mediation_model.params['predicted_M']
 
                         # 创建路径图
-                        fig, ax = plt.subplots()
+                        fig, ax = plt.subplots(figsize=(10, 5))
                         # 绘制变量
                         ax.text(0.2, 0.6, 'X', fontsize=12)
                         for i in range(len(med_independent)):
@@ -1614,9 +1614,7 @@ class MyApp:
                         ax.axis('off')
                         # 添加标题
                         plt.title('中介效应路径图', fontproperties=font)
-                        # 添加连线
-                        ax.annotate('', xy=(0.35, 0.6), xytext=(0.65, 0.6), arrowprops=dict(arrowstyle='->'))
-                        # 显示图像
+                        plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
                         st.pyplot(fig)
 
 
