@@ -1612,7 +1612,10 @@ class MyApp:
                         ax.text(0.5, 0.65, f'{coeff_predicted_M:.2f}', fontsize=10)
                         # 删除坐标轴
                         ax.axis('off')
+                        # 添加标题
+                        plt.title('中介效应路径图', fontproperties=font)
                         st.pyplot(fig)
+
                         # 绘制散点图
                         fig1, ax1 = plt.subplots()
                         sns.regplot(x=medfile[med_mediator], y=medfile[med_dependent], x_ci=None, scatter_kws={"color": "black"}, line_kws={"color": "red"})
