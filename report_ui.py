@@ -1596,7 +1596,7 @@ class MyApp:
                         ax.text(0.2, 0.6, 'X', fontsize=12)
                         for i in range(len(med_independent)):
                             ax.text(0.2+(i+1)*0.2, 0.6, f'X{i+1}', fontsize=12)
-                        ax.text(0.4, 0.6, 'PreM', fontsize=12)
+                        ax.text(0.4, 0.4, 'PreM', fontsize=12)
                         ax.text(0.7, 0.6, 'Y', fontsize=12)
                         # 绘制路径
                         ax.annotate('', xy=(0.35, 0.6), xytext=(0.25, 0.6), arrowprops=dict(arrowstyle='->'))
