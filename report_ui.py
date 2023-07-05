@@ -1584,7 +1584,10 @@ class MyApp:
                         coeff_X = mediation_model.params[med_independent]
                         coeff_predicted_M = mediation_model.params['PreM']                                        
                         # 输出所有结果和参数，使用st.write
+                        st.write(logit_model.summary())
                         st.write(mediation_model.summary())
+                        st.write(mediation_model.params)
+
                         # 输出中介效应和总效应，使用st.dataframe
                         
                         result_df1 = pd.DataFrame({'中介效应': [coeff_X * coeff_predicted_M], '总效应': [coeff_X * coeff_predicted_M + mediation_model.params["PreM"]]})
