@@ -1583,23 +1583,31 @@ class MyApp:
                         mediation_model = smf.ols(f'Y ~ PreM + {" + ".join(med_independent)}', data=medfile).fit()
                         coeff_X = mediation_model.params[med_independent]
                         coeff_predicted_M = mediation_model.params['PreM']                                        
-                        # 输出所有结果和参数，使用st.write
-                        logit_summary = logit_model.summary()
-                        logit_summary_str = str(logit_summary)
-                        for i in range(len(med_independent)):
-                            logit_summary_str = logit_summary_str.replace(f'X[{i+1}]', med_independent[i])
-                        logit_summary = smf.summary.Summary()
-                        logit_summary.add_text(logit_summary_str)
-
-                        st.write(logit_summary)
+                       
+                        st.write(logit_model.summary())
                         st.write(mediation_model.summary())
-                        st.write(mediation_model.params)
-
-
+                        
+                        # 计算中介效应
+                        indirect_effect = coeff_X * coeff_predicted_M
+                        # 计算总效应
+                        total_effect = coeff_X * coeff_predicted_M + mediation_model.params['PreM']
                         # 输出中介效应和总效应，使用st.dataframe
                         
-                        result_df1 = pd.DataFrame({'中介效应': [coeff_X * coeff_predicted_M], '总效应': [coeff_X * coeff_predicted_M + mediation_model.params["PreM"]]})
-                        st.dataframe(result_df1)
+                        # 建立判断分支，根据以上参数判断是否存在中介效应，如果存在，输出中介效应和总效应，如果不存在，输出“不存在中介效应”
+                        if indirect_effect != 0:
+                            print('存在中介效应')
+                            st.dataframe(pd.DataFrame({'中介效应': [indirect_effect], '总效应': [total_effect]}))
+                            # 阐述中介效应的方向
+                            if indirect_effect > 0:
+                                st.write('中介效应为正向')
+                                st.write('中介效应为正向，表示中介变量的增加会导致因变量的增加。')
+                            else:
+                                st.write('中介效应为负向')
+                                st.write('中介效应为负向，表示中介变量的增加会导致因变量的减少。')
+                        else:
+                            st.write('不存在中介效应')
+
+
                         
 
                         # 创建路径图
