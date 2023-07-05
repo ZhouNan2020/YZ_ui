@@ -1615,8 +1615,10 @@ class MyApp:
                         ax.axis('off')
                         # 添加标题
                         plt.title('中介效应路径图', fontproperties=font)
+                        plt.xlabel('PreM', fontproperties=font)
                         plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
                         st.pyplot(fig)
+
 
 
 
