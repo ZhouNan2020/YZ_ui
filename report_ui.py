@@ -1578,16 +1578,17 @@ class MyApp:
                         # 构建logistic回归模型，中介变量为分类变量
                         # Step 1: 预测中介变量 M。由于M是二分类变量，我们使用逻辑回归
                         logit_model = smf.logit('M ~ X', data=medfile).fit()
-                        medfile['predicted_M'] = logit_model.predict(medfile)
+                        medfile['PreM'] = logit_model.predict(medfile)
                         # Step 2: 使用预测得到的 M 和 X 预测 Y，这里我们使用线性回归
-                        mediation_model = smf.ols(f'Y ~ predicted_M + {" + ".join(med_independent)}', data=medfile).fit()                                        
+                        mediation_model = smf.ols(f'Y ~ PreM + {" + ".join(med_independent)}', data=medfile).fit()                                        
                         # 呈现结果
                         st.write(mediation_model.summary())
                         # 画图，使用st.pyplot
                         
                         # 绘制路径图
                         coeff_X = mediation_model.params[med_independent]
-                        coeff_predicted_M = mediation_model.params['predicted_M']
+                        coeff_predicted_M = mediation_model.params['PreM']
+
 
                         # 创建路径图
                         fig, ax = plt.subplots(figsize=(10, 5))
