@@ -1614,7 +1614,11 @@ class MyApp:
                         ax.axis('off')
                         # 添加标题
                         plt.title('中介效应路径图', fontproperties=font)
+                        # 添加连线
+                        ax.annotate('', xy=(0.35, 0.6), xytext=(0.65, 0.6), arrowprops=dict(arrowstyle='->'))
+                        # 显示图像
                         st.pyplot(fig)
+
 
                         # 绘制散点图
                         fig1, ax1 = plt.subplots()
