@@ -1582,7 +1582,7 @@ class MyApp:
                          # Step 2: 使用预测得到的 M 和 X 预测 Y，这里我们使用线性回归
                         mediation_model = smf.ols('Y ~ predicted_M + X', data=medfile).fit()                                        
                         # 呈现结果
-                        st.dataframe(mediation_model.summary())
+                        st.write(mediation_model.summary())
                         # 画图，使用st.pyplot
                         fig1, ax = plt.subplots()
                         sns.regplot(x=M, y=Y, x_ci=None, scatter_kws={"color": "black"}, line_kws={"color": "red"})
