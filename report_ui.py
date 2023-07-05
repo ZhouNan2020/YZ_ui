@@ -1587,7 +1587,9 @@ class MyApp:
                         st.write(mediation_model.summary())
                         # 输出中介效应和总效应，使用st.dataframe
                         
-                        
+                        result_df1 = pd.DataFrame({'中介效应': [coeff_X * coeff_predicted_M], '总效应': [coeff_X * coeff_predicted_M + mediation_model.params["PreM"]]})
+                        st.dataframe(result_df1)
+                        result_df = pd.DataFrame()
                         for col in med_independent:
                             result_df[f'{col}系数'] = mediation_model.params[col]
                         result_df['中介变量系数'] = mediation_model.params['PreM']
