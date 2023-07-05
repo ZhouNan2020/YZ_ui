@@ -1596,7 +1596,7 @@ class MyApp:
                         ax.text(0.2, 0.6, 'X', fontsize=12)
                         for i in range(len(med_independent)):
                             ax.text(0.2+(i+1)*0.2, 0.6, f'X{i+1}', fontsize=12)
-                        ax.text(0.4, 0.6, 'predicted_M', fontsize=12)
+                        ax.text(0.4, 0.6, 'PreM', fontsize=12)
                         ax.text(0.7, 0.6, 'Y', fontsize=12)
                         # 绘制路径
                         ax.annotate('', xy=(0.35, 0.6), xytext=(0.25, 0.6), arrowprops=dict(arrowstyle='->'))
@@ -1617,6 +1617,7 @@ class MyApp:
                         plt.title('中介效应路径图', fontproperties=font)
                         plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
                         st.pyplot(fig)
+
 
 
                         # 绘制散点图
