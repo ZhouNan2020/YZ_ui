@@ -1594,20 +1594,26 @@ class MyApp:
                         # 输出中介效应和总效应，使用st.dataframe
                         
                         # 建立判断分支，根据以上参数判断是否存在中介效应，如果存在，输出中介效应和总效应，如果不存在，输出“不存在中介效应”
-                        if indirect_effect != 0:
-                            print('存在中介效应')
-                            st.dataframe(pd.DataFrame({'中介效应': [indirect_effect], '总效应': [total_effect]}))
-                            # 阐述中介效应的方向
-                            if indirect_effect > 0:
-                                st.write('中介效应为正向')
-                                st.write('中介效应为正向，表示中介变量的增加会导致因变量的增加。')
-                            else:
-                                st.write('中介效应为负向')
-                                st.write('中介效应为负向，表示中介变量的增加会导致因变量的减少。')
-                        else:
+                        if indirect_effect.empty:
                             st.write('不存在中介效应')
-
-
+                        else:
+                            st.dataframe(pd.DataFrame({'中介效应': [indirect_effect], '总效应': [total_effect]}))
+                              # 建立判断分支，判断中介效应是否显著
+                            if mediation_model.pvalues['PreM'] < 0.05:
+                                st.write('中介效应显著')
+                                st.write('中介效应显著，表示中介变量对因变量的影响是显著的。')
+                                    # 阐述中介效应的方向
+                                if indirect_effect > 0:
+                                    st.write('中介效应为正向')
+                                    st.write('中介效应为正向，表示中介变量的增加会导致因变量的增加。')
+                                else:
+                                    st.write('中介效应为负向')
+                                    st.write('中介效应为负向，表示中介变量的增加会导致因变量的减少。')
+                            else:
+                                st.write('中介效应不显著')
+                                st.write('中介效应不显著，表示中介变量对因变量的影响是不显著的。')
+                            
+                          
                         
 
                         # 创建路径图
