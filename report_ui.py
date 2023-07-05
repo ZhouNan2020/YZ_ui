@@ -1586,7 +1586,14 @@ class MyApp:
                         # 输出所有结果和参数，使用st.write
                         st.write(mediation_model.summary())
                         # 输出中介效应和总效应，使用st.dataframe
-                        st.dataframe(pd.DataFrame({'中介效应': [coeff_X * coeff_predicted_M], '总效应': [coeff_X * coeff_predicted_M + mediation_model.params["PreM"]]}))
+                        indirect_effect = coeff_X * coeff_predicted_M
+                        total_effect = coeff_X * coeff_predicted_M + mediation_model.params["PreM"]
+                        result_df = pd.DataFrame({'中介效应': [indirect_effect], '总效应': [total_effect]})
+                        for col in med_independent:
+                            result_df[f'{col}系数'] = mediation_model.params[col]
+                        result_df['中介变量系数'] = mediation_model.params['PreM']
+                        st.dataframe(result_df)
+
 
                         # 创建路径图
                         fig, ax = plt.subplots(figsize=(10, 5))
@@ -1594,7 +1601,7 @@ class MyApp:
                         ax.text(0.2, 0.6, 'X', fontsize=12)
                         for i in range(len(med_independent)):
                             ax.text(0.2+(i+1)*0.2, 0.6, f'X{i+1}', fontsize=12)
-                        ax.text(0.4, 0.4, 'PreM', fontsize=12)
+                        ax.text(0.4, 0.55, 'PreM', fontsize=12)
                         ax.text(0.7, 0.6, 'Y', fontsize=12)
                         # 绘制路径
                         ax.annotate('', xy=(0.35, 0.6), xytext=(0.25, 0.6), arrowprops=dict(arrowstyle='->'))
