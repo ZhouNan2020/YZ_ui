@@ -310,6 +310,10 @@ if file is not None:
     # 以st.write形式呈现
     st.write(dfkm2)
 
+    st.write(tab16_6)
+    # 
+    
+    
 
 
 

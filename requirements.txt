@@ -5,3 +5,4 @@ pandas==1.4.2
 matplotlib==3.7.1
 seaborn==0.12.2
 statsmodels==0.13.5
+lifelines==0.27.7
