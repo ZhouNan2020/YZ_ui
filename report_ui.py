@@ -51,7 +51,7 @@ class MyApp:
         self.sidebar()
 
         tabs = ["关于","数据预览", "Chat with AI", "按索引筛选", "复杂分组",'划分试验组','多试验组的计数统计','哑变量转换','每周期用药人数计算','ECOG计数',"科瑞德不分组计数统计","科瑞德分组计数统计","湖南省肿瘤肝癌项目基线统计"
-                ,"湖南省肿瘤肝癌项目疗效评价计数","湖南省肿瘤肝癌项目肿瘤诊断计数","湖南省肿瘤肝癌项目血常规统计","中介效应与调节效应计算"]
+                ,"湖南省肿瘤肝癌项目疗效评价计数","湖南省肿瘤肝癌项目肿瘤诊断计数","湖南省肿瘤肝癌项目血常规统计","中介效应与调节效应计算","冬凌草项目模块1"]
         st.sidebar.title("导航")
         selected_tab = st.sidebar.radio("选择一个功能模块", tabs)
 
@@ -90,6 +90,8 @@ class MyApp:
             self.tab14()
         elif selected_tab == '中介效应与调节效应计算':
             self.tab15()
+        
+
             
 
     def tabintro(self):
@@ -1645,6 +1647,13 @@ class MyApp:
                         plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
                         st.pyplot(fig)
 
+
+
+            
+
+
+
+        
 
 
                 
