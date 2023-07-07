@@ -291,7 +291,75 @@ if file is not None:
         # 计算每个组中"谷草转氨酶(AST)"列的非空值计数、空值计数、平均值、标准差，中位数，Q1，Q3，最小值，最大值
         result = grouped['谷草转氨酶(AST)'].agg(['count', 'mean', 'std', 'median', lambda x: x.quantile(0.25), lambda x: x.quantile(0.75), 'min', 'max'])
         # 将空值计数添加到结果中
-        
+        result['null_count'] = grouped['谷草转氨酶(AST)'].apply(lambda x: x.isnull().sum())
+        # 更改result的列名为统计值对应的名字
+        result.columns = ['非空值计数', '平均值', '标准差', '中位数', 'Q1', 'Q3', '最小值', '最大值', '空值计数']
+        # 把空值计数放到第二列
+        result = result[['非空值计数', '空值计数', '平均值', '标准差', '中位数', 'Q1', 'Q3', '最小值', '最大值']]
+        # 创建一个新的df来存储检验结果
+        test_result = pd.DataFrame(columns=['检验的变量', '检验方法', '统计量', 'p值'])
+        # 使用卡方检验比较两组非空值计数和空值计数的差异
+        try:
+            chi2, p_chi2 = stats.chi2_contingency(result[['非空值计数', '空值计数']].values)[:2]
+            test_result = pd.concat([test_result, pd.DataFrame({'检验的变量': ['非空值计数和空值计数'], '检验方法': ['卡方检验'], '统计量': [chi2], 'p值': [p_chi2]})], ignore_index=True)
+        except ValueError:
+            pass
+        # 使用t检验对比原始df中两组数值的差异
+        try:
+            t, p_t = stats.ttest_ind(df[df['label'] == '试验组']['谷草转氨酶(AST)'].dropna(), df[df['label'] == '对照组']['谷草转氨酶(AST)'].dropna())
+            test_result = pd.concat([test_result, pd.DataFrame({'检验的变量': ['谷草转氨酶(AST)'], '检验方法': ['t检验'], '统计量': [t], 'p值': [p_t]})], ignore_index=True)
+        except ValueError:
+            pass
+        # 将检验结果存入新的dict中
+        result_dict_6[sheet + '_test'] = test_result
+        # 将结果存入新的dict中
+        result_dict_6[sheet] = result
+        st.write(sheet)
+        st.write(result_dict_6[sheet])
+        st.write(result_dict_6[sheet + '_test'])
+
+    # 根据”label“列的值不同进行分组计算tab16_dict_bloche中每一个df中”总胆红素（TBIL）“列的非空值计数、空值计数、平均值、标准差，中位数，Q1，Q3，最小值，最大值，形成一个新的df，存入新的dict中
+    # 创建一个新的字典来存储结果
+    result_dict_7 = {}
+    # 遍历tab16_dict_bloche中的每一个df
+    for sheet in tab16_dict_bloche.keys():
+        # 获取当前df
+        df = tab16_dict_bloche[sheet]
+        # 根据"label"列的值进行分组
+        grouped = df.groupby('label')
+        # 计算每个组中"总胆红素（TBIL）"列的非空值计数、空值计数、平均值、标准差，中位数，Q1，Q3，最小值，最大值
+        result = grouped['总胆红素（TBIL）'].agg(['count', 'mean', 'std', 'median', lambda x: x.quantile(0.25), lambda x: x.quantile(0.75), 'min', 'max'])
+        # 将空值计数添加到结果中
+        result['null_count'] = grouped['总胆红素（TBIL）'].apply(lambda x: x.isnull().sum())
+        # 更改result的列名为统计值对应的名字
+        result.columns = ['非空值计数', '平均值', '标准差', '中位数', 'Q1', 'Q3', '最小值', '最大值', '空值计数']
+        # 把空值计数放到第二列
+        result = result[['非空值计数', '空值计数', '平均值', '标准差', '中位数', 'Q1', 'Q3', '最小值', '最大值']]
+        # 创建一个新的df来存储检验结果
+        test_result = pd.DataFrame(columns=['检验的变量', '检验方法', '统计量', 'p值'])
+        # 使用卡方检验比较两组非空值计数和空值计数的差异
+        try:
+            chi2, p_chi2 = stats.chi2_contingency(result[['非空值计数', '空值计数']].values)[:2]
+            test_result = pd.concat([test_result, pd.DataFrame({'检验的变量': ['非空值计数和空值计数'], '检验方法': ['卡方检验'], '统计量': [chi2], 'p值': [p_chi2]})], ignore_index=True)
+        except ValueError:
+            pass
+        # 使用t检验对比原始df中两组数值的差异
+        try:
+            t, p_t = stats.ttest_ind(df[df['label'] == '试验组']['总胆红素（TBIL）'].dropna(), df[df['label'] == '对照组']['总胆红素（TBIL）'].dropna())
+            test_result = pd.concat([test_result, pd.DataFrame({'检验的变量': ['总胆红素（TBIL）'], '检验方法': ['t检验'], '统计量': [t], 'p值': [p_t]})], ignore_index=True)
+        except ValueError:
+            pass
+        # 将检验结果存入新的dict中
+        result_dict_7[sheet + '_test'] = test_result
+        # 将结果存入新的dict中
+        result_dict_7[sheet] = result
+        st.write(sheet)
+        st.write(result_dict_7[sheet])
+        st.write(result_dict_7[sheet + '_test'])
+
+
+    # 根据”label“列的值不同进行分组计算tab16_dict_bloche中每一个df中”总胆红素（TBIL）“列的非空值计数、空值计数、平均值、标准差，中位数，Q1，Q3，最小值，最大值，形成一个新的df，存入新的dict中
+
 
 
     

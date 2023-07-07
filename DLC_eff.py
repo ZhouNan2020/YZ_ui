@@ -314,6 +314,12 @@ if file is not None:
     # 
     
     
+    # 把tab16_6写入excel
+    tab16_6.to_excel('tab16_6.xlsx', index=False)
+    
+    # 放置一个st.download_button，下载tab16_6
+    st.download_button(label='Download tab16_6', data='tab16_6.xlsx', file_name='tab16_6.xlsx')
+
 
 
 
