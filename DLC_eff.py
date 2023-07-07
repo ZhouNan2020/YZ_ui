@@ -314,12 +314,14 @@ if file is not None:
     # 
     
     
-    # 把tab16_6写入excel
-    tab16_6.to_excel('tab16_6.xlsx', index=False)
+    with pd.ExcelWriter('tab16.xlsx') as writer:
+                tab16_6.to_excel(writer, sheet_name='tab16', index=True)
+    st.download_button(
+                    label="点击下载",
+                    data=open('tab16.xlsx', 'rb').read(),
+                    file_name='tab16.xlsx',
+                    mime='application/octet-stream')
     
-    # 放置一个st.download_button，下载tab16_6
-    st.download_button(label='Download tab16_6', data='tab16_6.xlsx', file_name='tab16_6.xlsx')
-
 
 
 

@@ -358,7 +358,12 @@ if file is not None:
         st.write(result_dict_7[sheet + '_test'])
 
 
-    # 根据”label“列的值不同进行分组计算tab16_dict_bloche中每一个df中”总胆红素（TBIL）“列的非空值计数、空值计数、平均值、标准差，中位数，Q1，Q3，最小值，最大值，形成一个新的df，存入新的dict中
+    # 根据”label“列的值不同进行分组计算tab16_dict_bloche中每一个df中”超敏C反应蛋白（hs-CRP）“列的非空值计数、空值计数、平均值、标准差，中位数，Q1，Q3，最小值，最大值，形成一个新的df，存入新的dict中
+    # 创建一个新的字典来存储结果
+    result_dict_8 = {}
+    # 遍历tab16_dict_bloche中的每一个df
+    for sheet in tab16_dict_bloche.keys():
+        # 获取当前df
 
 
 
