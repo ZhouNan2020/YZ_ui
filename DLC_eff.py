@@ -171,6 +171,9 @@ if file is not None:
     
     # 为tab16_6增加一列“治愈天数”，默认为nan
     tab16_6['治愈天数'] = np.nan
+    # 获取tab16_6中label列中值为“试验组”的行
+    
+    
 
     # 寻找tab16_6中“'咽部疼痛V1'”列不为1的行，然后按现有的列的顺序遍历该行中"咽部疼痛V1", "咽部疼痛V2", "咽部疼痛V3", "咽部疼痛V4"列的值，寻找该行值首次出现1的列，然后将该列的列名赋值给“治愈天数”列
     for idx in tab16_6.index:
@@ -196,8 +199,12 @@ if file is not None:
     # 把tab16_6中“治愈天数”和“改善天数”列中的值转换为float型
     tab16_6['治愈天数'] = tab16_6['治愈天数'].astype(float)
     tab16_6['改善天数'] = tab16_6['改善天数'].astype(float)
-     
-   
+    
+
+    
+    
+
+    st.write(tab16_6)
 
 
     tab16km1 = tab16_6.copy()
