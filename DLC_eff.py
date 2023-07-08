@@ -204,7 +204,7 @@ if file is not None:
     
     
 
-    st.write(tab16_6)
+   
 
 
     tab16km1 = tab16_6.copy()
