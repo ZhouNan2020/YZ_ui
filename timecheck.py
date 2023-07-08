@@ -7,9 +7,9 @@ import streamlit as st
 file = st.sidebar.file_uploader("上传xlsx文件", type="xlsx")
 
 data = pd.ExcelFile(file)
-data_dict = {}
+datadict = {}
 for sheet in data.sheet_names:
-    data_dict[sheet] = data.parse(sheet)
+    datadict[sheet] = data.parse(sheet)
 
 
 
