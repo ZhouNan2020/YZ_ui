@@ -61,6 +61,21 @@ if file is not None:
     for sheet in tab16data.sheet_names:
         if tab16_dict[sheet]['subject_id'].isin(dlcc['index']).any():
             tab16_dict[sheet].loc[tab16_dict[sheet]['subject_id'].isin(dlcc['index']), 'label'] = '对照组'
+
+    with pd.ExcelWriter('匹配后全数据集.xlsx') as writer:  
+        for key in tab16_dict.keys():
+            tab16_dict[key].to_excel(writer, sheet_name=key)
+    st.download_button(
+        label="Download data as Excel",
+        data=pd.read_excel('匹配后全数据集.xlsx').to_csv().encode('utf-8'),
+        file_name="匹配后全数据集.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
+
+
+
+    
     # 显示tab16_dict中的第一个key对应的dataframe
     st.subheader('6.2.人口学资料')
     # st.write('6.2.人口学资料')
@@ -747,15 +762,7 @@ if file is not None:
     st.write(data20_1)
 
 
-    with pd.ExcelWriter('匹配后全数据集.xlsx') as writer:  
-        for key in tab16_dict.keys():
-            tab16_dict[key].to_excel(writer, sheet_name=key)
-    st.download_button(
-        label="Download data as Excel",
-        data=pd.read_excel('匹配后全数据集.xlsx').to_csv().encode('utf-8'),
-        file_name="匹配后全数据集.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    )
+    
 
     
     
