@@ -102,10 +102,10 @@ if file is not None:
             elif 4 <= value <= 6.0:
                 tab16_6.loc[idx, column] = 3
             # 如果1<=值<=3，则替换为2
-            elif 1 <= value <= 3.0:
+            elif 2 <= value <= 3.0:
                 tab16_6.loc[idx, column] = 2
-            # 如果值=0，则替换为1
-            elif abs(value - 0.0) < 1e-6:  # 使用容差范围进行比较
+            # 如果值=0或值=1，则替换为1
+            elif value == 0 or value == 1:
                 tab16_6.loc[idx, column] = 1
     # tab16_6中添加一列“label”
     tab16_6['label'] = np.nan
