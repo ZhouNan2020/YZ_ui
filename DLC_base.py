@@ -747,5 +747,15 @@ if file is not None:
     st.write(data20_1)
 
 
+    with pd.ExcelWriter('匹配后全数据集.xlsx') as writer:  
+        for key in tab16_dict.keys():
+            tab16_dict[key].to_excel(writer, sheet_name=key)
+    st.download_button(
+        label="Download data as Excel",
+        data=pd.read_excel('匹配后全数据集.xlsx').to_csv().encode('utf-8'),
+        file_name="匹配后全数据集.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
     
     

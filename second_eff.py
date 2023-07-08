@@ -73,5 +73,22 @@ if file is not None:
     for key in tab16_6_dict.keys():
         tab16_6_dict[key].loc[tab16_6_dict[key]['检查结果评分'] != 0, '判断'] = '是'
         tab16_6_dict[key].loc[tab16_6_dict[key]['检查结果评分'] == 0, '判断'] = '否'
-
+    for sheet in tab16_6_dict.keys():
+        # 获取当前df
+        df_1 = tab16_6_dict[sheet]
+        grouped_1 = df_1.groupby('label')['判断']
+        stats_df_1 = pd.DataFrame({
+                '非空值计数': grouped_1.apply(lambda x: x.count()),
+                '空值计数': grouped_1.apply(lambda x: x.isnull().sum())
+                })
+        # 为两组非空值计数的差异进行卡方检验
+        if '试验组' in stats_df_1.index and '对照组' in stats_df_1.index:
+            try:
+                chi2_test_result = stats.chi2_contingency([stats_df_1.loc['试验组'], stats_df_1.loc['对照组']])
+                # 在stats_df_1中添加新的列”检验方法“，”统计量“和”p值“
+                stats_df_1['检验方法'] = '卡方检验'
+                stats_df_1['统计量'] = chi2_test_result[0]
+                stats_df_1['p值'] = chi2_test_result[1]
+            except ValueError:
+                pass
     
