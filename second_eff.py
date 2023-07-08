@@ -63,8 +63,15 @@ if file is not None:
 
     tab16_6_dict = {}
     for key in tab16_dict.keys():
-        # 包括字符串“#患者自评”但是不包括字符串“患者自评（”的key
-        if '#患者自评' in key and '患者自评（' not in key:
+        # 包括字符串“#咽部充血“但是不包括字符串“患者自评（”的key
+        if '#咽部充血' in key:
             tab16_6_dict[key] = tab16_dict[key]
-    # 获取tab16_6_dict中每一个df包含字符串“1、咽部疼痛”的列，并将这些列和当前df的”subject_id“列一起，添加到一个新的dict（tab16_6_columns）中
-    tab16_6_columns = {}
+    # 给tab_6_dict中的每个df添加一列名为”判断“，默认值为nan
+    for key in tab16_6_dict.keys():
+        tab16_6_dict[key]['判断'] = np.nan
+    # 根据tab_6_dict中每一个df的”检查结果评分“列的值填充”判断“列，如果该列值不为0，则判断列填入”是“，否则填入”否“
+    for key in tab16_6_dict.keys():
+        tab16_6_dict[key].loc[tab16_6_dict[key]['检查结果评分'] != 0, '判断'] = '是'
+        tab16_6_dict[key].loc[tab16_6_dict[key]['检查结果评分'] == 0, '判断'] = '否'
+
+    
