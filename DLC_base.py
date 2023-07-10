@@ -83,12 +83,22 @@ if file is not None:
     tab16_1 = tab16_dict['访视1筛选-基线（0天）#96603#人口学资料']
     # 从tab16dict中读取名为“访视1筛选-基线（0天）#96602#知情同意”的sheet,保存为一个dataframe
     tab16_1_1 = tab16_dict['访视1筛选-基线（0天）#96602#知情同意']
-    # 将tab16_1中的“出生日期”列的值转换为datetime格式，只保留年
+    # tab16_1中的“出生日期”列的值转换为datetime格式，只保留年
     tab16_1['出生日期'] = pd.to_datetime(tab16_1['出生日期']).dt.year
     # 将tab16_1_1中的“签署知情同意书日期”列的值转换为datetime格式，只保留年
     tab16_1_1['知情同意书签署日期'] = pd.to_datetime(tab16_1_1['知情同意书签署日期']).dt.year
-    # 使用tab16_1_1中的“签署知情同意书日期”列的值减去tab16_1中的“出生日期”列的值，得到“age”列，表示年龄
-    tab16_1['age'] = tab16_1_1['知情同意书签署日期'] - tab16_1['出生日期']
+    
+    # 获取tab16_1中“出生日期”列和subject_id列,label列,存入df_x  
+    df_x = tab16_1[['出生日期', 'subject_id', 'label']]
+    # 获取tab16_1_1中“签署知情同意书日期”列和subject_id列,存入df_y
+    df_y = tab16_1_1[['知情同意书签署日期', 'subject_id']]
+    # 按照subject_id列的对应关系，横向合并df_x和df_y，存入df_xy
+    df_xy = pd.merge(df_x, df_y, on='subject_id')
+    # 将df_xy中的“出生日期”列的值减去“签署知情同意书日期”列的值，得到“age”列，表示年龄
+    df_xy['age'] = df_xy['知情同意书签署日期'] - df_xy['出生日期']
+    # 将df_xy中的“age”列的值转换为int格式
+    df_xy['age'] = df_xy['age'].astype(int)
+    data1 = df_xy[['subject_id', 'age', 'label']]
     # 按照label列值的不同，分别求出tab16_1中“age”列的非空值计数、空值计数，平均值，中位数，Q1，Q3，最小值，最大值，存入一个dataframe中，命名为data1
     data1 = pd.DataFrame()
     data1['非空值计数'] = tab16_1.groupby('label')['age'].apply(lambda x: x.count())
@@ -103,7 +113,7 @@ if file is not None:
     # 展示出data1中的age列的空值以及空值对应的subject_id和label
     st.write('age列的空值：')
     st.write(tab16_1[tab16_1['age'].isnull()][['subject_id', 'label']])
-    
+
     # 为data1添加试验组和对照组，作为index
     data1.index = ['对照组', '试验组']
     data1 = data1.T
