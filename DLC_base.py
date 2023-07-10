@@ -101,7 +101,7 @@ if file is not None:
     data1['最小值'] = tab16_1.groupby('label')['age'].apply(lambda x: x.min())
     data1['最大值'] = tab16_1.groupby('label')['age'].apply(lambda x: x.max())
     # 为data1添加试验组和对照组，作为index
-    data1.index = ['试验组', '对照组']
+    data1.index = ['对照组', '试验组']
     data1 = data1.T
     # data1添加“检验方法”，“统计量”，“p值”三列
     data1['检验方法'] = np.nan
@@ -135,7 +135,7 @@ if file is not None:
     data2['男占比'] = (data2['男'] / data2['非空值计数'] * 100).apply(lambda x: '{0:.2f}%'.format(x))
     data2['女占比'] = (data2['女'] / data2['非空值计数'] * 100).apply(lambda x: '{0:.2f}%'.format(x))
     # 为data2添加试验组和对照组，作为index
-    data2.index = ['试验组', '对照组']
+    data2.index = ['对照组', '试验组']
     data2 = data2.T
     # data2添加“检验方法”，“统计量”，“p值”三列
     data2['检验方法'] = np.nan
@@ -164,7 +164,7 @@ if file is not None:
     data3['汉族占比'] = (data3['汉'] / data3['非空值计数'] * 100).apply(lambda x: '{0:.2f}%'.format(x))
     data3['其他占比'] = (data3['其他'] / data3['非空值计数'] * 100).apply(lambda x: '{0:.2f}%'.format(x))
     # 为data3添加试验组和对照组，作为index
-    data3.index = ['试验组', '对照组']
+    data3.index = ['对照组', '试验组'']
     data3 = data3.T
     # data3添加“检验方法”，“统计量”，“p值”三列
     data3['检验方法'] = np.nan
@@ -192,7 +192,7 @@ if file is not None:
     data4['最小值'] = tab16_1.groupby('label')['身高'].apply(lambda x: x.min())
     data4['最大值'] = tab16_1.groupby('label')['身高'].apply(lambda x: x.max())
     # 为data4添加试验组和对照组，作为index
-    data4.index = ['试验组', '对照组']
+    data4.index = ['对照组', '试验组'']
     data4 = data4.T
     # data4添加“检验方法”，“统计量”，“p值”三列
     data4['检验方法'] = np.nan
@@ -228,7 +228,7 @@ if file is not None:
     data5['最小值'] = tab16_1.groupby('label')['体重'].apply(lambda x: x.min())
     data5['最大值'] = tab16_1.groupby('label')['体重'].apply(lambda x: x.max())
     # 为data5添加试验组和对照组，作为index
-    data5.index = ['试验组', '对照组']
+    data5.index = ['对照组', '试验组'']
     data5 = data5.T
     # data5添加“检验方法”，“统计量”，“p值”三列
     data5['检验方法'] = np.nan
@@ -264,7 +264,7 @@ if file is not None:
     data6['最小值'] = tab16_1.groupby('label')['BMI'].apply(lambda x: x.min())
     data6['最大值'] = tab16_1.groupby('label')['BMI'].apply(lambda x: x.max())
     # 为data6添加试验组和对照组，作为index
-    data6.index = ['试验组', '对照组']
+    data6.index = ['对照组', '试验组'']
     data6 = data6.T
     # data6添加“检验方法”，“统计量”，“p值”三列
     data6['检验方法'] = np.nan
@@ -301,7 +301,7 @@ if file is not None:
     data7['非否计数'] = tab16_2.groupby('label')['是否有过饮酒史？'].apply(lambda x: x[x != '否'].count())
     data7['非否占比'] = tab16_2.groupby('label')['是否有过饮酒史？'].apply(lambda x: x[x != '否'].count() / x.count())
     # 为data7添加试验组和对照组，作为index
-    data7.index = ['试验组', '对照组']
+    data7.index = ['对照组', '试验组'']
     # 转置
     data7 = data7.T
     # data7添加“检验方法”，“统计量”，“p值”三列
@@ -324,7 +324,7 @@ if file is not None:
     data8 = pd.DataFrame()
     data8['非空值计数'] = tab16_2.groupby('label')['是否戒酒？'].apply(lambda x: x.count())
     data8['空值计数'] = tab16_2.groupby('label')['是否戒酒？'].apply(lambda x: x.isnull().sum())
-    data8.index = ['试验组', '对照组']
+    data8.index = ['对照组', '试验组'']
     # 卡方检验计算”是否戒酒？“列中不同组计数的卡方值和p值
     data8['检验方法'] = '卡方检验'
     data8['统计量'] = stats.chi2_contingency(pd.crosstab(tab16_2['label'], tab16_2['是否戒酒？'].notnull()))[0]
@@ -361,7 +361,7 @@ if file is not None:
     data9['Q3'] = tab16_2.groupby('label')['请详述戒酒年限'].apply(lambda x: x.quantile(0.75))
     data9['最小值'] = tab16_2.groupby('label')['请详述戒酒年限'].apply(lambda x: x.min())
     data9['最大值'] = tab16_2.groupby('label')['请详述戒酒年限'].apply(lambda x: x.max())
-    data9.index = ['试验组', '对照组']
+    data9.index = ['对照组', '试验组'']
     # 转置
     data9 = data9.T
     # data9添加“检验方法”，“统计量”，“p值”三列
@@ -390,7 +390,7 @@ if file is not None:
     data10['Q3'] = tab16_2.groupby('label')['饮酒年限'].apply(lambda x: x.quantile(0.75))
     data10['最小值'] = tab16_2.groupby('label')['饮酒年限'].apply(lambda x: x.min())
     data10['最大值'] = tab16_2.groupby('label')['饮酒年限'].apply(lambda x: x.max())
-    data10.index = ['试验组', '对照组']
+    data10.index = ['对照组', '试验组'']
     # 转置
     data10 = data10.T
     # data10添加“检验方法”，“统计量”，“p值”三列
@@ -422,7 +422,7 @@ if file is not None:
     data11['Q3'] = tab16_2.groupby('label')['请详述饮酒量'].apply(lambda x: x.quantile(0.75))
     data11['最小值'] = tab16_2.groupby('label')['请详述饮酒量'].apply(lambda x: x.min())
     data11['最大值'] = tab16_2.groupby('label')['请详述饮酒量'].apply(lambda x: x.max())
-    data11.index = ['试验组', '对照组']
+    data11.index = ['对照组', '试验组'']
     # 转置
     data11 = data11.T
     # data11添加“检验方法”，“统计量”，“p值”三列
@@ -455,7 +455,7 @@ if file is not None:
     data12['非否计数'] = tab16_3.groupby('label')['是否有过吸烟史？'].apply(lambda x: x[x != '否'].count())
     data12['非否占比'] = tab16_3.groupby('label')['是否有过吸烟史？'].apply(lambda x: x[x != '否'].count() / x.count())
     # 为data12添加试验组和对照组，作为index
-    data12.index = ['试验组', '对照组']
+    data12.index = ['对照组', '试验组'']
     # 转置
     data12 = data12.T
     # data12添加“检验方法”，“统计量”，“p值”三列
@@ -478,7 +478,7 @@ if file is not None:
     data13 = pd.DataFrame()
     data13['非空值计数'] = tab16_3.groupby('label')['是否戒烟？'].apply(lambda x: x.count())
     data13['空值计数'] = tab16_3.groupby('label')['是否戒烟？'].apply(lambda x: x.isnull().sum())
-    data13.index = ['试验组', '对照组']
+    data13.index = ['对照组', '试验组'']
     # 卡方检验计算”是否戒酒？“列中不同组计数的卡方值和p值
     data13['检验方法'] = '卡方检验'
     data13['统计量'], data13['p值'] = stats.chi2_contingency(pd.crosstab(tab16_3['label'], tab16_3['是否戒烟？'].notnull()))[:2]
@@ -514,7 +514,7 @@ if file is not None:
     data14['Q3'] = tab16_3.groupby('label')['请详述戒烟年限'].apply(lambda x: x.quantile(0.75))
     data14['最小值'] = tab16_3.groupby('label')['请详述戒烟年限'].apply(lambda x: x.min())
     data14['最大值'] = tab16_3.groupby('label')['请详述戒烟年限'].apply(lambda x: x.max())
-    data14.index = ['试验组', '对照组']
+    data14.index = ['对照组', '试验组'']
     # 转置
     data14 = data14.T
     # data14添加“检验方法”，“统计量”，“p值”三列
@@ -543,7 +543,7 @@ if file is not None:
     data14['Q3'] = tab16_3.groupby('label')['吸烟年限'].apply(lambda x: x.quantile(0.75))
     data14['最小值'] = tab16_3.groupby('label')['吸烟年限'].apply(lambda x: x.min())
     data14['最大值'] = tab16_3.groupby('label')['吸烟年限'].apply(lambda x: x.max())
-    data14.index = ['试验组', '对照组']
+    data14.index = ['对照组', '试验组'']
     # 转置
     data14 = data14.T
     # data14添加“检验方法”，“统计量”，“p值”三列
@@ -574,7 +574,7 @@ if file is not None:
     data15['Q3'] = tab16_3.groupby('label')['请详述吸烟量'].apply(lambda x: x.quantile(0.75))
     data15['最小值'] = tab16_3.groupby('label')['请详述吸烟量'].apply(lambda x: x.min())
     data15['最大值'] = tab16_3.groupby('label')['请详述吸烟量'].apply(lambda x: x.max())
-    data15.index = ['试验组', '对照组']
+    data15.index = ['对照组', '试验组'']
     # 转置
     data15 = data15.T
     # data15添加“检验方法”，“统计量”，“p值”三列
@@ -599,7 +599,7 @@ if file is not None:
     data16 = pd.DataFrame()
     data16['非空值计数'] = tab16_4.groupby('label')['是否有过敏史？'].apply(lambda x: x.count())
     data16['空值计数'] = tab16_4.groupby('label')['是否有过敏史？'].apply(lambda x: x.isnull().sum())
-    data16.index = ['试验组', '对照组']
+    data16.index = ['对照组', '试验组'']
     # 添加“检验方法”，“统计量”，“p值”三列
     data16['检验方法'] = np.nan
     data16['统计量'] = np.nan
@@ -628,7 +628,7 @@ if file is not None:
     data17 = pd.DataFrame()
     data17['非空值计数'] = tab16_4.groupby('label')['药物过敏？'].apply(lambda x: x.count())
     data17['空值计数'] = tab16_4.groupby('label')['药物过敏？'].apply(lambda x: x.isnull().sum())
-    data17.index = ['试验组', '对照组']
+    data17.index = ['对照组', '试验组'']
     # 添加“检验方法”，“统计量”，“p值”三列
     data17['检验方法'] = np.nan
     data17['统计量'] = np.nan
@@ -663,7 +663,7 @@ if file is not None:
     data18 = pd.DataFrame()
     data18['非空值计数'] = tab16_4.groupby('label')['食物过敏？'].apply(lambda x: x.count())
     data18['空值计数'] = tab16_4.groupby('label')['食物过敏？'].apply(lambda x: x.isnull().sum())
-    data18.index = ['试验组', '对照组']
+    data18.index = ['对照组', '试验组'']
     # 添加“检验方法”，“统计量”，“p值”三列
     data18['检验方法'] = np.nan
     data18['统计量'] = np.nan
@@ -698,7 +698,7 @@ if file is not None:
     data19 = pd.DataFrame()
     data19['非空值计数'] = tab16_4.groupby('label')['其他过敏史？'].apply(lambda x: x.count())
     data19['空值计数'] = tab16_4.groupby('label')['其他过敏史？'].apply(lambda x: x.isnull().sum())
-    data19.index = ['试验组', '对照组']
+    data19.index = ['对照组', '试验组'']
     # 添加“检验方法”，“统计量”，“p值”三列
     data19['检验方法'] = np.nan
     data19['统计量'] = np.nan  
@@ -735,7 +735,7 @@ if file is not None:
     data20 = pd.DataFrame()
     data20['非空值计数'] = tab16_5.groupby('label')['是否有过药物滥用史？'].apply(lambda x: x.count())
     data20['空值计数'] = tab16_5.groupby('label')['是否有过药物滥用史？'].apply(lambda x: x.isnull().sum())
-    data20.index = ['试验组', '对照组']
+    data20.index = ['对照组', '试验组'']
     # 添加“检验方法”，“统计量”，“p值”三列
     data20['检验方法'] = np.nan
     data20['统计量'] = np.nan
