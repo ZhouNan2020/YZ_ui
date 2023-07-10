@@ -5,8 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib import font_manager
 from scipy import stats
-from lifelines import KaplanMeierFitter
-from lifelines.statistics import logrank_test
+
 #%%
 font = font_manager.FontProperties(fname='simhei.ttf')
 
@@ -162,6 +161,13 @@ if file is not None:
     tab16_result['有效比例'] = (tab16_result['有效'] / tab16_result['总数']).apply(lambda x: '{:.2%}'.format(x))
     tab16_result['无效比例'] = (tab16_result['无效'] / tab16_result['总数']).apply(lambda x: '{:.2%}'.format(x))
     tab16_result['空值比例'] = (tab16_result['空值'] / tab16_result['总数']).apply(lambda x: '{:.2%}'.format(x))
+    # 使用卡方检验对比tab16_result_4中两行在“有效”和“无效”两列的卡方值和P值
+    chi2, p, _, _ = stats.chi2_contingency(tab16_result[['有效', '无效']])
+
+    # 在tab16_result_4中增加两个新列存储卡方值和P值
+    tab16_result['卡方值'] = chi2
+    tab16_result['P值'] = p
+    
     st.markdown('## 咽部充血')
     st.write(tab16_result)
 
@@ -243,9 +249,128 @@ if file is not None:
     result['对照组占比'] = result['对照组'] / result['对照组'].sum()
     result['试验组空值'] = tab16_for2[(tab16_for2['label'] == '试验组') & (tab16_for2['疗效'].isna())].shape[0]
     result['对照组空值'] = tab16_for2[(tab16_for2['label'] == '对照组') & (tab16_for2['疗效'].isna())].shape[0]
+    # Extract the '有效' and '无效' rows from the 'result' DataFrame
+    valid_rows = result.loc[['有效', '无效'], ['试验组', '对照组']]
+    # Create a new DataFrame 'df' to store the four-grid table
+    df = pd.DataFrame(valid_rows)
+    df = df.T
+    # 使用卡方检验对比df中两行在“有效”和“无效”两列的卡方值和P值
+    chi2, p, _, _ = stats.chi2_contingency(df[['有效', '无效']])
+    # 在result中增加两个新列存储卡方值和P值
+    result['卡方值'] = chi2
+    result['P值'] = p
     st.write('## 扁桃体肿大')
     st.write(result)
-    st.write(tab16_for2)
+    
+
+#%%
+    tab16_for3_dict = {}
+    for key in tab16_dict.keys():
+        # 包括字符串“#患者自评”但是不包括字符串“患者自评（”的key
+        if '#患者自评' in key and '患者自评（' not in key:
+            tab16_for3_dict[key] = tab16_dict[key]
+    tab16_for3_col_dict = {}
+    # 遍历tab16_dict_self中的每一个df
+    for sheet in tab16_for3_dict.keys():
+        # 获取当前df中列名中包含字符串”声音嘶哑“的列,和df中的subject_id列一起，存入字典中
+        tab16_for3_col_dict[sheet] = tab16_for3_dict[sheet][['subject_id'] + [col for col in tab16_for3_dict[sheet].columns if '声音嘶哑' in col]]
+
+    # 设置tab16_for3_col_dict中的每一个df的索引为subject_id
+    for key in tab16_for3_col_dict.keys():
+        tab16_for3_col_dict[key].set_index('subject_id', inplace=True)
+    # 将字典中的df合并为一个df，按照索引一一对应
+    tab16_for3 = pd.concat(tab16_for3_col_dict.values(), axis=1)
+    # 重新整理tab16_for3的列名为”声音嘶哑V{i}“
+    tab16_for3.columns = ['声音嘶哑V' + str(i) for i in range(1, tab16_for3.shape[1] + 1)]
+    # 如果tab16_6的值中包括字符串“分”，则删掉这个字符串
+    tab16_for3 = tab16_for3.replace('分', '', regex=True)
+    # 将tab16_6中的值转换为float类型
+    tab16_for3 = tab16_for3.astype(float)
+    for column in tab16_for3.columns:
+        for idx in tab16_for3.index:
+            value = tab16_for3.loc[idx, column]
+            # 如果值为nan，则跳过
+            if np.isnan(value):
+                pass
+            # 如果7<=值<=10，则替换为4
+            elif 7 <= value <= 10.0:
+                tab16_for3.loc[idx, column] = 4
+            # 如果4<=值<=6，则替换为3
+            elif 4 <= value <= 6.0:
+                tab16_for3.loc[idx, column] = 3
+            # 如果1<=值<=3，则替换为2
+            elif 1 <= value <= 3.0:
+                tab16_for3.loc[idx, column] = 2
+            # 如果值=0，则替换为1
+            elif value == 0:
+                tab16_for3.loc[idx, column] = 1
+    # tab16_6中添加一列“label”
+    tab16_for3['label'] = np.nan
+    # 如果tab16_6中的subject_id列的值出现在dlct的列名为"index"的列中，则在tab16_6中该subject_id对应的行的label列中填入"试验组"
+    for index in dlct['index']:
+        if index in tab16_for3.index:
+            tab16_for3['label'][index] = '试验组'
+    # 如果tab16_6中的subject_id列的值出现在dlcc的列名为"index"的列中，则在tab16_6中该subject_id对应的行的label列中填入"对照组"
+    for index in dlcc['index']:
+        if index in tab16_for3.index:
+            tab16_for3['label'][index] = '对照组'
+
+    # tab16_6增加一列”d2delta",值为"咽部疼痛D2"-"咽部疼痛D1"，如果"咽部疼痛D2"或"咽部疼痛D1"为空，则"d2delta"为空
+    tab16_for3['d2delta'] = tab16_for3['声音嘶哑V2'] - tab16_for3['声音嘶哑V1']
+    # tab16_6增加一列”d3delta",值为"咽部疼痛D3"-"咽部疼痛D1"，如果"咽部疼痛D3"或"咽部疼痛D1"为空，则"d3delta"为空
+    tab16_for3['d3delta'] = tab16_for3['声音嘶哑V3'] - tab16_for3['声音嘶哑V1']
+    # tab16_6增加一列”d4delta",值为"咽部疼痛D4"-"咽部疼痛D1"，如果"咽部疼痛D4"或"咽部疼痛D1"为空，则"d4delta"为空
+    tab16_for3['d4delta'] = tab16_for3['声音嘶哑V4'] - tab16_for3['声音嘶哑V1']
+    # 给tab16_6添加一列“疗效”，默认为nan
+    tab16_for3['疗效'] = np.nan
+    # 如果tab16_for3中的“d2delta”列的值为<0，但是'声音嘶哑V4'列的值不为1，则在tab16_for3中该行的“疗效”列中填入“改善”
+    for idx in tab16_for3.index:
+        if tab16_for3['d2delta'][idx] < 0 and tab16_for3['声音嘶哑V4'][idx] != 1:
+            tab16_for3['疗效'][idx] = '改善'
+    # 如果如果tab16_for3中'声音嘶哑V4'列的值为1，且”声音嘶哑V1"列的值不为1，则在tab16_for3中该行的“疗效”列中填入“治愈”
+    for idx in tab16_for3.index:
+        if tab16_for3['声音嘶哑V4'][idx] == 1 and tab16_for3['声音嘶哑V1'][idx] != 1:
+            tab16_for3['疗效'][idx] = '治愈'
+    # 如果tab16_for3中的'声音嘶哑V4'列的值>'声音嘶哑V1'列的值并且'd4delta'列的值＞0，或'声音嘶哑V4'列的值=='声音嘶哑V1'列的值并且'd4delta'列的值==0，则在tab16_for3中该行的“疗效”列中填入“无效”
+    for idx in tab16_for3.index:
+        if (tab16_for3['声音嘶哑V4'][idx] > tab16_for3['声音嘶哑V1'][idx] and tab16_for3['d4delta'][idx] > 0) or (tab16_for3['声音嘶哑V4'][idx] == tab16_for3['声音嘶哑V1'][idx] and tab16_for3['d4delta'][idx] == 0):
+            tab16_for3['疗效'][idx] = '无效'
+
+    
+    # 将tab16_for3中疗效列的“改善”和“治愈”替换为“有效”，其余值替换为“无效”（不替换空值）
+    tab16_for3['疗效'].replace(['改善', '治愈'], '有效', inplace=True)
+    # 根据tab16_for3中的“label”列的值不同，计算“疗效”列中值==”有效”的个数
+    effective = tab16_for3[tab16_for3['疗效'] == '有效'].groupby('label').count()['疗效']
+    # 根据tab16_for3中的“label”列的值不同，计算“疗效”列中值！=”有效”的非空值个数
+    ineffective = tab16_for3[tab16_for3['疗效'].notna() & (tab16_for3['疗效'] != '有效')].groupby('label').count()['疗效']
+    # 根据tab16_for3中的“label”列的值不同，计算“疗效”列中的空值个数
+    null_values = tab16_for3[tab16_for3['疗效'].isna()].groupby('label').size()
+    # 将effective、ineffective、null_values合并为一个DataFrame
+    tab16_result_4 = pd.concat([effective, ineffective, null_values], axis=1)
+    # 重命名列名
+    tab16_result_4.columns = ['有效', '无效', '空值']
+
+    # Calculate the total for each row (label) as the sum of '有效', '无效', and '空值'
+    tab16_result_4['总数'] = tab16_result_4.sum(axis=1)
+    # Calculate the proportion of '有效', '无效', and '空值' for each row (label) and convert it to percentage format
+    tab16_result_4['有效比例'] = (tab16_result_4['有效'] / tab16_result_4['总数']).apply(lambda x: '{:.2%}'.format(x))
+    tab16_result_4['无效比例'] = (tab16_result_4['无效'] / tab16_result_4['总数']).apply(lambda x: '{:.2%}'.format(x))
+    tab16_result_4['空值比例'] = (tab16_result_4['空值'] / tab16_result_4['总数']).apply(lambda x: '{:.2%}'.format(x))
+    
+
+    # 使用卡方检验对比tab16_result_4中两行在“有效”和“无效”两列的卡方值和P值
+    chi2, p, _, _ = stats.chi2_contingency(tab16_result_4[['有效', '无效']])
+
+    # 在tab16_result_4中增加两个新列存储卡方值和P值
+    tab16_result_4['卡方值'] = chi2
+    tab16_result_4['P值'] = p
+    
+    st.markdown('## 声音嘶哑')
+    st.write(tab16_result_4)
+    
+        
+
+     
 
 
     

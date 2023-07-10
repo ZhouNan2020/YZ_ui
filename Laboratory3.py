@@ -5,8 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib import font_manager
 from scipy import stats
-from lifelines import KaplanMeierFitter
-from lifelines.statistics import logrank_test
+
 #%%
 font = font_manager.FontProperties(fname='simhei.ttf')
 
@@ -115,7 +114,7 @@ if file is not None:
             st.write(test_result)
 
 
-    st.markdown('## 声音嘶哑')
+    st.markdown('## 咽干')
     
     # 遍历tab16_dict_self中的每一个df
     for sheet in tab16_dict_self.keys():
