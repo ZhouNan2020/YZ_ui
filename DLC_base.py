@@ -98,7 +98,9 @@ if file is not None:
     df_xy['age'] = df_xy['知情同意书签署日期'] - df_xy['出生日期']
     # 将df_xy中的“age”列的值转换为int格式
     df_xy['age'] = df_xy['age'].astype(int)
-    data1 = df_xy[['subject_id', 'age', 'label']]
+    # 将df_xy中的“age”列合并到tab16_dict['访视1筛选-基线（0天）#96603#人口学资料']中，按照subject_id列的对应关系
+    tab16_1 = pd.merge(tab16_1, df_xy[['subject_id', 'age']], on='subject_id')
+    
     # 按照label列值的不同，分别求出tab16_1中“age”列的非空值计数、空值计数，平均值，中位数，Q1，Q3，最小值，最大值，存入一个dataframe中，命名为data1
     data1 = pd.DataFrame()
     data1['非空值计数'] = tab16_1.groupby('label')['age'].apply(lambda x: x.count())
