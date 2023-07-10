@@ -19,7 +19,7 @@ file = st.sidebar.file_uploader("上传xlsx文件", type="xlsx")
 
 
 #%%
-
+st.error('目前的筛选文件中包括S01-003,这个病例只在前三个访视存在，所以目前涉及到V4的数据先不要填，填完V1-V3的之后，我把003患者加进去，再填V4的数据。')
 if file is not None:
     tab16data = pd.ExcelFile(file)
     tab16_dict = {}

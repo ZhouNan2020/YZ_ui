@@ -17,6 +17,7 @@ parameters = {'xtick.labelsize': 20,
 plt.rcParams.update(parameters)
 #%%
 # 在st.sidebar中添加一个按钮，用于上传xlsx的文件
+st.error('目前的筛选文件中包括S01-003,这个病例只在前三个访视存在，所以目前涉及到V4的数据先不要填，填完V1-V3的之后，我把003患者加进去，再填V4的数据。')
 file = st.sidebar.file_uploader("上传xlsx文件", type="xlsx")
 if file is not None:
     tab16data = pd.ExcelFile(file)
@@ -240,7 +241,9 @@ if file is not None:
     result['试验组占比'] = result['试验组'] / result['试验组'].sum()
     result['对照组'] = tab16_for2[tab16_for2['label'] == '对照组']['疗效'].value_counts()
     result['对照组占比'] = result['对照组'] / result['对照组'].sum()
-
+    result['试验组空值'] = tab16_for2[(tab16_for2['label'] == '试验组') & (tab16_for2['疗效'].isna())].shape[0]
+    result['对照组空值'] = tab16_for2[(tab16_for2['label'] == '对照组') & (tab16_for2['疗效'].isna())].shape[0]
+    st.write('## 扁桃体肿大')
     st.write(result)
     st.write(tab16_for2)
 

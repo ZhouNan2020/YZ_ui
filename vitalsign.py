@@ -16,6 +16,7 @@ parameters = {'xtick.labelsize': 20,
               'axes.unicode_minus':False}
 plt.rcParams.update(parameters)
 #%%
+st.error('目前的筛选文件中包括S01-003,这个病例只在前三个访视存在，所以目前涉及到V4的数据先不要填，填完V1-V3的之后，我把003患者加进去，再填V4的数据。')
 # 在st.sidebar中添加一个按钮，用于上传xlsx的文件
 file = st.sidebar.file_uploader("上传xlsx文件", type="xlsx")
 if file is not None:
