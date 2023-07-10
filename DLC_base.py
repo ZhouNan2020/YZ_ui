@@ -100,6 +100,10 @@ if file is not None:
     data1['Q3'] = tab16_1.groupby('label')['age'].apply(lambda x: x.quantile(0.75))
     data1['最小值'] = tab16_1.groupby('label')['age'].apply(lambda x: x.min())
     data1['最大值'] = tab16_1.groupby('label')['age'].apply(lambda x: x.max())
+    # 展示出data1中的age列的空值以及空值对应的subject_id和label
+    st.write('age列的空值：')
+    st.write(tab16_1[tab16_1['age'].isnull()][['subject_id', 'label']])
+    
     # 为data1添加试验组和对照组，作为index
     data1.index = ['对照组', '试验组']
     data1 = data1.T
