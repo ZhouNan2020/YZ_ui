@@ -100,7 +100,7 @@ if file is not None:
     df_xy['age'] = df_xy['age'].astype(int)
     # 将df_xy中的“age”列合并到tab16_dict['访视1筛选-基线（0天）#96603#人口学资料']中，按照subject_id列的对应关系
     tab16_1 = pd.merge(tab16_1, df_xy[['subject_id', 'age']], on='subject_id')
-    
+
     # 按照label列值的不同，分别求出tab16_1中“age”列的非空值计数、空值计数，平均值，中位数，Q1，Q3，最小值，最大值，存入一个dataframe中，命名为data1
     data1 = pd.DataFrame()
     data1['非空值计数'] = tab16_1.groupby('label')['age'].apply(lambda x: x.count())
@@ -113,8 +113,7 @@ if file is not None:
     data1['最小值'] = tab16_1.groupby('label')['age'].apply(lambda x: x.min())
     data1['最大值'] = tab16_1.groupby('label')['age'].apply(lambda x: x.max())
     # 展示出data1中的age列的空值以及空值对应的subject_id和label
-    st.write('age列的空值：')
-    st.write(tab16_1[tab16_1['age'].isnull()][['subject_id', 'label']])
+    
 
     # 为data1添加试验组和对照组，作为index
     data1.index = ['对照组', '试验组']
