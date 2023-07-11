@@ -206,14 +206,58 @@ if file is not None:
     # 只保留”咽部滤泡V1“列值为”有滤泡“的行
     tab16_for4 = tab16_for4[tab16_for4['咽部滤泡V1'] == '有滤泡']
 
+    # 为tab16_for4中咽部滤泡V4列的空值填入”空值“
+    tab16_for4.loc[tab16_for4['咽部滤泡V4'].isna(), '咽部滤泡V4'] = '空值'
     # 增加一列”疗效“
     tab16_for4['疗效'] = np.nan
-    # 如果咽部
-
+    # 如果咽部滤泡V4列的值为nan，则疗效列的值为np.nan
+    tab16_for4.loc[tab16_for4['咽部滤泡V4'].isna(), '疗效'] = np.nan
+    # 如果咽部滤泡V4列的值中包括字符串“有效”或“痊愈”，则在”疗效“列中填入”有效“
+    tab16_for4.loc[tab16_for4['咽部滤泡V4'].str.contains('有效|痊愈'), '疗效'] = '有效'
+    # 如果咽部滤泡V4列的值中包括字符串“无效””，则在”疗效“列中填入”无效“
+    tab16_for4.loc[tab16_for4['咽部滤泡V4'].str.contains('无效'), '疗效'] = '无效'
+    # 将“疗效”列的空值替换为np.nan
+    tab16_for4['疗效'].replace('空值', np.nan, inplace=True)
+    # 根据label列的值不同，统计”疗效“列中的空值和非空值的数量
+    tab16_for4_result = tab16_for4.groupby('label')['疗效'].apply(lambda x: pd.Series([x.isnull().sum(), x.notnull().sum()], index=['空值', '非空值'])).unstack()
+    # 将列名改为非空值
+    # tab16_for4_result.columns = ['非空值']
+    # 根据label列的值不同，统计”疗效“列中不同值的计数
+    tab16_for4_result_2 = tab16_for4.groupby('label')['疗效'].value_counts().unstack()
+    # 使用st.write()函数将结果显示在网页上
+    st.markdown('## 咽部滤泡')
+    st.write(tab16_for4_result)
+    # 使用卡方检验对比tab16_for4_result中试验组和对照组在有效和无效上的差异，将结果显示在网页上
+    # Extract the '试验组' and '对照组' rows from the 'tab16_for4_result' DataFrame
+    valid_rows = tab16_for4_result.loc[['试验组', '对照组'], ['空值', '非空值']]
+    # Create a new DataFrame 'df' to store the four-grid table
+    df = pd.DataFrame(valid_rows)
     
-    st.write(tab16_for4)
+    # 使用卡方检验对比df中两行在“有效”和“无效”两列的卡方值和P值
+    chi2, p, _, _ = stats.chi2_contingency(df[['空值', '非空值']])
+    # 在tab16_for4_result中增加两个新列存储卡方值和P值
+    tab16_for4_result['卡方值'] = chi2
+    tab16_for4_result['P值'] = p
+    st.write('#### 计数统计')
+    st.write(tab16_for4_result)
 
+
+    # 使用卡方检验对比tab16_for4_result_2中试验组和对照组在有效和无效上的差异，将结果显示在网页上
+    # Extract the '试验组' and '对照组' rows from the 'tab16_for4_result_2' DataFrame
+    valid_rows_2 = tab16_for4_result_2.loc[['试验组', '对照组'], ['有效', '无效']]
+    # Create a new DataFrame 'df_2' to store the four-grid table
+    df_2 = pd.DataFrame(valid_rows_2)
+    # 使用卡方检验对比df_2中两行在“有效”和“无效”两列的卡方值和P值
+    chi2_2, p_2, _, _ = stats.chi2_contingency(df_2[['有效', '无效']])
+    # 在tab16_for4_result_2中增加两个新列存储卡方值和P值
+    tab16_for4_result_2['卡方值'] = chi2_2
+    tab16_for4_result_2['P值'] = p_2
+    st.write('#### 疗效统计')
     
+    st.write(tab16_for4_result_2)
+    
+
+  
 
     
 
