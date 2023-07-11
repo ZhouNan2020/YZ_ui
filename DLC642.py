@@ -226,7 +226,7 @@ if file is not None:
     tab16_for4_result_2 = tab16_for4.groupby('label')['疗效'].value_counts().unstack()
     # 使用st.write()函数将结果显示在网页上
     st.markdown('## 咽部滤泡')
-    st.write(tab16_for4_result)
+    
     # 使用卡方检验对比tab16_for4_result中试验组和对照组在有效和无效上的差异，将结果显示在网页上
     # Extract the '试验组' and '对照组' rows from the 'tab16_for4_result' DataFrame
     valid_rows = tab16_for4_result.loc[['试验组', '对照组'], ['空值', '非空值']]
