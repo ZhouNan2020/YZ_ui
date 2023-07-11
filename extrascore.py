@@ -113,3 +113,53 @@ if file is not None:
                 except ValueError:
                     pass
                 st.write(test_result)
+
+
+    st.markdown('## 扁桃体肿大')
+    tab17_dict_self = {}
+    for sheet in tab16_dict.keys():
+        # 如果有字符串”#患者自评“，并且没有字符串”患者自评（“
+        if '#扁桃体肿大' in sheet:
+            tab17_dict_self[sheet] = tab16_dict[sheet]
+    # 遍历tab17_dict_self中的每一个df，删除值中的字符串“分”
+    for sheet in tab17_dict_self.keys():
+        tab17_dict_self[sheet].replace('分', '', regex=True, inplace=True)
+    # 遍历tab17_dict_urine中的每一个df，将每个df中的“+”，“UK","uk"，“uK","Uk","-","分"替换为np.nan
+    for sheet in tab17_dict_self.keys():
+        tab17_dict_self[sheet].replace(['+','UK','uk','uK','Uk','-','分'], np.nan, inplace=True)
+    # 遍历tab17_dict_self中的每一个df
+    for sheet in tab17_dict_self.keys():
+        # 获取当前df
+        df = tab17_dict_self[sheet]
+        # 根据"label"列的值进行分组
+        grouped = df.groupby('label')
+        # 找出列名中为”检查结果评分“的列
+        for col in df.columns:
+            if '检查结果评分' in col:
+                # 将该列的值转换为float类型
+                df[col] = df[col].astype(float)
+                # 计算每个组中列的非空值计数、空值计数、平均值、标准差，中位数，Q1，Q3，最小值，最大值
+                result_1 = grouped[col].agg(['count', 'mean', 'std', 'median', lambda x: x.quantile(0.25), lambda x: x.quantile(0.75), 'min', 'max'])
+                # 计算空值计数
+                result_1['null'] = df[col].isnull().sum()
+                # 更改result的列名为统计值对应的名字
+                result_1.columns = ['非空值计数', '平均值', '标准差', '中位数', 'Q1', 'Q3', '最小值', '最大值', '空值计数']
+                # 把空值计数放到第二列
+                result_1 = result_1[['非空值计数', '空值计数', '平均值', '标准差', '中位数', 'Q1', 'Q3', '最小值', '最大值']]
+                st.write(sheet)
+                st.dataframe(result_1)
+                # 创建一个新的df来存储检验结果
+                test_result = pd.DataFrame(columns=['检验的变量', '检验方法', '统计量', 'p值'])
+                # 使用卡方检验比较两组非空值计数和空值计数的差异
+                try:
+                    chi2, p_chi2 = stats.chi2_contingency(result_1[['非空值计数', '空值计数']].values)[:2]
+                    test_result = pd.concat([test_result, pd.DataFrame({'检验的变量': ['非空值计数和空值计数'], '检验方法': ['卡方检验'], '统计量': [chi2], 'p值': [p_chi2]})], ignore_index=True)
+                except ValueError:
+                    pass
+                # 使用t检验对比原始df中两组数值的差异
+                try:
+                    t, p_t = stats.ttest_ind(df[df['label'] == '试验组'][col].dropna(), df[df['label'] == '对照组'][col].dropna())
+                    test_result = pd.concat([test_result, pd.DataFrame({'检验的变量': [col], '检验方法': ['t检验'], '统计量': [t], 'p值': [p_t]})], ignore_index=True)
+                except ValueError:
+                    pass
+                st.write(test_result)

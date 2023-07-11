@@ -701,20 +701,19 @@ if file is not None:
     for key, df in tab16_dict_4.items():
         grouped = df.groupby('label')['是否进行新冠核酸检测？']
         stats_df = pd.DataFrame({
-            '非空值计数': grouped.apply(lambda x: x.count()),
-            '空值计数': grouped.apply(lambda x: x.isnull().sum())
+            '是': grouped.apply(lambda x: (x == '是').sum()),
+            '否': grouped.apply(lambda x: (x == '否').sum())
         })
-        
-        # 计算非空值计数和空值计数的差值
-        stats_df['差值'] = stats_df['非空值计数'] - stats_df['空值计数']
-        # 如果任意列中有0值或np.nan值则不比较
-        stats_df = stats_df.replace(0, np.nan).dropna()
-        # 对差值进行卡方检验
-        chi2_test_result = stats.chisquare(stats_df['差值'])
-        # 将结果作为新的列添加到stats_df中
-        stats_df['检验方法'] = '卡方检验'
-        stats_df['统计量'] = chi2_test_result[0]
-        stats_df['p值'] = chi2_test_result[1]
+
+        # 尝试进行卡方检验，如果不满足卡方检验条件则跳过
+        try:
+            chi2_test_result = stats.chi2_contingency([stats_df.loc['试验组'], stats_df.loc['对照组']])
+            # 将结果作为新的列添加到stats_df中
+            stats_df['检验方法'] = '卡方检验'
+            stats_df['统计量'] = chi2_test_result[0]
+            stats_df['p值'] = chi2_test_result[1]
+        except ValueError:
+            pass
 
         st.write(key)
         st.write(stats_df)
@@ -725,6 +724,20 @@ if file is not None:
     for key, df in tab16_dict_4.items():
         grouped = df.groupby('label')['检测结果']
         result_df = grouped.value_counts().unstack().fillna(0)
+        # 尝试进行卡方检验，如果不满足卡方检验条件则跳过，并st.write('不适合进行卡方检验')
+        try:
+            if '试验组' in result_df.index and '对照组' in result_df.index:
+                chi2_test_result = stats.chi2_contingency([result_df.loc['试验组'], result_df.loc['对照组']])
+                result_df['检验方法'] = '卡方检验'
+                result_df['统计量'] = chi2_test_result[0]
+                result_df['p值'] = chi2_test_result[1]
+            else:
+                raise ValueError
+        except ValueError:
+            st.write('不适合进行卡方检验')
+            result_df['检验方法'] = 'N/A'
+            result_df['统计量'] = 'N/A'
+            result_df['p值'] = 'N/A'
         result_dict[key] = result_df
         st.write(key)
         st.write(result_df)
