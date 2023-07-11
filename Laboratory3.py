@@ -353,7 +353,7 @@ if file is not None:
         # 根据"label"列的值进行分组
         grouped = df.groupby('label')
         # 找出列名中包含字符串“发热”的列
-        columns_to_calculate = [col for col in df.columns if "发热" in col]
+        columns_to_calculate = [col for col in df.columns if "无发热（腋温）" in col]
         for column in columns_to_calculate:
             df[column].astype(float)
             # 计算每个组中列的非空值计数、空值计数、平均值、标准差，中位数，Q1，Q3，最小值，最大值

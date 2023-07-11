@@ -173,6 +173,51 @@ if file is not None:
 
 
 
+#%%
+
+    tab16_for4_dict = {}
+    for key in tab16_dict.keys():
+        # 包括字符串“#患者自评”但是不包括字符串“患者自评（”的key
+        if '#咽部滤泡' in key:
+            tab16_for4_dict[key] = tab16_dict[key]
+    tab16_for4_columns = {}
+    for key in tab16_for4_dict.keys():
+        for column in tab16_for4_dict[key].columns:
+            if '检查结果' in column:
+                tab16_for4_columns[key] = tab16_for4_dict[key][['subject_id', column]]
+    # 设置tab16_for1_columns中的每一个df的索引列为”subject_id“
+    for key in tab16_for4_columns.keys():
+        tab16_for4_columns[key].set_index('subject_id', inplace=True)
+    # 将tab16_for4_columns中所有的df横向合并，索引列的值一一对应，得到一个新的df（tab16_for4）
+    tab16_for4 = pd.concat(tab16_for4_columns.values(), axis=1)
+    # 给tab16_for4中的每一列重命名，按照“检查结果V{i}”的格式
+    tab16_for4.columns = [f'咽部滤泡V{i}' for i in range(1, len(tab16_for4.columns) + 1)]
+    # 只保留咽部滤泡V1和咽部滤泡V4两列
+    tab16_for4 = tab16_for4[['咽部滤泡V1', '咽部滤泡V4']]
+    # 遍历dlct的"index"列，如果其中的值出现在tab16_for2_df的索引中，则tab16_for2_df中该行对应的label列填入”试验组“
+    for i in dlct['index']:
+        if i in tab16_for4.index:
+            tab16_for4.loc[i, 'label'] = '试验组'
+    # 遍历dlcc的"index"列，如果其中的值出现在tab16_for2_df的索引中，则tab16_for2_df中该行对应的label列填入”对照组“
+    for i in dlcc['index']:
+        if i in tab16_for4.index:
+            tab16_for4.loc[i, 'label'] = '对照组'
+    
+    # 只保留”咽部滤泡V1“列值为”有滤泡“的行
+    tab16_for4 = tab16_for4[tab16_for4['咽部滤泡V1'] == '有滤泡']
+
+    # 增加一列”疗效“
+    tab16_for4['疗效'] = np.nan
+    # 如果咽部
+
+    
+    st.write(tab16_for4)
+
+    
+
+    
+
+
 
 #%%
     tab16_for2_dict = {}
