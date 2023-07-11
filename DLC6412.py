@@ -180,7 +180,8 @@ if file is not None:
     
     for column in ['研究完成', '计划外']:
         tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['delta_'+column] < 0), 'delta_'+column] = '有效'
-        tab16_for1_df.loc[(tab16_for1_df['delta_'+column] != '有效') & (tab16_for1_df['delta_'+column].notna()), 'delta_'+column] = '无效'
+        tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 0) & (tab16_for1_df['患者自评_'+column] == 0), 'delta_'+column] = '治愈'
+        tab16_for1_df.loc[(tab16_for1_df['delta_'+column] != '有效') & (tab16_for1_df['delta_'+column] != '治愈') & (tab16_for1_df['delta_'+column].notna()), 'delta_'+column] = '无效'
     # tab16_for1_df增加一列”label“，值默认为nan
     tab16_for1_df['label'] = np.nan
     # 遍历dlct的"index"列，如果其中的值出现在tab16_for1_df的索引中，则tab16_for1_df中该行对应的label列填入”试验组“
