@@ -261,8 +261,9 @@ if file is not None:
         cure_control = tab16_for1_df.loc[(tab16_for1_df['label'] == '对照组') & (tab16_for1_df[column] == '治愈'), column].count()
         valid_control = tab16_for1_df.loc[(tab16_for1_df['label'] == '对照组') & (tab16_for1_df[column] == '有效'), column].count()
         invalid_control = tab16_for1_df.loc[(tab16_for1_df['label'] == '对照组') & (tab16_for1_df[column] == '无效'), column].count()
-        total_count = cure_trial + valid_trial + invalid_trial + cure_control + valid_control + invalid_control
-        tab16_for1_count.loc[column] = [cure_trial, valid_trial, invalid_trial, cure_control, valid_control, invalid_control, cure_trial/total_count, valid_trial/total_count, invalid_trial/total_count, cure_control/total_count, valid_control/total_count, invalid_control/total_count]
+        total_trial = cure_trial + valid_trial + invalid_trial
+        total_control = cure_control + valid_control + invalid_control
+        tab16_for1_count.loc[column] = [cure_trial, valid_trial, invalid_trial, cure_control, valid_control, invalid_control, cure_trial/total_trial, valid_trial/total_trial, invalid_trial/total_trial, cure_control/total_control, valid_control/total_control, invalid_control/total_control]
     tab16_for1_count.index = ['第1天','第2天','第3天','第4天','第5天','第6天','第7天','研究完成','计划外']
     tab16_for1_count = tab16_for1_count.T
     st.write(tab16_for1_count)
