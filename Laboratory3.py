@@ -65,7 +65,8 @@ if file is not None:
     # 从tab16_dict中提取出所有key名包含”#患者自评“的df，形成一个新的dict
     tab16_dict_self = {}
     for sheet in tab16_dict.keys():
-        if '患者自评（' in sheet:
+        # 如果有字符串”#患者自评“，并且没有字符串”患者自评（“
+        if '#患者自评' in sheet and '患者自评（' not in sheet:
             tab16_dict_self[sheet] = tab16_dict[sheet]
     # 遍历tab16_dict_self中的每一个df，删除值中的字符串“分”
     for sheet in tab16_dict_self.keys():

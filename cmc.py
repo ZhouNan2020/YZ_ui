@@ -84,38 +84,34 @@ if file is not None:
     for sheet in tab16_dict_bloche.keys():
         # 获取当前df
         df = tab16_dict_bloche[sheet]
-        # 根据"label"列的值进行分组
-        grouped = df.groupby('label')
-        df['超敏C反应蛋白（hs-CRP）'] = pd.to_numeric(df['超敏C反应蛋白（hs-CRP）'], errors='coerce')
+        
+        # 每一个df设置subject_id为索引
+        df.set_index('subject_id', inplace=True)
+        # 取每个df的"超敏C反应蛋白（hs-CRP）"列,存为一个新的df
+        ndf = df[['超敏C反应蛋白（hs-CRP）']]
+        # 如果ndf中有值为字符串”<10“，则将其替换为9.9
+        ndf['超敏C反应蛋白（hs-CRP）'] = ndf['超敏C反应蛋白（hs-CRP）'].replace('<10', 9.9)
+        
+        # 如果ndf中有值为字符串”>3“，则将其替换为3.1
+        ndf['超敏C反应蛋白（hs-CRP）'] = ndf['超敏C反应蛋白（hs-CRP）'].replace('>3', 3.1)
+        # 如果ndf中有值为字符串”UK“，则将其替换为np.nan 
+        ndf['超敏C反应蛋白（hs-CRP）'] = ndf['超敏C反应蛋白（hs-CRP）'].replace('UK', np.nan)
+        # 尝试将ndf转为numreic，如果遇到异常值不能转换则跳过
+        ndf['超敏C反应蛋白（hs-CRP）'] = pd.to_numeric(ndf['超敏C反应蛋白（hs-CRP）'], errors='coerce')
 
-
-        st.write(df['超敏C反应蛋白（hs-CRP）'])
-        # 计算每个组中"超敏C反应蛋白（hs-CRP）"列的非空值计数、空值计数、平均值、标准差，中位数，Q1，Q3，最小值，最大值
-        result = grouped['超敏C反应蛋白（hs-CRP）'].agg(['count', 'mean', 'std', 'median', lambda x: x.quantile(0.25), lambda x: x.quantile(0.75), 'min', 'max'])
-        # 将空值计数添加到结果中
-        result['null_count'] = grouped['超敏C反应蛋白（hs-CRP）'].apply(lambda x: x.isnull().sum())
-        # 更改result的列名为统计值对应的名字
-        result.columns = ['非空值计数', '平均值', '标准差', '中位数', 'Q1', 'Q3', '最小值', '最大值', '空值计数']
-        # 把空值计数放到第二列
-        result = result[['非空值计数', '空值计数', '平均值', '标准差', '中位数', 'Q1', 'Q3', '最小值', '最大值']]
-        # 创建一个新的df来存储检验结果
-        test_result = pd.DataFrame(columns=['检验的变量', '检验方法', '统计量', 'p值'])
-        # 使用卡方检验比较两组非空值计数和空值计数的差异
-        try:
-            chi2, p_chi2 = stats.chi2_contingency(result[['非空值计数', '空值计数']].values)[:2]
-            test_result = pd.concat([test_result, pd.DataFrame({'检验的变量': ['非空值计数和空值计数'], '检验方法': ['卡方检验'], '统计量': [chi2], 'p值': [p_chi2]})], ignore_index=True)
-        except ValueError:
-            pass
-        # 使用t检验对比原始df中两组数值的差异
-        try:
-            t, p_t = stats.ttest_ind(df[df['label'] == '试验组']['超敏C反应蛋白（hs-CRP）'].dropna(), df[df['label'] == '对照组']['超敏C反应蛋白（hs-CRP）'].dropna())
-            test_result = pd.concat([test_result, pd.DataFrame({'检验的变量': ['超敏C反应蛋白（hs-CRP）'], '检验方法': ['t检验'], '统计量': [t], 'p值': [p_t]})], ignore_index=True)
-        except ValueError:
-            pass
-        # 将检验结果存入新的dict中
-        result_dict_8[sheet + '_test'] = test_result
-        # 将结果存入新的dict中
-        result_dict_8[sheet] = result
-        st.write(sheet)
-        st.write(result_dict_8[sheet])
-        st.write(result_dict_8[sheet + '_test'])
+        
+        # 判断：如果索引值中包括字符串”S01“，则”超敏C反应蛋白（hs-CRP）“列中值<4的值替换为正常，其余替换为异常，空值依然为np.nan
+        if 'S01' in ndf.index:
+            ndf.loc[ndf['超敏C反应蛋白（hs-CRP）'] < 4, '超敏C反应蛋白（hs-CRP）'] = '正常'
+            ndf.loc[(ndf['超敏C反应蛋白（hs-CRP）'] != '正常') & (ndf['超敏C反应蛋白（hs-CRP）'].notna()), '超敏C反应蛋白（hs-CRP）'] = '异常'
+        
+        # 判断：如果索引值中包括字符串”S03“，则”超敏C反应蛋白（hs-CRP）“列中值<10的值替换为正常，其余替换为异常，空值依然为np.nan
+        if 'S03' in ndf.index:
+            ndf.loc[(ndf['超敏C反应蛋白（hs-CRP）'] < 10) | (ndf['超敏C反应蛋白（hs-CRP）'] == '<10'), '超敏C反应蛋白（hs-CRP）'] = '正常'
+            ndf.loc[(ndf['超敏C反应蛋白（hs-CRP）'] != '正常') & (ndf['超敏C反应蛋白（hs-CRP）'].notna()), '超敏C反应蛋白（hs-CRP）'] = '异常'
+        # 判断：如果索引值中包括字符串”S04“，则”超敏C反应蛋白（hs-CRP）“列中值<3的值替换为正常，其余替换为异常，空值依然为np.nan
+        if 'S04' in ndf.index:
+            ndf.loc[ndf['超敏C反应蛋白（hs-CRP）'] < 3, '超敏C反应蛋白（hs-CRP）'] = '正常'
+            ndf.loc[(ndf['超敏C反应蛋白（hs-CRP）'] != '正常') & (ndf['超敏C反应蛋白（hs-CRP）'].notna()), '超敏C反应蛋白（hs-CRP）'] = '异常'
+        st.write(ndf)
+        
