@@ -253,22 +253,24 @@ if file is not None:
     # 根据label列的值不同，分别统计tab16_for1中从delta_D1列到delta_计划外列中不同值的计数（不包括空值），将其存为一个新的df
     # 根据label列的值不同，分别统计tab16_for1中从delta_D1列到delta_计划外列中不同值的计数（不包括空值），将其存为一个新的df
     delta_columns = ['delta_D1', 'delta_D2', 'delta_D3', 'delta_D4', 'delta_D5', 'delta_D6', 'delta_D7', 'delta_研究完成', 'delta_计划外']
-    tab16_for1_count = pd.DataFrame(columns=['试验组有效计数', '试验组无效计数', '对照组有效计数', '对照组无效计数', '试验组有效占比', '试验组无效占比', '对照组有效占比', '对照组无效占比'])
+    tab16_for1_count = pd.DataFrame(columns=['试验组治愈计数', '试验组有效计数', '试验组无效计数', '对照组治愈计数', '对照组有效计数', '对照组无效计数', '试验组治愈占比', '试验组有效占比', '试验组无效占比', '对照组治愈占比', '对照组有效占比', '对照组无效占比'])
     for column in delta_columns:
+        cure_trial = tab16_for1_df.loc[(tab16_for1_df['label'] == '试验组') & (tab16_for1_df[column] == '治愈'), column].count()
         valid_trial = tab16_for1_df.loc[(tab16_for1_df['label'] == '试验组') & (tab16_for1_df[column] == '有效'), column].count()
         invalid_trial = tab16_for1_df.loc[(tab16_for1_df['label'] == '试验组') & (tab16_for1_df[column] == '无效'), column].count()
+        cure_control = tab16_for1_df.loc[(tab16_for1_df['label'] == '对照组') & (tab16_for1_df[column] == '治愈'), column].count()
         valid_control = tab16_for1_df.loc[(tab16_for1_df['label'] == '对照组') & (tab16_for1_df[column] == '有效'), column].count()
         invalid_control = tab16_for1_df.loc[(tab16_for1_df['label'] == '对照组') & (tab16_for1_df[column] == '无效'), column].count()
-        total_count = valid_trial + invalid_trial + valid_control + invalid_control
-        tab16_for1_count.loc[column] = [valid_trial, invalid_trial, valid_control, invalid_control, valid_trial/total_count, invalid_trial/total_count, valid_control/total_count, invalid_control/total_count]
+        total_count = cure_trial + valid_trial + invalid_trial + cure_control + valid_control + invalid_control
+        tab16_for1_count.loc[column] = [cure_trial, valid_trial, invalid_trial, cure_control, valid_control, invalid_control, cure_trial/total_count, valid_trial/total_count, invalid_trial/total_count, cure_control/total_count, valid_control/total_count, invalid_control/total_count]
     tab16_for1_count.index = ['第1天','第2天','第3天','第4天','第5天','第6天','第7天','研究完成','计划外']
     tab16_for1_count = tab16_for1_count.T
     st.write(tab16_for1_count)
     # 对tab16_for1_count中每一列进行卡方检验
     st.write('#### 对于以上表的卡方检验结果如下：')
     for column in tab16_for1_count.columns:
-        # 只使用每一列的前4行形成四格表
-        contingency_table = tab16_for1_count[[column]].values[:4].reshape(2, 2)
+        # 只使用每一列的前6行形成四格表
+        contingency_table = tab16_for1_count[[column]].values[:6].reshape(2, 3)
         # 尝试进行卡方检验
         try:
             chi2, p, dof, ex = chi2_contingency(contingency_table)
