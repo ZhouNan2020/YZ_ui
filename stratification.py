@@ -108,7 +108,7 @@ if file is not None:
     # 按照索引的对应关系，如果df1中的检查结果评分不为1，并且df4中的检查结果评分为1，或者df1中检查结果评分不为1，df4中的检查结果评分不为1，且df4的检查结果评分小于df1的检查结果评分，则在df4中的疗效列中填入“有效”
     for index in df4.index:
         if df1.loc[index, '检查结果评分'] != 1 and df4.loc[index, '检查结果评分'] == 1:
-            df4.loc[index, '疗效'] = '有效'
+            df4.loc[index, '疗效'] = '治愈'
         elif df1.loc[index, '检查结果评分'] != 1 and df4.loc[index, '检查结果评分'] != 1 and df4.loc[index, '检查结果评分'] < df1.loc[index, '检查结果评分']:
             df4.loc[index, '疗效'] = '有效'
     
@@ -258,3 +258,91 @@ if file is not None:
     st.write(tonsil4_1)
     st.write('对照组')
     st.write(tonsil4_2)
+
+
+
+
+    #%%
+
+    # 获取tab16_dict中的key中包含字符串“#患者自评”但是不包括字符串“患者自评（”的表，存入一个dict
+    tab16_dict_1 = {k: v for k, v in tab16_dict.items() if '#患者自评' in k and '患者自评（' not in k}
+
+
+    df1 = tab16_dict['访视1筛选-基线（0天）#96616#咽部充血']
+    df4 = tab16_dict['访视4研究第7天 #96668#咽部充血']
+    # 设置两个表的索引为subject_id
+    df1.set_index('subject_id', inplace=True)
+    df4.set_index('subject_id', inplace=True)
+    # 将两个表的检查日期列的数据类型转换为datetime，如果转换失败，则将该行的数据删除
+    df1['检查日期'] = pd.to_datetime(df1['检查日期'], errors='coerce')
+    df4['检查日期'] = pd.to_datetime(df4['检查日期'], errors='coerce')
+    # 遍历df的“检查结果评分”列中每一个值
+    for i in df1['检查结果评分'].values:
+        # 如果该值为nan，则跳过
+        if pd.isna(i):
+            continue
+        # 如果7<=值<=10，则替换为4
+        elif 7 <= i <= 10:
+            df1['检查结果评分'].replace(i, 4, inplace=True)
+        # 如果4<=值<=6，则替换为3
+        elif 4 <= i <= 6:
+            df1['检查结果评分'].replace(i, 3, inplace=True)
+        # 如果1<=值<=3，则替换为2
+        elif 1 <= i <= 3:
+            df1['检查结果评分'].replace(i, 2, inplace=True)
+        # 如果值==0，则替换为1
+        elif i == 0:
+            df1['检查结果评分'].replace(i, 1, inplace=True)
+    # 遍历df4的“检查结果评分”列中每一个值
+    for i in df4['检查结果评分'].values:
+        # 如果该值为nan，则跳过
+        if pd.isna(i):
+            continue
+        # 如果7<=值<=10，则替换为4
+        elif 7 <= i <= 10:
+            df4['检查结果评分'].replace(i, 4, inplace=True)
+        # 如果4<=值<=6，则替换为3
+        elif 4 <= i <= 6:
+            df4['检查结果评分'].replace(i, 3, inplace=True)
+        # 如果1<=值<=3，则替换为2
+        elif 1 <= i <= 3:
+            df4['检查结果评分'].replace(i, 2, inplace=True)
+        # 如果值==0，则替换为1
+        elif i == 0:
+            df4['检查结果评分'].replace(i, 1, inplace=True)
+    # df4增加一个疗效列
+    df4['疗效'] = np.nan
+    # 按照索引的对应关系，如果df1中的检查结果评分不为1，并且df4中的检查结果评分为1，或者df1中检查结果评分不为1，df4中的检查结果评分不为1，且df4的检查结果评分小于df1的检查结果评分，则在df4中的疗效列中填入“有效”
+    for index in df4.index:
+        if df1.loc[index, '检查结果评分'] != 1 and df4.loc[index, '检查结果评分'] == 1:
+            df4.loc[index, '疗效'] = '治愈'
+        elif df1.loc[index, '检查结果评分'] != 1 and df4.loc[index, '检查结果评分'] != 1 and df4.loc[index, '检查结果评分'] < df1.loc[index, '检查结果评分']:
+            df4.loc[index, '疗效'] = '有效'
+    
+    # 按照索引的对应关系，如果df1中检查结果评分不为1，df4中的检查结果评分不为1，且df4的检查结果评分大于或等于df1的检查结果评分，则在df4中的疗效列中填入“有效”
+    for index in df4.index:
+        if df1.loc[index, '检查结果评分'] != 1 and df4.loc[index, '检查结果评分'] != 1 and df4.loc[index, '检查结果评分'] >= df1.loc[index, '检查结果评分']:
+            df4.loc[index, '疗效'] = '有效'
+    
+    # 使用df4的检查日期-df1的检查日期，按照索引的对应关系，计算出每个受试者的检查时间差，以天为单位
+    df4['时间差'] = df4['检查日期'] - df1['检查日期']
+    df4['时间差'] = df4['时间差'].apply(lambda x: x.days)
+    # 将df4中的时间差列的数据类型转换为int
+    df4['时间差'] = df4['时间差'].astype(float)
+    # 选择df4中label为“对照组”的数据，以时间差列为索引，疗效列为列，计算出每个时间差下的疗效的数量
+    df4_1 = df4[df4['label'] == '试验组'].pivot_table(index='时间差', columns='疗效', aggfunc='size')
+    # 计算百分比并添加为新列
+    df4_1['百分比'] = df4_1.sum(axis=1) / df4_1.sum(axis=1).sum()
+
+    # 选择df4中label为“治疗组”的数据，以时间差列为索引，疗效列为列，计算出每个时间差下的疗效的数量
+    df4_2 = df4[df4['label'] == '对照组'].pivot_table(index='时间差', columns='疗效', aggfunc='size')
+    # 计算百分比并添加为新列
+    df4_2['百分比'] = df4_2.sum(axis=1) / df4_2.sum(axis=1).sum()
+    # 把索引列的名字改为“病程“
+    df4_1.index.name = '病程'
+    df4_2.index.name = '病程'
+    st.write('## 咽部充血')
+    st.write('试验组')
+    st.write(df4_1)
+    st.write('对照组')
+    st.write(df4_2)
