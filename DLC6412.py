@@ -167,40 +167,20 @@ if file is not None:
     
     # 如果患者自评D0!=1,且delta_D1<0,则delta_D1值更改为”有效“
     tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['delta_D1'] < 0), 'delta_D1'] = '有效'
-    # delta_D1 中除了”有效“和np.nan外的值都更改为”无效“
-    tab16_for1_df.loc[(tab16_for1_df['delta_D1'] != '有效') & (tab16_for1_df['delta_D1'].notna()), 'delta_D1'] = '无效'
-    # 如果患者自评D0!=1,且delta_D2<0,则delta_D2值更改为”有效“
-    tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['delta_D2'] < 0), 'delta_D2'] = '有效'
-    # delta_D2 中除了”有效“和np.nan外的值都更改为”无效“
-    tab16_for1_df.loc[(tab16_for1_df['delta_D2'] != '有效') & (tab16_for1_df['delta_D2'].notna()), 'delta_D2'] = '无效'
-    # 如果患者自评D0!=1,且delta_D3<0,则delta_D3值更改为”有效“
-    tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['delta_D3'] < 0), 'delta_D3'] = '有效'
-    # delta_D3 中除了”有效“和np.nan外的值都更改为”无效“
-    tab16_for1_df.loc[(tab16_for1_df['delta_D3'] != '有效') & (tab16_for1_df['delta_D3'].notna()), 'delta_D3'] = '无效'
-    # 如果患者自评D0!=1,且delta_D4<0,则delta_D4值更改为”有效“
-    tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['delta_D4'] < 0), 'delta_D4'] = '有效'
-    # delta_D4 中除了”有效“和np.nan外的值都更改为”无效“
-    tab16_for1_df.loc[(tab16_for1_df['delta_D4'] != '有效') & (tab16_for1_df['delta_D4'].notna()), 'delta_D4'] = '无效'
-    # 如果患者自评D0!=1,且delta_D5<0,则delta_D5值更改为”有效“
-    tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['delta_D5'] < 0), 'delta_D5'] = '有效'
-    # delta_D5 中除了”有效“和np.nan外的值都更改为”无效“
-    tab16_for1_df.loc[(tab16_for1_df['delta_D5'] != '有效') & (tab16_for1_df['delta_D5'].notna()), 'delta_D5'] = '无效'
-    # 如果患者自评D0!=1,且delta_D6<0,则delta_D6值更改为”有效“
-    tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['delta_D6'] < 0), 'delta_D6'] = '有效'
-    # delta_D6 中除了”有效“和np.nan外的值都更改为”无效“
-    tab16_for1_df.loc[(tab16_for1_df['delta_D6'] != '有效') & (tab16_for1_df['delta_D6'].notna()), 'delta_D6'] = '无效'
-    # 如果患者自评D0!=1,且delta_D7<0,则delta_D7值更改为”有效“
-    tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['delta_D7'] < 0), 'delta_D7'] = '有效'
-    # delta_D7 中除了”有效“和np.nan外的值都更改为”无效“
-    tab16_for1_df.loc[(tab16_for1_df['delta_D7'] != '有效') & (tab16_for1_df['delta_D7'].notna()), 'delta_D7'] = '无效'
-    # 如果患者自评D0!=1,且delta_研究完成<0,则delta_研究完成值更改为”有效“
-    tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['delta_研究完成'] < 0), 'delta_研究完成'] = '有效'
-    # delta_研究完成 中除了”有效“和np.nan外的值都更改为”无效“
-    tab16_for1_df.loc[(tab16_for1_df['delta_研究完成'] != '有效') & (tab16_for1_df['delta_研究完成'].notna()), 'delta_研究完成'] = '无效'
-    # 如果患者自评D0!=1,且delta_研究退出<0,则”delta_计划外“值更改为”有效“
-    tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['delta_计划外'] < 0), 'delta_计划外'] = '有效'
-    # delta_计划外 中除了”有效“和np.nan外的值都更改为”无效“
-    tab16_for1_df.loc[(tab16_for1_df['delta_计划外'] != '有效') & (tab16_for1_df['delta_计划外'].notna()), 'delta_计划外'] = '无效'
+    # 如果患者自评D0!=0,且患者自评D1==0,则delta_D1值更改为”治愈“
+    tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 0) & (tab16_for1_df['患者自评D1'] == 0), 'delta_D1'] = '治愈'
+    # delta_D1 中除了”有效“，”治愈“和np.nan外的值都更改为”无效“
+    tab16_for1_df.loc[(tab16_for1_df['delta_D1'] != '有效') & (tab16_for1_df['delta_D1'] != '治愈') & (tab16_for1_df['delta_D1'].notna()), 'delta_D1'] = '无效'
+    
+    # 对于D2到D7，研究完成，计划外，按照D1的规则进行更改
+    for i in range(2, 8):
+        tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['delta_D'+str(i)] < 0), 'delta_D'+str(i)] = '有效'
+        tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 0) & (tab16_for1_df['患者自评D'+str(i)] == 0), 'delta_D'+str(i)] = '治愈'
+        tab16_for1_df.loc[(tab16_for1_df['delta_D'+str(i)] != '有效') & (tab16_for1_df['delta_D'+str(i)] != '治愈') & (tab16_for1_df['delta_D'+str(i)].notna()), 'delta_D'+str(i)] = '无效'
+    
+    for column in ['研究完成', '计划外']:
+        tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['delta_'+column] < 0), 'delta_'+column] = '有效'
+        tab16_for1_df.loc[(tab16_for1_df['delta_'+column] != '有效') & (tab16_for1_df['delta_'+column].notna()), 'delta_'+column] = '无效'
     # tab16_for1_df增加一列”label“，值默认为nan
     tab16_for1_df['label'] = np.nan
     # 遍历dlct的"index"列，如果其中的值出现在tab16_for1_df的索引中，则tab16_for1_df中该行对应的label列填入”试验组“
