@@ -271,22 +271,33 @@ if file is not None:
         '非空值计数': grouped_1.apply(lambda x: x.count()),
         '空值计数': grouped_1.apply(lambda x: x.isnull().sum())
     })
-    # 为两组非空值计数的差异进行卡方检验
-    chi2_test_result = stats.chi2_contingency([stats_df_1.loc['试验组'], stats_df_1.loc['对照组']])
-    # 在stats_df_1中添加新的列”检验方法“，”统计量“和”p值“
-    stats_df_1['检验方法'] = '卡方检验'
-    stats_df_1['统计量'] = chi2_test_result[0]
-    stats_df_1['p值'] = chi2_test_result[1]
-    # 根据df_1中label列的值不同，分组统计df_1中”1.一般状况“列中不同值的计数和占比
+    # 尝试进行卡方检验，如果不满足卡方检验条件则跳过，并st.write('不适合进行卡方检验')
+    try:
+        chi2_test_result = stats.chi2_contingency([stats_df_1.loc['试验组'], stats_df_1.loc['对照组']])
+        stats_df_1['检验方法'] = '卡方检验'
+        stats_df_1['统计量'] = chi2_test_result[0]
+        stats_df_1['p值'] = chi2_test_result[1]
+    except ValueError:
+        st.write('不适合进行卡方检验')
+        stats_df_1['检验方法'] = 'N/A'
+        stats_df_1['统计量'] = 'N/A'
+        stats_df_1['p值'] = 'N/A'
+        
     value_counts = grouped_1.value_counts().unstack().fillna(0)
-    # 为两组不同值的计数进行卡方检验
-    chi2_test_result = stats.chi2_contingency([value_counts.loc['试验组'], value_counts.loc['对照组']])
-    # 为value_counts添加”检验方法“，”统计量“和”p值“三列
-    value_counts['检验方法'] = '卡方检验'
-    value_counts['统计量'] = chi2_test_result[0]
-    value_counts['p值'] = chi2_test_result[1]
+    
+    # 尝试进行卡方检验，如果不满足卡方检验条件则跳过，并st.write('不适合进行卡方检验')
+    try:
+        chi2_test_result = stats.chi2_contingency([value_counts.loc['试验组'], value_counts.loc['对照组']])
+        value_counts['检验方法'] = '卡方检验'
+        value_counts['统计量'] = chi2_test_result[0]
+        value_counts['p值'] = chi2_test_result[1]
+    except ValueError:
+        st.write('不适合进行卡方检验')
+        value_counts['检验方法'] = 'N/A'
+        value_counts['统计量'] = 'N/A'
+        value_counts['p值'] = 'N/A'
+        
     value_counts_percent = grouped_1.value_counts(normalize=True).unstack().fillna(0) * 100
-    # 给value_counts_percent的列名加上“占比(%)”
     value_counts_percent.columns = [str(col) + '_占比(%)' for col in value_counts_percent.columns]
     # 合并value_counts，value_counts_percent为stats_df_1_1
     stats_df_1_1 = pd.concat([value_counts, value_counts_percent], axis=1)
