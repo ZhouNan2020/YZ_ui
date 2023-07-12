@@ -171,7 +171,9 @@ if file is not None:
     tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['患者自评D1'] == 1), 'delta_D1'] = '治愈'
     # delta_D1 中除了”有效“，”治愈“和np.nan外的值都更改为”无效“
     tab16_for1_df.loc[(tab16_for1_df['delta_D1'] != '有效') & (tab16_for1_df['delta_D1'] != '治愈') & (tab16_for1_df['delta_D1'].notna()), 'delta_D1'] = '无效'
-    
+    # 删除tab16_for1_df中'患者自评D0'列为1的行
+    tab16_for1_df = tab16_for1_df.drop(tab16_for1_df[tab16_for1_df['患者自评D0'] == 1].index)
+
     # 对于D2到D7，研究完成，计划外，按照D1的规则进行更改
     for i in range(2, 8):
         tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['delta_D'+str(i)] < 0), 'delta_D'+str(i)] = '有效'
@@ -388,13 +390,14 @@ if file is not None:
     tab16_for2_df['delta_研究完成'] = tab16_for2_df['患者自评_研究完成'] - tab16_for2_df['患者自评D0']
     # delta_计划外 = 患者自评_计划外 - 患者自评D0
     tab16_for2_df['delta_计划外'] = tab16_for2_df['患者自评_计划外'] - tab16_for2_df['患者自评D0']
-    
+    tab16_for2_df = tab16_for2_df.drop(tab16_for2_df[tab16_for2_df['患者自评D0'] == 1].index)
     # 如果患者自评D0!=1,且delta_D1<0,则delta_D1值更改为”有效“
     tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D1'] < 0), 'delta_D1'] = '有效'
     # 如果患者自评D0!=0,且患者自评D1==0,则delta_D1值更改为”治愈“
     tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评D1'] == 1), 'delta_D1'] = '治愈'
     # delta_D1 中除了”有效“，”治愈“和np.nan外的值都更改为”无效“
     tab16_for2_df.loc[(tab16_for2_df['delta_D1'] != '有效') & (tab16_for2_df['delta_D1'] != '治愈') & (tab16_for2_df['delta_D1'].notna()), 'delta_D1'] = '无效'
+    # 删除tab16_for1_df中'患者自评D0'列为1的行
     
     # 对于D2到D7，研究完成，计划外，按照D1的规则进行更改
     for i in range(2, 8):
@@ -610,13 +613,14 @@ if file is not None:
     tab16_for2_df['delta_研究完成'] = tab16_for2_df['患者自评_研究完成'] - tab16_for2_df['患者自评D0']
     # delta_计划外 = 患者自评_计划外 - 患者自评D0
     tab16_for2_df['delta_计划外'] = tab16_for2_df['患者自评_计划外'] - tab16_for2_df['患者自评D0']
-    
+    tab16_for2_df = tab16_for2_df.drop(tab16_for2_df[tab16_for2_df['患者自评D0'] == 1].index)
     # 如果患者自评D0!=1,且delta_D1<0,则delta_D1值更改为”有效“
     tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D1'] < 0), 'delta_D1'] = '有效'
     # 如果患者自评D0!=0,且患者自评D1==0,则delta_D1值更改为”治愈“
     tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评D1'] == 1), 'delta_D1'] = '治愈'
     # delta_D1 中除了”有效“，”治愈“和np.nan外的值都更改为”无效“
     tab16_for2_df.loc[(tab16_for2_df['delta_D1'] != '有效') & (tab16_for2_df['delta_D1'] != '治愈') & (tab16_for2_df['delta_D1'].notna()), 'delta_D1'] = '无效'
+    # 删除tab16_for1_df中'患者自评D0'列为1的行
     
     # 对于D2到D7，研究完成，计划外，按照D1的规则进行更改
     for i in range(2, 8):
@@ -831,7 +835,8 @@ if file is not None:
     tab16_for2_df['delta_研究完成'] = tab16_for2_df['患者自评_研究完成'] - tab16_for2_df['患者自评D0']
     # delta_计划外 = 患者自评_计划外 - 患者自评D0
     tab16_for2_df['delta_计划外'] = tab16_for2_df['患者自评_计划外'] - tab16_for2_df['患者自评D0']
-    
+    # 删除tab16_for1_df中'患者自评D0'列为1的行
+    tab16_for2_df = tab16_for2_df.drop(tab16_for2_df[tab16_for2_df['患者自评D0'] == 1].index)
     # 如果患者自评D0!=1,且delta_D1<0,则delta_D1值更改为”有效“
     tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D1'] < 0), 'delta_D1'] = '有效'
     # 如果患者自评D0!=0,且患者自评D1==0,则delta_D1值更改为”治愈“
@@ -1051,7 +1056,7 @@ if file is not None:
     tab16_for2_df['delta_研究完成'] = tab16_for2_df['患者自评_研究完成'] - tab16_for2_df['患者自评D0']
     # delta_计划外 = 患者自评_计划外 - 患者自评D0
     tab16_for2_df['delta_计划外'] = tab16_for2_df['患者自评_计划外'] - tab16_for2_df['患者自评D0']
-        
+    tab16_for2_df = tab16_for2_df.drop(tab16_for2_df[tab16_for2_df['患者自评D0'] == 1].index)
     # 如果患者自评D0!=1,且delta_D1<0,则delta_D1值更改为”有效“
     tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D1'] < 0), 'delta_D1'] = '有效'
     # 如果患者自评D0!=0,且患者自评D1==0,则delta_D1值更改为”治愈“
@@ -1272,7 +1277,7 @@ if file is not None:
     tab16_for2_df['delta_研究完成'] = tab16_for2_df['患者自评_研究完成'] - tab16_for2_df['患者自评D0']
     # delta_计划外 = 患者自评_计划外 - 患者自评D0
     tab16_for2_df['delta_计划外'] = tab16_for2_df['患者自评_计划外'] - tab16_for2_df['患者自评D0']
-    
+    tab16_for2_df = tab16_for2_df.drop(tab16_for2_df[tab16_for2_df['患者自评D0'] == 1].index)
     # 如果患者自评D0!=1,且delta_D1<0,则delta_D1值更改为”有效“
     tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D1'] < 0), 'delta_D1'] = '有效'
     # 如果患者自评D0!=0,且患者自评D1==0,则delta_D1值更改为”治愈“
@@ -1494,7 +1499,7 @@ if file is not None:
     tab16_for2_df['delta_研究完成'] = tab16_for2_df['患者自评_研究完成'] - tab16_for2_df['患者自评D0']
     # delta_计划外 = 患者自评_计划外 - 患者自评D0
     tab16_for2_df['delta_计划外'] = tab16_for2_df['患者自评_计划外'] - tab16_for2_df['患者自评D0']
-    
+    tab16_for2_df = tab16_for2_df.drop(tab16_for2_df[tab16_for2_df['患者自评D0'] == 1].index)
     # 如果患者自评D0!=1,且delta_D1<0,则delta_D1值更改为”有效“
     tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D1'] < 0), 'delta_D1'] = '有效'
     # 如果患者自评D0!=0,且患者自评D1==0,则delta_D1值更改为”治愈“
@@ -1715,7 +1720,7 @@ if file is not None:
     tab16_for2_df['delta_研究完成'] = tab16_for2_df['患者自评_研究完成'] - tab16_for2_df['患者自评D0']
     # delta_计划外 = 患者自评_计划外 - 患者自评D0
     tab16_for2_df['delta_计划外'] = tab16_for2_df['患者自评_计划外'] - tab16_for2_df['患者自评D0']
-    
+    tab16_for2_df = tab16_for2_df.drop(tab16_for2_df[tab16_for2_df['患者自评D0'] == 1].index)
     # 如果患者自评D0!=1,且delta_D1<0,则delta_D1值更改为”有效“
     tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D1'] < 0), 'delta_D1'] = '有效'
     # 如果患者自评D0!=0,且患者自评D1==0,则delta_D1值更改为”治愈“
