@@ -211,25 +211,31 @@ if file is not None:
     # 提取出tab16_for1_df中咽喉炎列不为0的行
     tab16_for1_df_filtered_1 = tab16_for1_df[tab16_for1_df['咽喉炎'] != 0]
     # 初始化一个空的dataframe用于存储每个循环的结果
+   
+
+   
+
     # 按照label值的不同，计算delta_D2到delta_D7列不同值的计数，存入new_df_1中
     for i in range(2, 8):
-        new_df_1 = tab16_for1_df_filtered_1.groupby('label')['delta_D'+str(i)].value_counts().unstack(fill_value=0)
+        temp_df = tab16_for1_df_filtered_1.groupby('label')['delta_D'+str(i)].value_counts().unstack(fill_value=0)
+        st.write('delta_D'+str(i))  # 展示结果
+        st.write(temp_df)  # 展示结果
     
     # 提取出tab16_for1_df中咽炎列不为0的行
     tab16_for1_df_filtered_2 = tab16_for1_df[tab16_for1_df['咽炎'] != 0]
     # 按照label值的不同，计算delta_D2到delta_D7列不同值的计数，存入new_df_2中
     for i in range(2, 8):
-        new_df_2 = tab16_for1_df_filtered_2.groupby('label')['delta_D'+str(i)].value_counts().unstack(fill_value=0)
+        temp_df = tab16_for1_df_filtered_2.groupby('label')['delta_D'+str(i)].value_counts().unstack(fill_value=0)
+        st.write('delta_D'+str(i))  # 展示结果
+        st.write(temp_df)  # 展示结果
     
     # 提取出tab16_for1_df中扁桃体炎列不为0的行
     tab16_for1_df_filtered_3 = tab16_for1_df[tab16_for1_df['扁桃体炎'] != 0]
     # 按照label值的不同，计算delta_D2到delta_D7列不同值的计数，存入new_df_3中
     for i in range(2, 8):
-        new_df_3 = tab16_for1_df_filtered_3.groupby('label')['delta_D'+str(i)].value_counts().unstack(fill_value=0)
-    
-    # 使用st.write()展示以上df
-    st.write(new_df_1)
-    st.write(new_df_2)
-    st.write(new_df_3)
+        temp_df = tab16_for1_df_filtered_3.groupby('label')['delta_D'+str(i)].value_counts().unstack(fill_value=0)
+        st.write('delta_D'+str(i))  # 展示结果
+        st.write(temp_df)  # 展示结果
+
 
     st.write(tab16_for1_df)
