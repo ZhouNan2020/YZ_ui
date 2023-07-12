@@ -168,19 +168,19 @@ if file is not None:
     # 如果患者自评D0!=1,且delta_D1<0,则delta_D1值更改为”有效“
     tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['delta_D1'] < 0), 'delta_D1'] = '有效'
     # 如果患者自评D0!=0,且患者自评D1==0,则delta_D1值更改为”治愈“
-    tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 0) & (tab16_for1_df['患者自评D1'] == 0), 'delta_D1'] = '治愈'
+    tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['患者自评D1'] == 1), 'delta_D1'] = '治愈'
     # delta_D1 中除了”有效“，”治愈“和np.nan外的值都更改为”无效“
     tab16_for1_df.loc[(tab16_for1_df['delta_D1'] != '有效') & (tab16_for1_df['delta_D1'] != '治愈') & (tab16_for1_df['delta_D1'].notna()), 'delta_D1'] = '无效'
     
     # 对于D2到D7，研究完成，计划外，按照D1的规则进行更改
     for i in range(2, 8):
         tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['delta_D'+str(i)] < 0), 'delta_D'+str(i)] = '有效'
-        tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 0) & (tab16_for1_df['患者自评D'+str(i)] == 0), 'delta_D'+str(i)] = '治愈'
+        tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['患者自评D'+str(i)] == 1), 'delta_D'+str(i)] = '治愈'
         tab16_for1_df.loc[(tab16_for1_df['delta_D'+str(i)] != '有效') & (tab16_for1_df['delta_D'+str(i)] != '治愈') & (tab16_for1_df['delta_D'+str(i)].notna()), 'delta_D'+str(i)] = '无效'
     
     for column in ['研究完成', '计划外']:
         tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['delta_'+column] < 0), 'delta_'+column] = '有效'
-        tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 0) & (tab16_for1_df['患者自评_'+column] == 0), 'delta_'+column] = '治愈'
+        tab16_for1_df.loc[(tab16_for1_df['患者自评D0'] != 1) & (tab16_for1_df['患者自评_'+column] == 1), 'delta_'+column] = '治愈'
         tab16_for1_df.loc[(tab16_for1_df['delta_'+column] != '有效') & (tab16_for1_df['delta_'+column] != '治愈') & (tab16_for1_df['delta_'+column].notna()), 'delta_'+column] = '无效'
     # tab16_for1_df增加一列”label“，值默认为nan
     tab16_for1_df['label'] = np.nan
@@ -192,7 +192,7 @@ if file is not None:
     for i in dlcc['index']:
         if i in tab16_for1_df.index:
             tab16_for1_df.loc[i, 'label'] = '对照组'
-
+    
     # 根据label列的值不同，分别统计tab16_for1中从delta_D1列到delta_计划外列的空值计数和非空值计数，将其存为一个新的df
     tab16_for1_noncount = pd.DataFrame(columns=['试验组空值计数', '试验组非空值计数', '对照组空值计数', '对照组非空值计数'])
     tab16_for1_noncount.loc['delta_D1'] = [tab16_for1_df.loc[tab16_for1_df['label'] == '试验组', 'delta_D1'].isnull().sum(),
@@ -235,6 +235,7 @@ if file is not None:
     tab16_for1_noncount.index = ['第1天','第2天','第3天','第4天','第5天','第6天','第7天','研究完成','计划外']
     # 转置
     tab16_for1_noncount = tab16_for1_noncount.T
+    
     st.write(tab16_for1_noncount)
     from scipy.stats import chi2_contingency
     # 对tab16_for1_noncount中每一列进行卡方检验
@@ -391,19 +392,19 @@ if file is not None:
     # 如果患者自评D0!=1,且delta_D1<0,则delta_D1值更改为”有效“
     tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D1'] < 0), 'delta_D1'] = '有效'
     # 如果患者自评D0!=0,且患者自评D1==0,则delta_D1值更改为”治愈“
-    tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评D1'] == 0), 'delta_D1'] = '治愈'
+    tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评D1'] == 1), 'delta_D1'] = '治愈'
     # delta_D1 中除了”有效“，”治愈“和np.nan外的值都更改为”无效“
     tab16_for2_df.loc[(tab16_for2_df['delta_D1'] != '有效') & (tab16_for2_df['delta_D1'] != '治愈') & (tab16_for2_df['delta_D1'].notna()), 'delta_D1'] = '无效'
     
     # 对于D2到D7，研究完成，计划外，按照D1的规则进行更改
     for i in range(2, 8):
         tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D'+str(i)] < 0), 'delta_D'+str(i)] = '有效'
-        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评D'+str(i)] == 0), 'delta_D'+str(i)] = '治愈'
+        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评D'+str(i)] == 1), 'delta_D'+str(i)] = '治愈'
         tab16_for2_df.loc[(tab16_for2_df['delta_D'+str(i)] != '有效') & (tab16_for2_df['delta_D'+str(i)] != '治愈') & (tab16_for2_df['delta_D'+str(i)].notna()), 'delta_D'+str(i)] = '无效'
     
     for column in ['研究完成', '计划外']:
         tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_'+column] < 0), 'delta_'+column] = '有效'
-        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评_'+column] == 0), 'delta_'+column] = '治愈'
+        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评_'+column] == 1), 'delta_'+column] = '治愈'
         tab16_for2_df.loc[(tab16_for2_df['delta_'+column] != '有效') & (tab16_for2_df['delta_'+column] != '治愈') & (tab16_for2_df['delta_'+column].notna()), 'delta_'+column] = '无效'
         # tab16_for2_df增加一列”label“，值默认为nan
     tab16_for2_df['label'] = np.nan
@@ -415,7 +416,7 @@ if file is not None:
     for i in dlcc['index']:
         if i in tab16_for2_df.index:
             tab16_for2_df.loc[i, 'label'] = '对照组'
-
+    
     # 根据label列的值不同，分别统计tab16_for2中从delta_D1列到delta_计划外列的空值计数和非空值计数，将其存为一个新的df
     tab16_for2_noncount = pd.DataFrame(columns=['试验组空值计数', '试验组非空值计数', '对照组空值计数', '对照组非空值计数'])
     tab16_for2_noncount.loc['delta_D1'] = [tab16_for2_df.loc[tab16_for2_df['label'] == '试验组', 'delta_D1'].isnull().sum(),
@@ -613,19 +614,19 @@ if file is not None:
     # 如果患者自评D0!=1,且delta_D1<0,则delta_D1值更改为”有效“
     tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D1'] < 0), 'delta_D1'] = '有效'
     # 如果患者自评D0!=0,且患者自评D1==0,则delta_D1值更改为”治愈“
-    tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评D1'] == 0), 'delta_D1'] = '治愈'
+    tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评D1'] == 1), 'delta_D1'] = '治愈'
     # delta_D1 中除了”有效“，”治愈“和np.nan外的值都更改为”无效“
     tab16_for2_df.loc[(tab16_for2_df['delta_D1'] != '有效') & (tab16_for2_df['delta_D1'] != '治愈') & (tab16_for2_df['delta_D1'].notna()), 'delta_D1'] = '无效'
     
     # 对于D2到D7，研究完成，计划外，按照D1的规则进行更改
     for i in range(2, 8):
         tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D'+str(i)] < 0), 'delta_D'+str(i)] = '有效'
-        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评D'+str(i)] == 0), 'delta_D'+str(i)] = '治愈'
+        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评D'+str(i)] == 1), 'delta_D'+str(i)] = '治愈'
         tab16_for2_df.loc[(tab16_for2_df['delta_D'+str(i)] != '有效') & (tab16_for2_df['delta_D'+str(i)] != '治愈') & (tab16_for2_df['delta_D'+str(i)].notna()), 'delta_D'+str(i)] = '无效'
     
     for column in ['研究完成', '计划外']:
         tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_'+column] < 0), 'delta_'+column] = '有效'
-        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评_'+column] == 0), 'delta_'+column] = '治愈'
+        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评_'+column] == 1), 'delta_'+column] = '治愈'
         tab16_for2_df.loc[(tab16_for2_df['delta_'+column] != '有效') & (tab16_for2_df['delta_'+column] != '治愈') & (tab16_for2_df['delta_'+column].notna()), 'delta_'+column] = '无效'
     # tab16_for2_df增加一列”label“，值默认为nan
     tab16_for2_df['label'] = np.nan
@@ -637,7 +638,7 @@ if file is not None:
     for i in dlcc['index']:
         if i in tab16_for2_df.index:
             tab16_for2_df.loc[i, 'label'] = '对照组'
-
+    
     # 根据label列的值不同，分别统计tab16_for2中从delta_D1列到delta_计划外列的空值计数和非空值计数，将其存为一个新的df
     tab16_for2_noncount = pd.DataFrame(columns=['试验组空值计数', '试验组非空值计数', '对照组空值计数', '对照组非空值计数'])
     tab16_for2_noncount.loc['delta_D1'] = [tab16_for2_df.loc[tab16_for2_df['label'] == '试验组', 'delta_D1'].isnull().sum(),
@@ -841,12 +842,12 @@ if file is not None:
     # 对于D2到D7，研究完成，计划外，按照D1的规则进行更改
     for i in range(2, 8):
         tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D'+str(i)] < 0), 'delta_D'+str(i)] = '有效'
-        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评D'+str(i)] == 0), 'delta_D'+str(i)] = '治愈'
+        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评D'+str(i)] == 1), 'delta_D'+str(i)] = '治愈'
         tab16_for2_df.loc[(tab16_for2_df['delta_D'+str(i)] != '有效') & (tab16_for2_df['delta_D'+str(i)] != '治愈') & (tab16_for2_df['delta_D'+str(i)].notna()), 'delta_D'+str(i)] = '无效'
     
     for column in ['研究完成', '计划外']:
         tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_'+column] < 0), 'delta_'+column] = '有效'
-        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评_'+column] == 0), 'delta_'+column] = '治愈'
+        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评_'+column] == 1), 'delta_'+column] = '治愈'
         tab16_for2_df.loc[(tab16_for2_df['delta_'+column] != '有效') & (tab16_for2_df['delta_'+column] != '治愈') & (tab16_for2_df['delta_'+column].notna()), 'delta_'+column] = '无效'
     # tab16_for2_df增加一列”label“，值默认为nan
     tab16_for2_df['label'] = np.nan
@@ -858,7 +859,7 @@ if file is not None:
     for i in dlcc['index']:
         if i in tab16_for2_df.index:
             tab16_for2_df.loc[i, 'label'] = '对照组'
-
+    
     # 根据label列的值不同，分别统计tab16_for2中从delta_D1列到delta_计划外列的空值计数和非空值计数，将其存为一个新的df
     tab16_for2_noncount = pd.DataFrame(columns=['试验组空值计数', '试验组非空值计数', '对照组空值计数', '对照组非空值计数'])
     tab16_for2_noncount.loc['delta_D1'] = [tab16_for2_df.loc[tab16_for2_df['label'] == '试验组', 'delta_D1'].isnull().sum(),
@@ -1054,19 +1055,19 @@ if file is not None:
     # 如果患者自评D0!=1,且delta_D1<0,则delta_D1值更改为”有效“
     tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D1'] < 0), 'delta_D1'] = '有效'
     # 如果患者自评D0!=0,且患者自评D1==0,则delta_D1值更改为”治愈“
-    tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评D1'] == 0), 'delta_D1'] = '治愈'
+    tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评D1'] == 1), 'delta_D1'] = '治愈'
     # delta_D1 中除了”有效“，”治愈“和np.nan外的值都更改为”无效“
     tab16_for2_df.loc[(tab16_for2_df['delta_D1'] != '有效') & (tab16_for2_df['delta_D1'] != '治愈') & (tab16_for2_df['delta_D1'].notna()), 'delta_D1'] = '无效'
     
     # 对于D2到D7，研究完成，计划外，按照D1的规则进行更改
     for i in range(2, 8):
         tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D'+str(i)] < 0), 'delta_D'+str(i)] = '有效'
-        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评D'+str(i)] == 0), 'delta_D'+str(i)] = '治愈'
+        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评D'+str(i)] == 1), 'delta_D'+str(i)] = '治愈'
         tab16_for2_df.loc[(tab16_for2_df['delta_D'+str(i)] != '有效') & (tab16_for2_df['delta_D'+str(i)] != '治愈') & (tab16_for2_df['delta_D'+str(i)].notna()), 'delta_D'+str(i)] = '无效'
     
     for column in ['研究完成', '计划外']:
         tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_'+column] < 0), 'delta_'+column] = '有效'
-        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评_'+column] == 0), 'delta_'+column] = '治愈'
+        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评_'+column] == 1), 'delta_'+column] = '治愈'
         tab16_for2_df.loc[(tab16_for2_df['delta_'+column] != '有效') & (tab16_for2_df['delta_'+column] != '治愈') & (tab16_for2_df['delta_'+column].notna()), 'delta_'+column] = '无效'
         # tab16_for2_df增加一列”label“，值默认为nan
     tab16_for2_df['label'] = np.nan
@@ -1078,7 +1079,7 @@ if file is not None:
     for i in dlcc['index']:
         if i in tab16_for2_df.index:
             tab16_for2_df.loc[i, 'label'] = '对照组'
-
+    
     # 根据label列的值不同，分别统计tab16_for2中从delta_D1列到delta_计划外列的空值计数和非空值计数，将其存为一个新的df
     tab16_for2_noncount = pd.DataFrame(columns=['试验组空值计数', '试验组非空值计数', '对照组空值计数', '对照组非空值计数'])
     tab16_for2_noncount.loc['delta_D1'] = [tab16_for2_df.loc[tab16_for2_df['label'] == '试验组', 'delta_D1'].isnull().sum(),
@@ -1275,19 +1276,19 @@ if file is not None:
     # 如果患者自评D0!=1,且delta_D1<0,则delta_D1值更改为”有效“
     tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D1'] < 0), 'delta_D1'] = '有效'
     # 如果患者自评D0!=0,且患者自评D1==0,则delta_D1值更改为”治愈“
-    tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评D1'] == 0), 'delta_D1'] = '治愈'
+    tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评D1'] == 1), 'delta_D1'] = '治愈'
     # delta_D1 中除了”有效“，”治愈“和np.nan外的值都更改为”无效“
     tab16_for2_df.loc[(tab16_for2_df['delta_D1'] != '有效') & (tab16_for2_df['delta_D1'] != '治愈') & (tab16_for2_df['delta_D1'].notna()), 'delta_D1'] = '无效'
     
     # 对于D2到D7，研究完成，计划外，按照D1的规则进行更改
     for i in range(2, 8):
         tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D'+str(i)] < 0), 'delta_D'+str(i)] = '有效'
-        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评D'+str(i)] == 0), 'delta_D'+str(i)] = '治愈'
+        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评D'+str(i)] == 1), 'delta_D'+str(i)] = '治愈'
         tab16_for2_df.loc[(tab16_for2_df['delta_D'+str(i)] != '有效') & (tab16_for2_df['delta_D'+str(i)] != '治愈') & (tab16_for2_df['delta_D'+str(i)].notna()), 'delta_D'+str(i)] = '无效'
     
     for column in ['研究完成', '计划外']:
         tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_'+column] < 0), 'delta_'+column] = '有效'
-        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评_'+column] == 0), 'delta_'+column] = '治愈'
+        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评_'+column] == 1), 'delta_'+column] = '治愈'
         tab16_for2_df.loc[(tab16_for2_df['delta_'+column] != '有效') & (tab16_for2_df['delta_'+column] != '治愈') & (tab16_for2_df['delta_'+column].notna()), 'delta_'+column] = '无效'
         # tab16_for2_df增加一列”label“，值默认为nan
     tab16_for2_df['label'] = np.nan
@@ -1299,7 +1300,7 @@ if file is not None:
     for i in dlcc['index']:
         if i in tab16_for2_df.index:
             tab16_for2_df.loc[i, 'label'] = '对照组'
-
+    
     # 根据label列的值不同，分别统计tab16_for2中从delta_D1列到delta_计划外列的空值计数和非空值计数，将其存为一个新的df
     tab16_for2_noncount = pd.DataFrame(columns=['试验组空值计数', '试验组非空值计数', '对照组空值计数', '对照组非空值计数'])
     tab16_for2_noncount.loc['delta_D1'] = [tab16_for2_df.loc[tab16_for2_df['label'] == '试验组', 'delta_D1'].isnull().sum(),
@@ -1497,19 +1498,19 @@ if file is not None:
     # 如果患者自评D0!=1,且delta_D1<0,则delta_D1值更改为”有效“
     tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D1'] < 0), 'delta_D1'] = '有效'
     # 如果患者自评D0!=0,且患者自评D1==0,则delta_D1值更改为”治愈“
-    tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评D1'] == 0), 'delta_D1'] = '治愈'
+    tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评D1'] == 1), 'delta_D1'] = '治愈'
     # delta_D1 中除了”有效“，”治愈“和np.nan外的值都更改为”无效“
     tab16_for2_df.loc[(tab16_for2_df['delta_D1'] != '有效') & (tab16_for2_df['delta_D1'] != '治愈') & (tab16_for2_df['delta_D1'].notna()), 'delta_D1'] = '无效'
     
     # 对于D2到D7，研究完成，计划外，按照D1的规则进行更改
     for i in range(2, 8):
         tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D'+str(i)] < 0), 'delta_D'+str(i)] = '有效'
-        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评D'+str(i)] == 0), 'delta_D'+str(i)] = '治愈'
+        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评D'+str(i)] == 1), 'delta_D'+str(i)] = '治愈'
         tab16_for2_df.loc[(tab16_for2_df['delta_D'+str(i)] != '有效') & (tab16_for2_df['delta_D'+str(i)] != '治愈') & (tab16_for2_df['delta_D'+str(i)].notna()), 'delta_D'+str(i)] = '无效'
     
     for column in ['研究完成', '计划外']:
         tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_'+column] < 0), 'delta_'+column] = '有效'
-        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评_'+column] == 0), 'delta_'+column] = '治愈'
+        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评_'+column] == 1), 'delta_'+column] = '治愈'
         tab16_for2_df.loc[(tab16_for2_df['delta_'+column] != '有效') & (tab16_for2_df['delta_'+column] != '治愈') & (tab16_for2_df['delta_'+column].notna()), 'delta_'+column] = '无效'
     # tab16_for2_df增加一列”label“，值默认为nan
     tab16_for2_df['label'] = np.nan
@@ -1521,7 +1522,7 @@ if file is not None:
     for i in dlcc['index']:
         if i in tab16_for2_df.index:
             tab16_for2_df.loc[i, 'label'] = '对照组'
-
+    
     # 根据label列的值不同，分别统计tab16_for2中从delta_D1列到delta_计划外列的空值计数和非空值计数，将其存为一个新的df
     tab16_for2_noncount = pd.DataFrame(columns=['试验组空值计数', '试验组非空值计数', '对照组空值计数', '对照组非空值计数'])
     tab16_for2_noncount.loc['delta_D1'] = [tab16_for2_df.loc[tab16_for2_df['label'] == '试验组', 'delta_D1'].isnull().sum(),
@@ -1718,19 +1719,19 @@ if file is not None:
     # 如果患者自评D0!=1,且delta_D1<0,则delta_D1值更改为”有效“
     tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D1'] < 0), 'delta_D1'] = '有效'
     # 如果患者自评D0!=0,且患者自评D1==0,则delta_D1值更改为”治愈“
-    tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评D1'] == 0), 'delta_D1'] = '治愈'
+    tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评D1'] == 1), 'delta_D1'] = '治愈'
     # delta_D1 中除了”有效“，”治愈“和np.nan外的值都更改为”无效“
     tab16_for2_df.loc[(tab16_for2_df['delta_D1'] != '有效') & (tab16_for2_df['delta_D1'] != '治愈') & (tab16_for2_df['delta_D1'].notna()), 'delta_D1'] = '无效'
     
     # 对于D2到D7，研究完成，计划外，按照D1的规则进行更改
     for i in range(2, 8):
         tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_D'+str(i)] < 0), 'delta_D'+str(i)] = '有效'
-        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评D'+str(i)] == 0), 'delta_D'+str(i)] = '治愈'
+        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评D'+str(i)] == 1), 'delta_D'+str(i)] = '治愈'
         tab16_for2_df.loc[(tab16_for2_df['delta_D'+str(i)] != '有效') & (tab16_for2_df['delta_D'+str(i)] != '治愈') & (tab16_for2_df['delta_D'+str(i)].notna()), 'delta_D'+str(i)] = '无效'
     
     for column in ['研究完成', '计划外']:
         tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['delta_'+column] < 0), 'delta_'+column] = '有效'
-        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 0) & (tab16_for2_df['患者自评_'+column] == 0), 'delta_'+column] = '治愈'
+        tab16_for2_df.loc[(tab16_for2_df['患者自评D0'] != 1) & (tab16_for2_df['患者自评_'+column] == 1), 'delta_'+column] = '治愈'
         tab16_for2_df.loc[(tab16_for2_df['delta_'+column] != '有效') & (tab16_for2_df['delta_'+column] != '治愈') & (tab16_for2_df['delta_'+column].notna()), 'delta_'+column] = '无效'
     # tab16_for2_df增加一列”label“，值默认为nan
     tab16_for2_df['label'] = np.nan
