@@ -421,5 +421,98 @@ if file is not None:
         st.write('delta_D'+str(i))  # 展示结果
         st.write(temp_df)  # 展示结果
 
+    st.markdown('# 疾病病程')
+    # 取出tab16_dict中key值为“访视1筛选-基线（0天）#96604#既往病史与现病史”的df，存入tab16_btt_1
+    tab16_btt_1 = tab16_dict['访视1筛选-基线（0天）#96604#既往病史与现病史']
+    # 取出tab16_dict中key值为“访视1筛选-基线（0天）#96602#知情同意”的df，存入tab16_btt_2
+    tab16_btt_2 = tab16_dict['访视1筛选-基线（0天）#96602#知情同意']
+    # tab16_btt_1的“疾病名称”列空值使用”未知“填充
+    tab16_btt_1 = tab16_btt_1.fillna('未知')
+    # 只保留tab16_btt_1的“疾病名称”列中包含字符串”咽炎“，”咽喉炎“和”扁桃体炎“的行
+    tab16_btt_1 = tab16_btt_1[tab16_btt_1['疾病名称'].str.contains('咽炎|咽喉炎|扁桃体炎')]
+    
+    # 设置tab16_btt_1的subject_id列为索引
+    tab16_btt_1 = tab16_btt_1.set_index('subject_id')
 
-    st.write(tab16_for1_df)
+    code2 = pd.read_excel('病程计算.xlsx')
+    code3 = pd.read_excel('code.xlsx')
+    # code3中空值使用”未知“填充
+    code3 = code3.fillna('未知')
+    # code3只保留PT列中包含字符串”咽炎“，”咽喉炎“和”扁桃体炎“的行
+    code3 = code3[code3['PT'].str.contains('咽炎|咽喉炎|扁桃体炎')]
+    # code3增加一个列，count，值为1
+    code3['count'] = 1
+    # pivot_table，index为code3中的“subject_id”，columns为tab16_for1_df中的“PT”列，values为code3中的“count”，aggfunc为sum
+    code3_pivot = pd.pivot_table(code3, index='subject_id', columns='PT', values='count', aggfunc='sum')
+    # 将code3_pivot中的nan值填充为0
+    code3_pivot = code3_pivot.fillna(0)
+    # 将code3_pivot中的值转换为int型
+    code3_pivot = code3_pivot.astype(int)
+    # 设置code2和code3的subject_id列为索引
+    code2 = code2.set_index('subject_id')
+    
+    # 将code2和code3按照索引横向合并，存入code4中
+    code4 = pd.concat([code2, code3_pivot], axis=1)
+    # 重设“Unnamed: 4”列名为“病程”
+    code4 = code4.rename(columns={'Unnamed: 4': '病程'})
+    # code4增加一列”label“，值默认为nan
+    code4['label'] = np.nan
+    # 遍历dlct的"index"列，如果其中的值出现在code4的索引中，则code4中该行对应的label列填入”试验组“
+    for i in dlct['index']:
+        if i in code4.index:
+            code4.loc[i, 'label'] = '试验组'
+    # 遍历dlcc的"index"列，如果其中的值出现在code4的索引中，则code4中该行对应的label列填入”对照组“
+    for i in dlcc['index']:
+        if i in code4.index:
+            code4.loc[i, 'label'] = '对照组'
+    # 将tab16_for1_df中“delta_D7”列的值按照索引的对应关系合并到code4
+    code4 = pd.concat([code4, tab16_for1_df['delta_D7']], axis=1)
+    
+    
+
+    # 将code4中'病程'列大于6的值替换为数字7
+    code4.loc[code4['病程'] > 6, '病程'] = 7
+    # 提取出tab16_for1_df中咽喉炎列不为0的行
+    st.markdown('#### 咽喉炎')
+    code4filtered_4 = code4[code4['咽喉炎'] != 0]
+    # 按照label值的不同，计算code4filtered_4中病程列不同值对应的delta_D7列的计数，存入new_df_4中
+    new_df_4 = code4filtered_4.groupby(['label', '病程'])['delta_D7'].value_counts()
+
+    st.write(new_df_4)  # 展示结果
+    
+
+    # 提取出tab16_for1_df中咽炎列不为0的行
+    st.markdown('#### 咽炎')
+    code4filtered_5 = code4[code4['咽炎'] != 0]
+    # 按照label值的不同，计算code4filtered_5中病程列不同值对应的delta_D7列的计数，存入new_df_5中
+    new_df_5 = code4filtered_5.groupby(['label', '病程'])['delta_D7'].value_counts()
+    # new_df_5类型是series，将其转换为dataframe
+    new_df_5 = new_df_5.to_frame()
+    
+    
+    st.write(new_df_5)  # 展示结果
+
+    # 提取出tab16_for1_df中扁桃体炎列不为0的行
+    st.markdown('#### 扁桃体炎')
+    code4filtered_6 = code4[code4['扁桃体炎'] != 0]
+    # 按照label值的不同，计算code4filtered_6中病程列不同值对应的delta_D7列的计数，存入new_df_6中
+    new_df_6 = code4filtered_6.groupby(['label', '病程'])['delta_D7'].value_counts()
+    # new_df_6类型是series，将其转换为dataframe
+    new_df_6 = new_df_6.to_frame()
+    st.write(new_df_6)  
+    with pd.ExcelWriter('病程数据集.xlsx') as writer:  
+        new_df_4.to_excel(writer, sheet_name='咽喉炎')
+        new_df_5.to_excel(writer, sheet_name='咽炎')
+        new_df_6.to_excel(writer, sheet_name='扁桃体炎')
+    st.download_button(
+        label="Download data as Excel",
+        data=open('病程数据集.xlsx', 'rb').read(),
+        file_name="病程数据集.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
+    # 展示结果
+
+ 
+    
+    
