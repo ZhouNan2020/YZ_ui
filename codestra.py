@@ -500,10 +500,19 @@ if file is not None:
     # new_df_6类型是series，将其转换为dataframe
     new_df_6 = new_df_6.to_frame()
     st.write(new_df_6)  
+
+    # new_df_4类型是series，将其转换为dataframe
+    new_df_4 = new_df_4.to_frame()
+    # new_df_5类型是series，将其转换为dataframe
+    new_df_5 = new_df_5.to_frame()
+    # new_df_6类型是series，将其转换为dataframe
+    new_df_6 = new_df_6.to_frame()
+
+    
     with pd.ExcelWriter('病程数据集.xlsx') as writer:  
-        new_df_4.reset_index().to_excel(writer, sheet_name='咽喉炎')
-        new_df_5.reset_index().to_excel(writer, sheet_name='咽炎')
-        new_df_6.reset_index().to_excel(writer, sheet_name='扁桃体炎')
+        new_df_4.to_excel(writer, sheet_name='咽喉炎')
+        new_df_5.to_excel(writer, sheet_name='咽炎')
+        new_df_6.to_excel(writer, sheet_name='扁桃体炎')
     st.download_button(
         label="Download data as Excel",
         data=open('病程数据集.xlsx', 'rb').read(),
